@@ -42,8 +42,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - if: steps.chromium-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium
-      - run: npx playwright install-deps chromium
+        # Sans --with-deps : l'image ubuntu-latest a déjà les bibliothèques de Chromium, et l'étape apt (miroir Azure)
+        # peut se figer plusieurs minutes. --only-shell : variante sans interface, plus légère, suffisante en headless.
+        run: npx playwright install --only-shell chromium
       - name: Accessibilité (axe-core), cibles tactiles et clavier, 3 thèmes x 3 largeurs
         run: npm run e2e
 

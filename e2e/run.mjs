@@ -36,8 +36,13 @@ async function audit(page, where) {
   // On attend la fin des animations d'entrée (feuille, snackbar) pour mesurer les couleurs finales
   await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
   await page.addScriptTag({ content: axeSource }).catch(() => {});
+  // La règle `target-size` d'axe compare chaque paire de cibles (quadratique) : ~18 s sur la liste, contre 0,3 s pour tout le reste.
+  // Elle est remplacée par le contrôle maison plus bas, plus strict (44 px au lieu des 24 px de WCAG 2.2).
   const violations = await page.evaluate(async () => {
-    const r = await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'] } });
+    const r = await axe.run(document, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'] },
+      rules: { 'target-size': { enabled: false } },
+    });
     return r.violations.map((v) => `${v.id} (${v.nodes.length}): ${v.nodes.slice(0, 2).map((n) => n.target.join(' ')).join(' ; ')}`);
   });
   violations.forEach((v) => fail(where, `axe ${v}`));
@@ -68,7 +73,7 @@ const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => ro
 async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   const where = `${theme}/${vname}`;
   const t0 = Date.now();
-  const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme });
+  const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme, reducedMotion: 'reduce' });
   await blockImages(context);
   await context.addInitScript(([v]) => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify(v)); } catch { /* ignore */ } }, [prefs]);
   const page = await context.newPage();
