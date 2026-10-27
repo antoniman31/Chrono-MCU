@@ -1,4 +1,5 @@
 :root {
+  /* Thème sombre (par défaut, et suivi du système en mode sombre) */
   color-scheme: dark;
   --bg: #121316;
   --surface: #1b1d22;
@@ -6,10 +7,59 @@
   --fg: #e8e9ec;
   --muted: #9aa0ab;
   --accent: #e23636;
+  --accent-btn: #d32f2f;
+  --on-accent: #ffffff;
+  --outline: #7f8591;
   --ok: #3ecf8e;
   --warn: #f5a524;
   --border: #2d3139;
+  --shadow: rgba(0, 0, 0, .5);
   --radius: 10px;
+}
+
+/* Thème clair: choisi à la main, ou suivi du système quand le réglage est « Auto » */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f5f7;
+  --surface: #ffffff;
+  --surface-2: #ebe9ee;
+  --fg: #1c1b1f;
+  --muted: #575a63;
+  --accent: #c62828;
+  --accent-btn: #c62828;
+  --outline: #7a7d86;
+  --ok: #1b7f4d;
+  --border: #d6d7dd;
+  --shadow: rgba(0, 0, 0, .2);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #f6f5f7;
+    --surface: #ffffff;
+    --surface-2: #ebe9ee;
+    --fg: #1c1b1f;
+    --muted: #575a63;
+    --accent: #c62828;
+    --accent-btn: #c62828;
+    --outline: #7a7d86;
+    --ok: #1b7f4d;
+    --border: #d6d7dd;
+    --shadow: rgba(0, 0, 0, .2);
+  }
+}
+
+/* Thème sombre OLED: noir pur pour éteindre les pixels des écrans OLED */
+:root[data-theme="oled"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --surface: #0c0c0e;
+  --surface-2: #18181b;
+  --fg: #f2f2f4;
+  --muted: #a3a7b1;
+  --outline: #7f8591;
+  --border: #26272b;
+  --shadow: rgba(0, 0, 0, .8);
 }
 
 * { box-sizing: border-box; }
@@ -44,7 +94,7 @@ button, .button, select, textarea {
   font: inherit;
   color: inherit;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--outline);
   border-radius: 8px;
   padding: 6px 12px;
   min-height: 36px;
@@ -93,7 +143,7 @@ button:hover, .button:hover { border-color: var(--muted); }
 .seg button { border-radius: 0; }
 .seg button:first-child { border-radius: 8px 0 0 8px; }
 .seg button:last-child { border-radius: 0 8px 8px 0; margin-left: -1px; }
-.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+.seg button[aria-pressed="true"] { background: var(--accent-btn); border-color: var(--accent-btn); color: var(--on-accent); }
 
 #stats dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 0; }
 #stats dt { font-size: .8rem; color: var(--muted); }
@@ -149,7 +199,8 @@ details[open] > summary .chev { transform: rotate(90deg); }
 .phase-head h2 { font-size: 1.05rem; margin: 0; flex: 1; }
 .phase-head input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); }
 
-.row.upcoming { opacity: .75; border-style: dashed; }
+.row.upcoming { border-style: dashed; }
+.row.upcoming .title { color: var(--muted); }
 .badge.soon { background: var(--surface-2); color: var(--fg); border: 1px solid var(--muted); }
 
 .credits-line { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
@@ -165,7 +216,7 @@ details[open] > summary .chev { transform: rotate(90deg); }
 
 .controls .search { grid-column: 1 / -1; }
 .controls .search input { width: 100%; }
-input[type="search"] { font: inherit; color: inherit; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; min-height: 36px; }
+input[type="search"] { font: inherit; color: inherit; background: var(--surface-2); border: 1px solid var(--outline); border-radius: 8px; padding: 6px 12px; min-height: 36px; }
 @media (min-width: 640px) { .controls .search { grid-column: auto; min-width: 16rem; } }
 
 .badge.alt { background: var(--surface-2); color: var(--fg); border: 1px solid var(--accent); }
@@ -175,7 +226,7 @@ input[type="search"] { font: inherit; color: inherit; background: var(--surface-
   display: flex; align-items: center; gap: 12px;
   max-width: calc(100vw - 32px); padding: 8px 8px 8px 16px;
   background: var(--surface-2); border: 1px solid var(--muted); border-radius: var(--radius);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, .5); z-index: 10;
+  box-shadow: 0 6px 24px var(--shadow); z-index: 10;
 }
 #undo-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 

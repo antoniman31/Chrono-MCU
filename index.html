@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#121316">
+  <script>try{var t=JSON.parse(localStorage.getItem('chrono-mcu:view')||'{}').theme;if(t==='light'||t==='dark'||t==='oled')document.documentElement.dataset.theme=t}catch(e){}</script>
   <title>Chrono-MCU</title>
   <link rel="stylesheet" href="css/style.css?v=__BUILD__">
 </head>
@@ -36,6 +37,14 @@
           <option value="">Tous</option>
           <option value="film">Films</option>
           <option value="serie">Séries</option>
+        </select>
+      </label>
+      <label>Thème
+        <select id="theme">
+          <option value="auto">Auto (système)</option>
+          <option value="light">Clair</option>
+          <option value="dark">Sombre</option>
+          <option value="oled">Noir OLED</option>
         </select>
       </label>
       <label class="check"><input type="checkbox" id="group-phase"> Grouper par phase</label>

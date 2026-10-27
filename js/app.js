@@ -24,6 +24,7 @@ const openNotes = new Set();
 let storageWarned = false;
 
 const VIEW_KEY = 'chrono-mcu:view';
+const THEMES = ['auto', 'light', 'dark', 'oled'];
 const view = (() => {
   try {
     const saved = JSON.parse(storage?.getItem(VIEW_KEY));
@@ -31,11 +32,20 @@ const view = (() => {
       groupByPhase: saved?.groupByPhase !== false,
       showPosters: saved?.showPosters !== false,
       collapsedPhases: Array.isArray(saved?.collapsedPhases) ? saved.collapsedPhases.filter(Number.isInteger) : [],
+      theme: THEMES.includes(saved?.theme) ? saved.theme : 'auto',
     };
   } catch {
-    return { groupByPhase: true, showPosters: true, collapsedPhases: [] };
+    return { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto' };
   }
 })();
+function applyTheme() {
+  const root = document.documentElement;
+  if (view.theme === 'auto') delete root.dataset.theme;
+  else root.dataset.theme = view.theme;
+  const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+  if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+}
+
 const saveView = () => {
   try {
     storage?.setItem(VIEW_KEY, JSON.stringify(view));
@@ -346,6 +356,10 @@ function setupControls() {
   $('credits').hidden = !hasPosters;
   $('show-posters').checked = view.showPosters;
   $('show-posters').addEventListener('change', (e) => { view.showPosters = e.target.checked; saveView(); render(); });
+  $('theme').value = view.theme;
+  $('theme').addEventListener('change', (e) => { view.theme = e.target.value; saveView(); applyTheme(); });
+  window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => view.theme === 'auto' && applyTheme());
+  applyTheme();
   $('group-phase').checked = view.groupByPhase;
   $('group-phase').addEventListener('change', (e) => { view.groupByPhase = e.target.checked; saveView(); render(); });
   $('search').addEventListener('input', (e) => { filters.query = e.target.value; render(); });

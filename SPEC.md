@@ -98,6 +98,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Scènes post-générique complétées et recoupées avec la liste Wikipedia (corrections : Thor n'a qu'une scène, L'Incroyable Hulk aucune). Champ `tvmazeId` + `scripts/check-data.mjs` + workflow hebdomadaire pour contrôler les durées de séries.
 
+- Thèmes : jetons de couleur CSS en clair / sombre / OLED, réglage `theme` (`auto`|`light`|`dark`|`oled`) stocké avec les préférences d'affichage (`chrono-mcu:view`), appliqué par un script en tête de page avant le premier rendu ; `meta theme-color` mis à jour. Les lignes « à venir » n'utilisent plus d'opacité (contraste).
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

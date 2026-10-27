@@ -13,6 +13,7 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 - Recherche par titre ou par épisode (insensible aux accents), case « Masquer les terminés », bouton « Annuler » (8 secondes) après chaque coche.
 - Badge « autre réalité » pour les titres hors de la timeline principale (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man).
 - Indicateur de scènes mi-générique / post-générique par film (sans description, donc sans spoiler), recoupé avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe).
+- Thèmes clair, sombre et noir OLED (noir pur, pour les écrans OLED), avec un réglage « Auto » qui suit le système, mémorisé sans flash au chargement. Couleurs choisies pour tenir les contrastes WCAG AA (4,5:1 pour le texte, 3:1 pour les contrôles).
 - Export / import JSON de la progression (sauvegarde, changement d'appareil).
 
 ## Lancer en local
