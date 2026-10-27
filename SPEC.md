@@ -17,7 +17,7 @@ HTML5, CSS3, JavaScript ES2022, aucune dépendance runtime. Tests : Node `node:t
 ## Commands
 ```
 Dev:   python3 -m http.server 8000
-Test:  node --test tests/
+Test:  node --test
 Check: node scripts/validate-data.mjs
 ```
 
@@ -79,7 +79,7 @@ Tests unitaires `node --test` sur `logic.js` (tri, filtres, progression, prochai
 11. **Responsive** : utilisable sans scroll horizontal dès 360 px de large.
 
 ## Boundaries
-- Always : lancer `node --test tests/` et `validate-data.mjs` avant commit ; garder les fonctions de logique pures ; valider tout JSON importé.
+- Always : lancer `node --test` et `validate-data.mjs` avant commit ; garder les fonctions de logique pures ; valider tout JSON importé.
 - Ask first : ajouter une dépendance, changer le schéma d'état (version), ajouter un backend ou une API externe, étendre le périmètre.
 - Never : committer des secrets, écraser l'état utilisateur sur import invalide, supprimer un test en échec, inventer des données sans le signaler pour relecture.
 

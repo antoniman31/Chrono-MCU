@@ -1,0 +1,72 @@
+[
+  {
+    "id": "captain-america-first-avenger",
+    "title": "Captain America: First Avenger",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2011-07-22",
+    "chronoOrder": 1,
+    "runtimeMin": 124,
+    "verified": true
+  },
+  {
+    "id": "iron-man",
+    "title": "Iron Man",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2008-05-02",
+    "chronoOrder": 2,
+    "runtimeMin": 126,
+    "verified": true
+  },
+  {
+    "id": "iron-man-2",
+    "title": "Iron Man 2",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2010-05-07",
+    "chronoOrder": 3,
+    "runtimeMin": 124,
+    "verified": true
+  },
+  {
+    "id": "thor",
+    "title": "Thor",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2011-05-06",
+    "chronoOrder": 4,
+    "runtimeMin": 115,
+    "verified": true
+  },
+  {
+    "id": "the-avengers",
+    "title": "The Avengers",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2012-05-04",
+    "chronoOrder": 5,
+    "runtimeMin": 143,
+    "verified": true
+  },
+  {
+    "id": "wandavision",
+    "title": "WandaVision",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-01-15",
+    "chronoOrder": 31,
+    "verified": false,
+    "episodes": [
+      { "n": 1, "title": "Filmed Before a Live Studio Audience", "runtimeMin": 30 },
+      { "n": 2, "title": "Don't Touch That Dial", "runtimeMin": 29 },
+      { "n": 3, "title": "Now in Color", "runtimeMin": 33 }
+    ]
+  }
+]

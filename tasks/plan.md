@@ -12,7 +12,7 @@ Ordre: schéma de données -> logique pure -> persistance -> UI cœur -> v1.5 ->
 
 ## Phases et points de contrôle
 1. **Fondations**: structure du repo, schéma `mcu.json`, `validate-data.mjs`, jeu de données de départ (6 titres dont 1 série) pour tester. Checkpoint: `node scripts/validate-data.mjs` passe.
-2. **Logique pure (`logic.js`)**: dépliage en unités (film/épisode), tri chrono/sortie, progression globale/par phase, filtres, prochain à voir. Checkpoint: `node --test tests/` vert.
+2. **Logique pure (`logic.js`)**: dépliage en unités (film/épisode), tri chrono/sortie, progression globale/par phase, filtres, prochain à voir. Checkpoint: `node --test` vert.
 3. **Persistance (`store.js`)**: état, localStorage robuste, cocher film/épisode/série entière, export/import validé. Checkpoint: tests du store verts, import invalide sans écrasement.
 4. **UI cœur (v1)**: liste, bascule d'ordre, cases à cocher, repli des séries, barres de progression, filtres, bandeau prochain, boutons export/import. Checkpoint: vérification manuelle mobile (360 px) + desktop.
 5. **v1.5**: notes + étoiles, « je reprends », statistiques. Checkpoint: critères 7 à 9 de la spec.

@@ -3,15 +3,15 @@
 Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichiers.
 
 ## Phase 1: Fondations
-- [ ] T1 Structure du repo et script de lancement
+- [x] T1 Structure du repo et script de lancement
   - Acceptation: dossiers `css/ js/ data/ scripts/ tests/`, `index.html` minimal qui charge `js/app.js` en module
   - Vérif: `python3 -m http.server 8000` sert la page sans erreur console
   - Fichiers: index.html, css/style.css, js/app.js
-- [ ] T2 Schéma de données et jeu de départ
+- [x] T2 Schéma de données et jeu de départ
   - Acceptation: `data/mcu.json` avec 6 titres (5 films, 1 série à 3 épisodes) conformes à la spec
   - Vérif: relecture manuelle
   - Fichiers: data/mcu.json
-- [ ] T3 Script de validation des données
+- [x] T3 Script de validation des données
   - Acceptation: contrôle ids uniques, chronoOrder unique, films avec runtimeMin, séries avec episodes non vide et `n` continus, dates valides
   - Vérif: `node scripts/validate-data.mjs` passe sur T2 et échoue sur un fichier cassé (test)
   - Fichiers: scripts/validate-data.mjs, tests/validate-data.test.js
@@ -19,7 +19,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
 ## Phase 2: Logique pure
 - [ ] T4 Dépliage en unités et tri
   - Acceptation: `toUnits(titles)` produit films + épisodes; `sortTitles(titles, order)` pour chrono et sortie
-  - Vérif: `node --test tests/`
+  - Vérif: `node --test`
   - Fichiers: js/logic.js, tests/logic.test.js
 - [ ] T5 Progression et filtres
   - Acceptation: `progress(titles, seen)` global et par phase; `filterTitles` par phase/type combinables; progression globale inchangée par les filtres
