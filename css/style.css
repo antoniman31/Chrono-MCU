@@ -178,3 +178,8 @@ input[type="search"] { font: inherit; color: inherit; background: var(--surface-
   box-shadow: 0 6px 24px rgba(0, 0, 0, .5); z-index: 10;
 }
 #undo-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+.phase-head .chev-btn { background: none; border: 0; padding: 0 4px; min-height: 0; color: var(--muted); }
+.phase-head .chev-btn .chev { display: inline-block; transition: transform .15s; transform: rotate(90deg); }
+.phase-head.collapsed .chev-btn .chev { transform: none; }
+.phase-head h2 { cursor: pointer; }

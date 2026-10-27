@@ -24,9 +24,13 @@ const VIEW_KEY = 'chrono-mcu:view';
 const view = (() => {
   try {
     const saved = JSON.parse(storage?.getItem(VIEW_KEY));
-    return { groupByPhase: saved?.groupByPhase !== false, showPosters: saved?.showPosters !== false };
+    return {
+      groupByPhase: saved?.groupByPhase !== false,
+      showPosters: saved?.showPosters !== false,
+      collapsedPhases: Array.isArray(saved?.collapsedPhases) ? saved.collapsedPhases.filter(Number.isInteger) : [],
+    };
   } catch {
-    return { groupByPhase: true, showPosters: true };
+    return { groupByPhase: true, showPosters: true, collapsedPhases: [] };
   }
 })();
 const saveView = () => {
@@ -278,10 +282,23 @@ function titleRow(t) {
   return t.type === 'serie' ? serieRow(t) : filmRow(t);
 }
 
-function phaseHeader(phase, ratio) {
-  return h('li', { class: 'phase-head' },
+function togglePhase(phase) {
+  const set = new Set(view.collapsedPhases);
+  if (!set.delete(phase)) set.add(phase);
+  view.collapsedPhases = [...set];
+  saveView();
+  render();
+}
+
+function phaseHeader(phase, ratio, collapsed) {
+  const toggle = () => togglePhase(phase);
+  return h('li', { class: `phase-head${collapsed ? ' collapsed' : ''}` },
+    h('button', {
+      type: 'button', class: 'chev-btn', 'aria-expanded': String(!collapsed),
+      'aria-label': `${collapsed ? 'Déplier' : 'Replier'} la phase ${phase}`, onclick: toggle,
+    }, h('span', { class: 'chev', text: '▶', 'aria-hidden': 'true' })),
     phaseBox(phase, ratio),
-    h('h2', { text: `Phase ${phase}` }),
+    h('h2', { text: `Phase ${phase}`, onclick: toggle }),
     h('span', { class: 'muted', text: `${ratio.seen}/${ratio.total} · ${ratio.percent} %` }));
 }
 
@@ -297,11 +314,15 @@ function renderList() {
   }
   const { byPhase } = progress(titles, state.seen);
   const phases = [...new Set(shown.map((t) => t.phase))].sort((a, b) => a - b);
+  const searching = filters.query.trim() !== '';
   $('list').replaceChildren(
-    ...phases.flatMap((phase) => [
-      phaseHeader(phase, byPhase[phase] ?? { seen: 0, total: 0, percent: 0 }),
-      ...shown.filter((t) => t.phase === phase).map(titleRow),
-    ]),
+    ...phases.flatMap((phase) => {
+      const collapsed = view.collapsedPhases.includes(phase) && !searching;
+      return [
+        phaseHeader(phase, byPhase[phase] ?? { seen: 0, total: 0, percent: 0 }, collapsed),
+        ...(collapsed ? [] : shown.filter((t) => t.phase === phase).map(titleRow)),
+      ];
+    }),
   );
 }
 
