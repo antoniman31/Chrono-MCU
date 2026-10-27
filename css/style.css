@@ -234,6 +234,23 @@ main:focus { outline: none; }
 
 .detail-pane { display: none; }
 
+/* Barre du bas compacte (écran étroit) : 48 px, icônes seules, le nom n'apparaît que sur la page active (dans une pilule).
+   Le nom accessible de chaque lien vient de son aria-label. Zone tactile : 44 px de haut. */
+@media (max-width: 599.98px) {
+  :root { --nav-h: 48px; }
+  .nav { align-items: center; padding-inline: 8px; gap: 4px; }
+  .nav-item { position: relative; flex-direction: row; gap: 8px; height: 44px; min-height: 44px; border-radius: 22px; font-size: .8125rem; letter-spacing: .01em; }
+  .nav-item::before { content: ""; position: absolute; inset: 4px 0; border-radius: 18px; }
+  .nav-item > * { position: relative; }
+  .nav-item:hover::before { background: color-mix(in srgb, currentColor 8%, transparent); }
+  .nav-item[aria-current="page"] { flex: 2 1 0; color: var(--on-tonal); }
+  .nav-item[aria-current="page"]::before { background: var(--tonal); }
+  .nav-item[aria-current="page"] .nav-ind { background: none; color: inherit; }
+  .nav-ind { width: 24px; height: 24px; border-radius: 0; overflow: visible; }
+  .nav-ind::after { display: none; }
+  .nav-item:not([aria-current="page"]) .nav-label { display: none; }
+}
+
 @media (min-width: 600px) {
   .app { grid-template-columns: 80px minmax(0, 1fr); }
   .nav {
