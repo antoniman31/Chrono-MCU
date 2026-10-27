@@ -29,6 +29,7 @@ test('scripts : site seul + hash du script de thème, jamais unsafe-inline ni un
 test('images : site, TMDB et data: seulement ; connexions et manifeste : site seul ; pas de base ni de formulaire', () => {
   assert.deepEqual([...directives['img-src']].sort(), ["'self'", 'data:', 'https://image.tmdb.org']);
   assert.deepEqual(directives['connect-src'], ["'self'"]);
+  assert.deepEqual(directives['font-src'], ["'self'"]);
   assert.deepEqual(directives['manifest-src'], ["'self'"]);
   assert.deepEqual(directives['base-uri'], ["'none'"]);
   assert.deepEqual(directives['form-action'], ["'none'"]);

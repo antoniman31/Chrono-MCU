@@ -1,3 +1,4 @@
+@font-face { font-family: 'Bebas Neue'; src: url('../fonts/bebas-neue-subset.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
 /* Jetons de couleur. Sombre par défaut ; « Auto » suit le système ; clair, sombre et noir OLED peuvent être forcés avec data-theme. */
 :root {
   color-scheme: dark;
@@ -200,6 +201,14 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
 .appbar, main { max-width: 760px; margin-inline: auto; padding-inline: 16px; }
 .appbar { height: var(--appbar-h); display: flex; align-items: center; position: sticky; top: 0; z-index: 4; background: var(--bg); max-width: none; }
 .appbar h1 { max-width: 760px; width: 100%; margin-inline: auto; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
+/* Titre : bloc rouge à coin chanfreiné et capitales condensées blanches, dans l'esprit d'un logo de franchise (style seulement, ce n'est pas le logo Marvel) */
+.logo {
+  display: inline-block; max-width: 100%; padding: .16em .65em .06em .5em; background: var(--accent-btn); color: #fff;
+  clip-path: polygon(0 0, 100% 0, 100% 62%, calc(100% - .45em) 100%, 0 100%); /* coin bas-droit chanfreiné */
+  font-family: 'Bebas Neue', 'Arial Narrow', 'Roboto Condensed', Impact, sans-serif-condensed, sans-serif;
+  font-size: 1.875rem; font-weight: 700; line-height: 1; letter-spacing: .05em; text-transform: uppercase; overflow-wrap: anywhere;
+}
+@media (forced-colors: active) { .logo { clip-path: none; border: 2px solid; } }
 .screen > h2:not(.sr-only) { font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; margin: 8px 0 16px; }
 .screen > h2:focus { outline: none; }
 main:focus { outline: none; }

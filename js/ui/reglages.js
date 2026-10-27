@@ -89,7 +89,9 @@ export function renderReglages(ctx) {
         link('https://github.com/les2/marvel-screen-archive', 'Marvel Archive', 'ordre chronologique (CC BY 4.0)'),
         link('https://www.tvmaze.com', 'TVmaze', 'durées et titres des épisodes'),
         link('https://www.wikipedia.org', 'Wikipedia', 'durées des films, scènes après le générique'),
+        link('https://github.com/dharmatype/Bebas-Neue', 'Bebas Neue', 'police du titre (SIL Open Font License)'),
         hasPosters ? link('https://www.themoviedb.org', 'TMDB', 'affiches') : null),
+      h('p', { class: 'muted', text: 'Application non officielle : sans lien avec Marvel, Disney ou leurs ayants droit. Le titre reprend un style, pas un logo.' }),
       hasPosters ? h('p', { class: 'muted', text: 'This product uses the TMDB API but is not endorsed or certified by TMDB.' }) : null,
       h('p', { class: 'muted version', text: ctx.versionLabel })),
   ];

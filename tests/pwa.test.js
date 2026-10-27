@@ -25,3 +25,12 @@ test('index.html déclare le manifeste et l\'icône iOS ; le déploiement copie 
   const workflow = read('.github/workflows/pages.yml');
   assert.match(workflow, /cp -r [^\n]*manifest\.webmanifest[^\n]*icons[^\n]* _site\//);
 });
+
+test('police du titre : fichier présent, licence jointe, déclarée dans la CSS et copiée au déploiement', () => {
+  const css = read('css/style.css');
+  const src = css.match(/@font-face\s*{[^}]*url\('\.\.\/(fonts\/[^']+)'\)/)?.[1];
+  assert.ok(src, '@font-face introuvable dans style.css');
+  assert.ok(existsSync(`${root}${src}`), `${src} introuvable`);
+  assert.ok(existsSync(`${root}fonts/OFL.txt`), 'licence de la police manquante');
+  assert.match(read('.github/workflows/pages.yml'), /cp -r [^\n]*\bfonts\b[^\n]* _site\//);
+});
