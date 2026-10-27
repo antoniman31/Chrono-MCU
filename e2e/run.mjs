@@ -71,6 +71,10 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
 
   await audit(page, `${where} À voir`);
 
+  await page.click('[data-fk="ptab:4"]');
+  await audit(page, `${where} phase 4 choisie`);
+  await page.click('[data-fk="ptab:all"]');
+
   await page.click('#open-filters');
   await audit(page, `${where} feuille Filtres`);
   await page.keyboard.press('Escape');
@@ -166,6 +170,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
       const name = (el) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''} « ${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 24)} »`;
       document.querySelectorAll('button, a[href], input:not([type=hidden]), [role=tab]').forEach((el) => {
         if (!visible(el)) return;
+        if (el.closest('.phase-tabs')) return; // rangée d'onglets volontairement défilante (la rangée elle-même tient dans l'écran)
         const r = el.getBoundingClientRect();
         if (r.right > width + 1 || r.left < -1) out.push(`commande hors écran : ${name(el)} (${Math.round(r.left)} à ${Math.round(r.right)} px)`);
       });
@@ -179,6 +184,9 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
     problems.forEach((p) => fail(where, `${screen} : ${p}`));
   };
   await inspect('À voir');
+  await page.click('[data-fk="ptab:4"]');
+  await inspect('phase 4 choisie');
+  await page.click('[data-fk="ptab:all"]');
   await page.click('#open-filters');
   await inspect('feuille Filtres');
   await page.keyboard.press('Escape');

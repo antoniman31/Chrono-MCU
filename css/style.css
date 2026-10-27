@@ -197,7 +197,7 @@ body.sheet-open { overflow: hidden; }
 .app { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr); }
 .content { min-width: 0; padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 24px); }
 /* Le focus et les défilements automatiques ne doivent jamais finir sous la barre de navigation fixe (WCAG 2.4.11) */
-html { scroll-padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
+html { scroll-padding-top: var(--appbar-h); scroll-padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
 .appbar, main { max-width: 760px; margin-inline: auto; padding-inline: 16px; }
 .appbar { height: var(--appbar-h); display: flex; align-items: center; position: sticky; top: 0; z-index: 4; background: var(--bg); max-width: none; }
 .appbar h1 { max-width: 760px; width: 100%; margin-inline: auto; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
@@ -507,3 +507,22 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 
 .item.upcoming-ep .title, .item.upcoming-ep .meta { color: var(--muted); }
 .follow-total { margin-top: 8px; font-size: .875rem; font-weight: 500; }
+
+/* ---------- Barre des phases (fixe sous le titre sur les écrans assez hauts) ---------- */
+:root { --gutter: 16px; }
+@media (min-width: 600px) { :root { --gutter: 24px; } }
+.phasebar { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); background: var(--bg); border-bottom: 1px solid var(--border); z-index: 3; }
+@media (min-height: 560px) {
+  .phasebar { position: sticky; top: var(--appbar-h); }
+  html { scroll-padding-top: calc(var(--appbar-h) + var(--phasebar-h, 0px)); }
+}
+.phase-tabs { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+.phase-tabs::-webkit-scrollbar { display: none; }
+.ptab { flex: none; scroll-snap-align: center; position: relative; min-height: 48px; padding: 0 16px; background: none; border: 0; font-size: .875rem; font-weight: 500; letter-spacing: .01em; color: var(--muted); }
+.ptab:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.ptab:focus-visible { outline-offset: -3px; }
+.ptab[aria-selected="true"] { color: var(--fg); font-weight: 700; box-shadow: inset 0 -3px 0 var(--accent-btn); }
+.pfill { position: absolute; left: 16px; right: 16px; bottom: 6px; height: 2px; border-radius: 1px; background: linear-gradient(var(--ok), var(--ok)) left / var(--p, 0%) 100% no-repeat, var(--border); }
+.phase-info { display: grid; gap: 0; padding: 6px 0 8px; overflow-wrap: anywhere; }
+.phase-info strong { font-size: .9375rem; line-height: 1.375rem; font-weight: 500; }
+.phase-info span { font-size: .8125rem; line-height: 1.125rem; color: var(--muted); }

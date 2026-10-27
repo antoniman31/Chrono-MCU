@@ -14,9 +14,9 @@ let scenarios = 0;
 const check = (cond, message) => { if (!cond) throw new Error(message); };
 const STATE = 'chrono-mcu:v1';
 
-async function scenario(name, run, { prefs = null, seed = null, colorScheme = 'light' } = {}) {
+async function scenario(name, run, { prefs = null, seed = null, colorScheme = 'light', viewport = { width: 360, height: 740 } } = {}) {
   scenarios += 1;
-  const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme, reducedMotion: 'reduce', acceptDownloads: true });
+  const context = await browser.newContext({ viewport, colorScheme, reducedMotion: 'reduce', acceptDownloads: true });
   await context.route(/image\.tmdb\.org/, (route) => route.abort());
   // Les valeurs de départ ne sont posées qu'une fois (pas à chaque rechargement), pour pouvoir tester la persistance
   await context.addInitScript(([p, s]) => {
@@ -219,6 +219,45 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
   check(back.skip.length === 0 && Object.keys(back.included).length === 0, 'suivre à nouveau la catégorie doit effacer la réintégration');
   check((await progressTotal(page)).total === full.total, 'tout le catalogue devrait être de retour');
 });
+
+await scenario('barre des phases : sous la barre d\'outils, filtre, nom de phase, clavier, fixe en haut', async (page) => {
+  const after = await page.evaluate(() => Boolean(document.querySelector('.toolbar').compareDocumentPosition(document.querySelector('#phase-tabs')) & Node.DOCUMENT_POSITION_FOLLOWING));
+  check(after, 'la barre des phases doit suivre la barre d\'outils');
+  const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
+  const phaseOf = (n) => data.filter((t) => t.phase === n).length;
+  const info = () => page.locator('#phase-info').innerText();
+
+  await page.click('[data-fk="ptab:3"]');
+  check((await page.locator('#result-count').innerText()) === `${phaseOf(3)} titres`, 'le filtre de phase devrait réduire la liste à la phase 3');
+  check(/Phase 3 · Infinity Saga/.test(await info()), `nom de phase attendu : ${await info()}`);
+  await page.click('[data-fk="ptab:4"]');
+  check(/Phase 4 · Saga du Multivers/.test(await info()), 'la phase 4 devrait afficher la saga du Multivers');
+  check((await page.locator('[data-fk="ptab:4"]').getAttribute('aria-selected')) === 'true', 'l\'onglet choisi devrait être sélectionné');
+
+  await page.locator('[data-fk="ptab:4"]').focus();
+  await page.keyboard.press('ArrowRight');
+  check((await page.locator('[data-fk="ptab:5"]').getAttribute('aria-selected')) === 'true', 'flèche droite : phase 5');
+  check(await page.evaluate(() => document.activeElement?.dataset?.fk === 'ptab:5'), 'le focus devrait suivre la sélection');
+  await page.keyboard.press('Home');
+  check(/Toutes les phases/.test(await info()), 'Début : toutes les phases');
+  await page.keyboard.press('End');
+  check((await page.locator('[data-fk="ptab:6"]').getAttribute('aria-selected')) === 'true', 'Fin : dernière phase');
+  await page.click('[data-fk="ptab:all"]');
+  check(/Toutes les phases/.test(await info()), 'Toutes : retour à la liste complète');
+
+  // Fixe : après défilement, la barre reste collée sous le titre (qui est lui aussi fixe)
+  await page.evaluate(() => window.scrollTo(0, 1200));
+  await page.waitForTimeout(200);
+  const pos = await page.evaluate(() => ({ appbar: document.querySelector('.appbar').getBoundingClientRect().bottom, bar: document.querySelector('#phasebar').getBoundingClientRect().top }));
+  check(Math.abs(pos.bar - pos.appbar) <= 1 && pos.appbar > 0, `la barre devrait être collée sous le titre (${JSON.stringify(pos)})`);
+});
+
+await scenario('barre des phases : sur un écran bas (paysage) elle défile avec la page', async (page) => {
+  await page.evaluate(() => window.scrollTo(0, 1200));
+  await page.waitForTimeout(200);
+  const top = await page.evaluate(() => document.querySelector('#phasebar').getBoundingClientRect().top);
+  check(top < 0, `sur un écran bas la barre ne doit pas rester collée (top ${Math.round(top)})`);
+}, { viewport: { width: 640, height: 400 } });
 
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
