@@ -74,7 +74,6 @@
     "chronoOrder": 5,
     "runtimeMin": 114,
     "postCredits": [
-      "mid",
       "end"
     ],
     "tmdbId": 10195,
@@ -90,9 +89,7 @@
     "releaseDate": "2008-06-13",
     "chronoOrder": 6,
     "runtimeMin": 112,
-    "postCredits": [
-      "end"
-    ],
+    "postCredits": [],
     "tmdbId": 1724,
     "poster": "/cImKVGUiEnwLsNUyoMA0a0na2y5.jpg",
     "verified": true
@@ -173,6 +170,10 @@
     "releaseDate": "2014-08-01",
     "chronoOrder": 11,
     "runtimeMin": 122,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "tmdbId": 118340,
     "poster": "/9a6fGeSV5kffyNPPMWCPhLOhLdJ.jpg",
     "verified": true
@@ -186,6 +187,10 @@
     "releaseDate": "2017-05-05",
     "chronoOrder": 12,
     "runtimeMin": 136,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "tmdbId": 283995,
     "poster": "/eJz44lc3IaM68BkJtIkm4ia9xpZ.jpg",
     "verified": true
@@ -199,6 +204,7 @@
     "releaseDate": "2022-08-10",
     "chronoOrder": 13,
     "tmdbId": 232125,
+    "tvmazeId": 52351,
     "poster": "/lkyJhKE83cjrG88IEyWLrQlcfkD.jpg",
     "verified": true,
     "episodes": [
@@ -238,6 +244,7 @@
     "releaseDate": "2023-09-06",
     "chronoOrder": 14,
     "tmdbId": 232125,
+    "tvmazeId": 52351,
     "poster": "/9pm1vEHnm2JsCMbDiMoUdky5Dox.jpg",
     "verified": true,
     "episodes": [
@@ -458,6 +465,7 @@
     "releaseDate": "2021-06-09",
     "chronoOrder": 26,
     "tmdbId": 84958,
+    "tvmazeId": 41007,
     "poster": "/x3tgUYJNx58xL5WhuV5sDnujKIh.jpg",
     "verified": true,
     "episodes": [
@@ -502,6 +510,7 @@
     "releaseDate": "2023-10-05",
     "chronoOrder": 27,
     "tmdbId": 84958,
+    "tvmazeId": 41007,
     "poster": "/tGdaskDMBdGonOnuvkrAP9sd0mt.jpg",
     "verified": true,
     "episodes": [
@@ -547,6 +556,7 @@
     "chronoOrder": 28,
     "altUniverse": true,
     "tmdbId": 91363,
+    "tvmazeId": 41750,
     "poster": "/Wkjg8AxkmnxO9Bph7J3eW9f3ix.jpg",
     "verified": true,
     "episodes": [
@@ -607,6 +617,7 @@
     "chronoOrder": 29,
     "altUniverse": true,
     "tmdbId": 91363,
+    "tvmazeId": 41750,
     "poster": "/5oYadd4vILTIYs7j3H9pgWIvbhI.jpg",
     "verified": true,
     "episodes": [
@@ -667,6 +678,7 @@
     "chronoOrder": 30,
     "altUniverse": true,
     "tmdbId": 91363,
+    "tvmazeId": 41750,
     "poster": "/lImTfDykg2OKrDPOQBb8yCwJbhl.jpg",
     "verified": true,
     "episodes": [
@@ -721,6 +733,7 @@
     "releaseDate": "2021-01-15",
     "chronoOrder": 31,
     "tmdbId": 85271,
+    "tvmazeId": 41748,
     "poster": "/AXnCR7WE8BKlzsabQtUITySChn.jpg",
     "verified": true,
     "episodes": [
@@ -797,6 +810,7 @@
     "releaseDate": "2021-03-19",
     "chronoOrder": 33,
     "tmdbId": 88396,
+    "tvmazeId": 41749,
     "poster": "/6NrUwEWDxZI2XffOnw3nuibukmX.jpg",
     "verified": true,
     "episodes": [
@@ -909,6 +923,7 @@
     "releaseDate": "2021-11-24",
     "chronoOrder": 38,
     "tmdbId": 88329,
+    "tvmazeId": 43102,
     "poster": "/cybZ7FoeBoBJPieKvSp4wh2yCMR.jpg",
     "verified": true,
     "episodes": [
@@ -953,6 +968,7 @@
     "releaseDate": "2022-03-30",
     "chronoOrder": 39,
     "tmdbId": 92749,
+    "tvmazeId": 43518,
     "poster": "/xrkDlkL6u26DLeBw2Cao8pYtrYH.jpg",
     "verified": true,
     "episodes": [
@@ -1013,6 +1029,7 @@
     "releaseDate": "2024-01-09",
     "chronoOrder": 41,
     "tmdbId": 122226,
+    "tvmazeId": 58950,
     "poster": "/g7Y8pX0yndEpGAa0v4ZGpGuMrF0.jpg",
     "verified": true,
     "episodes": [
@@ -1052,6 +1069,7 @@
     "releaseDate": "2022-08-18",
     "chronoOrder": 42,
     "tmdbId": 92783,
+    "tvmazeId": 43517,
     "poster": "/poWy1hDzaIFv6UaYtFDNcNfiM2C.jpg",
     "verified": true,
     "episodes": [
@@ -1111,6 +1129,7 @@
     "releaseDate": "2022-06-08",
     "chronoOrder": 43,
     "tmdbId": 92782,
+    "tvmazeId": 43519,
     "poster": "/3x1eRyuz2NOOSXODDcDl9EjGRQ.jpg",
     "verified": true,
     "episodes": [
@@ -1172,6 +1191,7 @@
     "releaseDate": "2025-06-24",
     "chronoOrder": 45,
     "tmdbId": 114471,
+    "tvmazeId": 47859,
     "poster": "/dtpiECNwAeLnGJSU3HTWhcQGHk1.jpg",
     "verified": true,
     "episodes": [
@@ -1230,6 +1250,9 @@
     "releaseDate": "2022-11-25",
     "chronoOrder": 47,
     "runtimeMin": 42,
+    "postCredits": [
+      "end"
+    ],
     "tmdbId": 774752,
     "poster": "/cF3E6CrCm3NUy5PDRBbGyXRChYb.jpg",
     "verified": true
@@ -1277,6 +1300,7 @@
     "releaseDate": "2023-06-21",
     "chronoOrder": 50,
     "tmdbId": 114472,
+    "tvmazeId": 52352,
     "poster": "/AbqvJTbFEOmL8vHk54lVolqQg8Y.jpg",
     "verified": true,
     "episodes": [
@@ -1321,6 +1345,9 @@
     "releaseDate": "2023-11-10",
     "chronoOrder": 51,
     "runtimeMin": 105,
+    "postCredits": [
+      "mid"
+    ],
     "tmdbId": 609681,
     "poster": "/mqAQO6j5gkq6iwCXNbXpzf0RXBU.jpg",
     "verified": true
@@ -1334,6 +1361,9 @@
     "releaseDate": "2024-07-26",
     "chronoOrder": 52,
     "runtimeMin": 128,
+    "postCredits": [
+      "end"
+    ],
     "tmdbId": 533535,
     "poster": "/7CtRdKd5hQPB2b1apKCqxxQUKSf.jpg",
     "verified": true
@@ -1347,6 +1377,7 @@
     "releaseDate": "2024-09-18",
     "chronoOrder": 53,
     "tmdbId": 138501,
+    "tvmazeId": 58948,
     "poster": "/mGsxKwXUjojitRv2E9qMTbxbBRd.jpg",
     "verified": true,
     "episodes": [
@@ -1406,6 +1437,9 @@
     "releaseDate": "2025-02-14",
     "chronoOrder": 54,
     "runtimeMin": 118,
+    "postCredits": [
+      "end"
+    ],
     "tmdbId": 822119,
     "poster": "/wDRXmiAEJdhNIcuetM4016fOCx8.jpg",
     "verified": true
@@ -1419,6 +1453,7 @@
     "releaseDate": "2025-03-04",
     "chronoOrder": 55,
     "tmdbId": 202555,
+    "tvmazeId": 63234,
     "poster": "/9ERtLvFN1nFCabGaFkC6tiroglm.jpg",
     "verified": true,
     "episodes": [
@@ -1478,6 +1513,10 @@
     "releaseDate": "2025-05-02",
     "chronoOrder": 56,
     "runtimeMin": 127,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "tmdbId": 986056,
     "poster": "/zctISSBEZRgVQPG178HqRJMnc4x.jpg",
     "verified": true
@@ -1508,6 +1547,7 @@
     "releaseDate": "2025-08-01",
     "chronoOrder": 58,
     "tmdbId": 241388,
+    "tvmazeId": 73415,
     "poster": "/yuOfb1MgnaGPa4guzV0n1IFYVGN.jpg",
     "verified": true,
     "episodes": [
@@ -1543,6 +1583,7 @@
     "chronoOrder": 59,
     "altUniverse": true,
     "tmdbId": 138505,
+    "tvmazeId": 58949,
     "poster": "/9CbKyXIbDKBSKKs7BOFnMiJxWal.jpg",
     "verified": true,
     "episodes": [
@@ -1578,6 +1619,7 @@
     "chronoOrder": 60,
     "altUniverse": true,
     "tmdbId": 138503,
+    "tvmazeId": 58952,
     "poster": "/kOG8tnJBCyKGsP5QLx0KC1WHDFz.jpg",
     "verified": true,
     "episodes": [
@@ -1642,6 +1684,7 @@
     "releaseDate": "2026-01-27",
     "chronoOrder": 61,
     "tmdbId": 198178,
+    "tvmazeId": 62569,
     "poster": "/5uHI0TCde9YDGY7Fm54L3mBNILK.jpg",
     "verified": true,
     "episodes": [
@@ -1696,6 +1739,7 @@
     "releaseDate": "2026-03-24",
     "chronoOrder": 62,
     "tmdbId": 202555,
+    "tvmazeId": 63234,
     "poster": "/kNOOBUEKnivdnWsxbtKnG69VMwx.jpg",
     "verified": true,
     "episodes": [
@@ -1763,6 +1807,9 @@
     "releaseDate": "2026-07-31",
     "chronoOrder": 64,
     "runtimeMin": 145,
+    "postCredits": [
+      "end"
+    ],
     "tmdbId": 969681,
     "poster": "/6OEtkkzoyusZDm2uMJojlWZSLR9.jpg",
     "verified": true
@@ -1776,6 +1823,7 @@
     "releaseDate": "2026-10-13",
     "chronoOrder": 65,
     "tmdbId": 213375,
+    "tvmazeId": 64950,
     "poster": "/bWPktguPGslrdM79SNQt4OWYyJS.jpg",
     "verified": false,
     "episodes": [

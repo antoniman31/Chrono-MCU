@@ -1,9 +1,12 @@
-import { filterTitles, nextToWatch, normalizeText, progress, resumeFrom, sortTitles, stats, toUnits } from './logic.js';
+import { filterTitles, nextToWatch, normalizeText, progress, resumeFrom, sortTitles, stats, toUnits } from './logic.js?v=__BUILD__';
 import {
   exportState, importState, isTitleSeen, loadState, saveState, setNote, setOrder, setPhaseSeen, setTitleSeen, toggleUnit,
-} from './store.js';
+} from './store.js?v=__BUILD__';
 
 const $ = (id) => document.getElementById(id);
+
+// Remplacé par l'identifiant du commit au déploiement (cache-busting): voir .github/workflows/pages.yml
+const BUILD = '__BUILD__';
 
 const storage = (() => {
   try {
@@ -380,7 +383,7 @@ function setupControls() {
 
 async function main() {
   try {
-    const res = await fetch('data/mcu.json');
+    const res = await fetch('data/mcu.json?v=__BUILD__');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     titles = await res.json();
   } catch (e) {
@@ -388,6 +391,7 @@ async function main() {
     return;
   }
   setupControls();
+  $('version').textContent = BUILD.startsWith('__') ? 'Version locale' : `Version ${BUILD}`;
   render();
   document.getElementById('app').dataset.ready = 'true';
 }
