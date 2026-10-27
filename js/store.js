@@ -1,4 +1,4 @@
-import { ORDERS } from './logic.js';
+import { ORDERS } from './logic.js?v=__BUILD__';
 
 export const STORAGE_KEY = 'chrono-mcu:v1';
 export const STATE_VERSION = 1;

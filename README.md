@@ -66,6 +66,8 @@ Les saisons (« Loki (saison 2) ») prennent l'affiche de la saison quand TMDB e
 
 ## Déploiement
 
+GitHub Pages impose un cache navigateur de 10 minutes sur tous les fichiers. Pour que chaque déploiement soit vu tout de suite, le workflow remplace le marqueur `__BUILD__` (présent dans `index.html`, `js/app.js` et `js/store.js`) par l'identifiant du commit : les fichiers sont alors demandés avec `?v=<commit>`. La version déployée s'affiche en bas de la page. En local, le marqueur reste tel quel et la page indique « Version locale ».
+
 Le workflow `.github/workflows/pages.yml` lance les tests, puis déploie sur GitHub Pages à chaque push sur `main`. À activer une fois dans Settings > Pages > Source : GitHub Actions.
 
 ## Spécification et plan
