@@ -81,15 +81,15 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Fichiers: js/logic.js, js/app.js, tests/logic.test.js, css/style.css
 
 ## Phase 6: Données et livraison
-- [ ] T18 Catalogue Infinity + séries connues
+- [x] T18 Catalogue Infinity + séries connues
   - Acceptation: titres et épisodes saisis, incertains en `verified:false`
   - Vérif: `node scripts/validate-data.mjs`; relecture Antoni
   - Fichiers: data/mcu.json
-- [ ] T19 Catalogue restant
+- [x] T19 Catalogue restant
   - Acceptation: tout ce qui est sorti à ce jour, incertains marqués
   - Vérif: validation + relecture Antoni
   - Fichiers: data/mcu.json
-- [ ] T20 README et GitHub Pages
+- [x] T20 README et GitHub Pages
   - Acceptation: README (usage, commandes, comment corriger les données), déploiement Pages
   - Vérif: site accessible, parcours complet manuel
   - Fichiers: README.md, workflow Pages
