@@ -338,12 +338,12 @@
       {
         "n": 1,
         "title": "Filmed Before a Live Studio Audience",
-        "runtimeMin": 29
+        "runtimeMin": 30
       },
       {
         "n": 2,
         "title": "Don't Touch That Dial",
-        "runtimeMin": 27
+        "runtimeMin": 37
       },
       {
         "n": 3,
@@ -353,17 +353,17 @@
       {
         "n": 4,
         "title": "We Interrupt This Program",
-        "runtimeMin": 41
+        "runtimeMin": 35
       },
       {
         "n": 5,
         "title": "On a Very Special Episode...",
-        "runtimeMin": 34
+        "runtimeMin": 42
       },
       {
         "n": 6,
         "title": "All-New Halloween Spooktacular!",
-        "runtimeMin": 28
+        "runtimeMin": 38
       },
       {
         "n": 7,
@@ -400,7 +400,7 @@
       {
         "n": 2,
         "title": "The Star-Spangled Man",
-        "runtimeMin": 47
+        "runtimeMin": 51
       },
       {
         "n": 3,
@@ -410,7 +410,7 @@
       {
         "n": 4,
         "title": "The Whole World Is Watching",
-        "runtimeMin": 54
+        "runtimeMin": 53
       },
       {
         "n": 5,
@@ -432,7 +432,7 @@
     "saga": "multiverse",
     "releaseDate": "2021-06-09",
     "chronoOrder": 26,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
@@ -462,7 +462,7 @@
       {
         "n": 6,
         "title": "For All Time. Always.",
-        "runtimeMin": 50
+        "runtimeMin": 46
       }
     ]
   },
@@ -474,37 +474,37 @@
     "saga": "multiverse",
     "releaseDate": "2021-08-11",
     "chronoOrder": 27,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
         "title": "What If... Captain Carter Were the First Avenger?",
-        "runtimeMin": 33
+        "runtimeMin": 36
       },
       {
         "n": 2,
         "title": "What If... T'Challa Became a Star-Lord?",
-        "runtimeMin": 33
+        "runtimeMin": 38
       },
       {
         "n": 3,
         "title": "What If... the World Lost Its Mightiest Heroes?",
-        "runtimeMin": 33
+        "runtimeMin": 35
       },
       {
         "n": 4,
         "title": "What If... Doctor Strange Lost His Heart Instead of His Hands?",
-        "runtimeMin": 33
+        "runtimeMin": 38
       },
       {
         "n": 5,
         "title": "What If... Zombies?!",
-        "runtimeMin": 33
+        "runtimeMin": 35
       },
       {
         "n": 6,
         "title": "What If... Killmonger Rescued Tony Stark?",
-        "runtimeMin": 33
+        "runtimeMin": 36
       },
       {
         "n": 7,
@@ -514,7 +514,7 @@
       {
         "n": 8,
         "title": "What If... Ultron Won?",
-        "runtimeMin": 33
+        "runtimeMin": 30
       },
       {
         "n": 9,
@@ -784,7 +784,7 @@
     "saga": "multiverse",
     "releaseDate": "2022-08-18",
     "chronoOrder": 40,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
@@ -819,12 +819,12 @@
       {
         "n": 7,
         "title": "The Retreat",
-        "runtimeMin": 30
+        "runtimeMin": 35
       },
       {
         "n": 8,
         "title": "Ribbit and Rip It",
-        "runtimeMin": 33
+        "runtimeMin": 34
       },
       {
         "n": 9,
@@ -871,12 +871,12 @@
     "saga": "multiverse",
     "releaseDate": "2023-06-21",
     "chronoOrder": 43,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
         "title": "Resurrection",
-        "runtimeMin": 54
+        "runtimeMin": 53
       },
       {
         "n": 2,
@@ -886,22 +886,22 @@
       {
         "n": 3,
         "title": "Betrayed",
-        "runtimeMin": 45
+        "runtimeMin": 42
       },
       {
         "n": 4,
         "title": "Beloved",
-        "runtimeMin": 45
+        "runtimeMin": 36
       },
       {
         "n": 5,
         "title": "Harvest",
-        "runtimeMin": 45
+        "runtimeMin": 37
       },
       {
         "n": 6,
         "title": "Home",
-        "runtimeMin": 45
+        "runtimeMin": 36
       }
     ]
   },
@@ -918,32 +918,32 @@
       {
         "n": 1,
         "title": "Ouroboros",
-        "runtimeMin": 45
+        "runtimeMin": 48
       },
       {
         "n": 2,
         "title": "Breaking Brad",
-        "runtimeMin": 49
+        "runtimeMin": 52
       },
       {
         "n": 3,
         "title": "1893",
-        "runtimeMin": 53
+        "runtimeMin": 56
       },
       {
         "n": 4,
         "title": "Heart of the TVA",
-        "runtimeMin": 48
+        "runtimeMin": 51
       },
       {
         "n": 5,
         "title": "Science/Fiction",
-        "runtimeMin": 45
+        "runtimeMin": 47
       },
       {
         "n": 6,
         "title": "Glorious Purpose",
-        "runtimeMin": 51
+        "runtimeMin": 59
       }
     ]
   },
@@ -1007,48 +1007,48 @@
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 33
+        "title": "What If... Nebula Joined the Nova Corps?",
+        "runtimeMin": 29
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 33
+        "title": "What If... Peter Quill Attacked Earth's Mightiest Heroes?",
+        "runtimeMin": 30
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 33
+        "title": "What If... Happy Hogan Saved Christmas?",
+        "runtimeMin": 30
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 33
+        "title": "What If... Iron Man Crashed into the Grandmaster?",
+        "runtimeMin": 30
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 33
+        "title": "What If... Captain Carter Fought the Hydra Stomper?",
+        "runtimeMin": 30
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 33
+        "title": "What If... Kahhori Reshaped the World?",
+        "runtimeMin": 30
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 33
+        "title": "What If... Hela Found the Ten Rings?",
+        "runtimeMin": 30
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 33
+        "title": "What If... the Avengers Assembled in 1602?",
+        "runtimeMin": 30
       },
       {
         "n": 9,
-        "title": "Épisode 9",
-        "runtimeMin": 33
+        "title": "What If... Strange Supreme Intervened?",
+        "runtimeMin": 30
       }
     ]
   },
@@ -1090,7 +1090,7 @@
       {
         "n": 6,
         "title": "What If... 1872?",
-        "runtimeMin": 30
+        "runtimeMin": 31
       },
       {
         "n": 7,
@@ -1180,17 +1180,17 @@
     "saga": "multiverse",
     "releaseDate": "2025-08-01",
     "chronoOrder": 51,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
         "title": "Into the Lion's Den",
-        "runtimeMin": 28
+        "runtimeMin": 30
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 28
+        "title": "Legends and Lies",
+        "runtimeMin": 29
       },
       {
         "n": 3,
@@ -1199,8 +1199,8 @@
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 28
+        "title": "The Last Panther",
+        "runtimeMin": 27
       }
     ]
   },
@@ -1217,7 +1217,7 @@
       {
         "n": 1,
         "title": "Heaven's Half Hour",
-        "runtimeMin": 58
+        "runtimeMin": 59
       },
       {
         "n": 2,
@@ -1226,38 +1226,38 @@
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 46
+        "title": "The Hollow of His Hand",
+        "runtimeMin": 44
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 46
+        "title": "Sic Semper Systema",
+        "runtimeMin": 52
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 46
+        "title": "With Interest",
+        "runtimeMin": 40
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 46
+        "title": "Excessive Force",
+        "runtimeMin": 42
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 46
+        "title": "Art for Art's Sake",
+        "runtimeMin": 40
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 46
+        "title": "Isle of Joy",
+        "runtimeMin": 49
       },
       {
         "n": 9,
-        "title": "Épisode 9",
-        "runtimeMin": 46
+        "title": "Straight to Hell",
+        "runtimeMin": 50
       }
     ]
   },
@@ -1437,22 +1437,22 @@
       {
         "n": 1,
         "title": "Épisode 1",
-        "runtimeMin": 50
+        "runtimeMin": 51
       },
       {
         "n": 2,
         "title": "Épisode 2",
-        "runtimeMin": 50
+        "runtimeMin": 46
       },
       {
         "n": 3,
         "title": "Épisode 3",
-        "runtimeMin": 50
+        "runtimeMin": 47
       },
       {
         "n": 4,
         "title": "Épisode 4",
-        "runtimeMin": 50
+        "runtimeMin": 51
       },
       {
         "n": 5,
@@ -1462,17 +1462,17 @@
       {
         "n": 6,
         "title": "Épisode 6",
-        "runtimeMin": 50
+        "runtimeMin": 49
       },
       {
         "n": 7,
         "title": "Épisode 7",
-        "runtimeMin": 50
+        "runtimeMin": 44
       },
       {
         "n": 8,
         "title": "Épisode 8",
-        "runtimeMin": 50
+        "runtimeMin": 51
       }
     ]
   },
@@ -1485,7 +1485,7 @@
     "releaseDate": "2026-07-31",
     "chronoOrder": 60,
     "runtimeMin": 150,
-    "verified": false
+    "verified": true
   },
   {
     "id": "visionquest",
@@ -1499,43 +1499,43 @@
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 45
+        "title": "No Strings",
+        "runtimeMin": 53
       },
       {
         "n": 2,
-        "title": "Épisode 2",
+        "title": "Theseus",
         "runtimeMin": 45
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 45
+        "title": "Reboot",
+        "runtimeMin": 52
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 45
+        "title": "Malware",
+        "runtimeMin": 48
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 45
+        "title": "Firewall",
+        "runtimeMin": 46
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 45
+        "title": "Deadlock",
+        "runtimeMin": 54
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 45
+        "title": "Immolation",
+        "runtimeMin": 62
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 45
+        "title": "Forever",
+        "runtimeMin": 68
       }
     ]
   },

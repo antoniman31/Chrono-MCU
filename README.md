@@ -27,6 +27,8 @@ Tout le catalogue est dans `data/mcu.json` (phases 1 à 6, jusqu'à Avengers : S
 
 L'ordre chronologique suit l'ordre Disney+ tel que je l'ai reconstitué : fiable jusqu'à Endgame, une approximation ensuite (les sources divergent, notamment sur la place de Loki). Corrige `chronoOrder` si ton Disney+ diffère.
 
+Les durées d'épisodes varient de quelques minutes selon les sources (avec ou sans générique) : elles sont indicatives. Encore à vérifier : WandaVision, Falcon, Loki 2, What If 2 et 3, Daredevil 1 et 2, Wonder Man, VisionQuest (durées issues de fuites ou estimées, titres génériques pour Daredevil 2).
+
 Les titres pas encore sortis portent `"upcoming": true` (sans `runtimeMin` ni `episodes`). Ils s'affichent « à venir » et ne comptent pas dans la progression. À leur sortie : retirer `upcoming`, ajouter durée ou épisodes.
 
 Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm run validate`. Règles :
