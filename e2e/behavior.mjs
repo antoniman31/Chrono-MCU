@@ -185,6 +185,41 @@ await scenario('titres d\'épisodes en français affichés dans la fiche', async
   check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'la recherche par titre français devrait trouver la série');
 });
 
+await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
+  const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
+  const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;
+  const loki = data.find((t) => t.id === 'loki-saison-1').episodes.length;
+  const full = await progressTotal(page);
+  await go(page, 'reglages');
+  const summary = await page.locator('.follow-total').innerText();
+  check(/titres suivis/.test(summary), `résumé du suivi inattendu : ${summary}`);
+  await page.locator('[data-fk="follow:series"]').uncheck({ force: true });
+  check((await page.locator('.follow-total').innerText()) !== summary, 'le résumé devrait changer après avoir coupé les séries');
+  const filmsOnly = await progressTotal(page);
+  check(filmsOnly.total === films, `seuls les films devraient rester (${filmsOnly.total} au lieu de ${films})`);
+  check(full.total > filmsOnly.total, 'le total aurait dû baisser');
+
+  await page.fill('#search', 'Loki');
+  await page.click('[data-fk="menu:loki-saison-1"]');
+  const label = await page.locator('[data-fk="m-ignore"]').innerText();
+  check(/Réintégrer/.test(label), `le menu devrait proposer « Réintégrer ce titre » : ${label}`);
+  await page.click('[data-fk="m-ignore"]');
+  await page.fill('#search', '');
+  const withLoki = await progressTotal(page);
+  check(withLoki.total === films + loki, `Loki devrait revenir (${withLoki.total} au lieu de ${films + loki})`);
+
+  await reload(page);
+  const state = await stored(page);
+  check(state.skip.includes('series') && state.included['loki-saison-1'], 'catégorie coupée et réintégration à conserver après rechargement');
+  check((await progressTotal(page)).total === films + loki, 'le total devrait être le même après rechargement');
+
+  await go(page, 'reglages');
+  await page.locator('[data-fk="follow:series"]').check({ force: true });
+  const back = await stored(page);
+  check(back.skip.length === 0 && Object.keys(back.included).length === 0, 'suivre à nouveau la catégorie doit effacer la réintégration');
+  check((await progressTotal(page)).total === full.total, 'tout le catalogue devrait être de retour');
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await page.locator('[data-fk="s-oled"]').check({ force: true });

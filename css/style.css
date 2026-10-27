@@ -195,6 +195,8 @@ body.sheet-open { overflow: hidden; }
 /* ---------- Mise en page (compact < 600, medium 600-839, expanded 840+) ---------- */
 .app { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr); }
 .content { min-width: 0; padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 24px); }
+/* Le focus et les défilements automatiques ne doivent jamais finir sous la barre de navigation fixe (WCAG 2.4.11) */
+html { scroll-padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
 .appbar, main { max-width: 760px; margin-inline: auto; padding-inline: 16px; }
 .appbar { height: var(--appbar-h); display: flex; align-items: center; position: sticky; top: 0; z-index: 4; background: var(--bg); max-width: none; }
 .appbar h1 { max-width: 760px; width: 100%; margin-inline: auto; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
@@ -231,6 +233,7 @@ main:focus { outline: none; }
   }
   .nav-item { flex: none; min-height: 56px; }
   .content { padding-bottom: 32px; }
+  html { scroll-padding-bottom: 16px; }
   .appbar, main { padding-inline: 24px; }
 }
 
@@ -494,3 +497,4 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin-top: 4px; }
 
 .item.upcoming-ep .title, .item.upcoming-ep .meta { color: var(--muted); }
+.follow-total { margin-top: 8px; font-size: .875rem; font-weight: 500; }

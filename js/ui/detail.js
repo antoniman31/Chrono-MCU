@@ -1,4 +1,5 @@
-import { isIgnored, isTitleSeen } from '../store.js?v=__BUILD__';
+import { isTitleSeen } from '../store.js?v=__BUILD__';
+import { categoryLabel, ignoreInfo } from '../categories.js?v=__BUILD__';
 import { formatShort, h, icon, hours, today } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
@@ -54,7 +55,8 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
     return;
   }
   const seen = isTitleSeen(ctx.state, ctx.availById.get(t.id) ?? t);
-  const ignored = isIgnored(ctx.state, t.id);
+  const info = ignoreInfo(ctx.state, t);
+  const ignored = info.ignored;
   const poster = showPoster ? posterImg(t, ctx.view, 'w342', 96, 144) : null;
   const children = [
     h('div', { class: 'detail-head' },
@@ -67,7 +69,9 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
   if (t.overview) children.push(h('p', { class: 'overview', text: t.overview }));
   if (!t.upcoming) {
     const actions = [];
-    if (ignored) children.push(h('p', { class: 'muted', text: 'Ignoré : ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».' }));
+    if (ignored) children.push(h('p', { class: 'muted', text: info.category && !info.explicit
+      ? `Ignoré : la catégorie « ${categoryLabel(info.category)} » n'est pas suivie (Réglages > Ce que je suis). Ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».`
+      : 'Ignoré : ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».' }));
     else {
       actions.push(btn({
         label: t.type === 'serie' ? (seen ? 'Marquer la série non vue' : 'Marquer la série vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
@@ -75,7 +79,7 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
       }));
     }
     actions.push(btn({
-      label: ignored ? 'Ne plus ignorer' : 'Ignorer', iconName: ignored ? 'visibility' : 'block', variant: ignored ? 'filled' : 'text',
+      label: ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer ce titre') : 'Ignorer', iconName: ignored ? 'visibility' : 'block', variant: ignored ? 'filled' : 'text',
       key: `detail-ignore:${t.id}`, onclick: () => ctx.toggleIgnore(t),
     }));
     children.push(h('div', { class: 'actions' }, actions));

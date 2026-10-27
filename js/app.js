@@ -1,7 +1,8 @@
 import { countedTitles, releasedView, sortTitles } from './logic.js?v=__BUILD__';
-import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setIgnored, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
+import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
+import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
 import { $, h, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
@@ -29,6 +30,7 @@ const isExpanded = () => expandedQuery.matches;
 const ctx = {
   allTitles: [], // catalogue complet (fiches, épisodes à venir)
   titles: [], // catalogue « sorti » à la date du jour : tout ce qui se compte (voir releasedView)
+  ignoredMap: {}, // titres ignorés (explicitement ou par catégorie) : { id: true }
   counted: [],
   byId: new Map(), // titres complets
   availById: new Map(), // titres sortis
@@ -117,7 +119,8 @@ function renderDetailPane() {
 function render({ detail = true } = {}) {
   ctx.titles = releasedView(ctx.allTitles, today());
   ctx.availById = new Map(ctx.titles.map((t) => [t.id, t]));
-  ctx.counted = countedTitles(ctx.titles, ctx.state.ignored);
+  ctx.ignoredMap = effectiveIgnored(ctx.state, ctx.allTitles);
+  ctx.counted = countedTitles(ctx.titles, ctx.ignoredMap);
   document.querySelectorAll('.nav-item').forEach((a) => {
     if (a.dataset.route === ctx.route) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -165,9 +168,10 @@ ctx.markUntil = (t) => {
   update(markUntil(ctx.state, ctx.titles, t.id, today()), `${count} titre${count > 1 ? 's' : ''} marqué${count > 1 ? 's' : ''} comme vu${count > 1 ? 's' : ''}`);
 };
 ctx.toggleIgnore = (t) => {
-  const ignored = Boolean(ctx.state.ignored[t.id]);
-  update(setIgnored(ctx.state, t.id, !ignored), `${ignored ? 'Plus ignoré' : 'Ignoré'} : ${t.title}`);
+  const ignored = Boolean(ctx.ignoredMap[t.id]);
+  update(setTitleIgnored(ctx.state, t, !ignored), `${ignored ? 'Réintégré' : 'Ignoré'} : ${t.title}`);
 };
+ctx.setSkip = (id, skipped) => update(setSkip(ctx.state, id, skipped, ctx.allTitles), `${categoryLabel(id)} : ${skipped ? 'non suivi' : 'suivi'}`);
 ctx.setFilter = (patch) => {
   Object.assign(ctx.filters, patch);
   render();
