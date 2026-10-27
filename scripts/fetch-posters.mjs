@@ -16,10 +16,19 @@ export function seasonNumber(title) {
   return m ? Number(m[1]) : null;
 }
 
-export function pickResult(results, year) {
+const norm = (s) => (s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+export function pickResult(results, year, query = '') {
   const withPoster = results.filter((r) => r.poster_path);
   const yearOf = (r) => Number((r.release_date ?? r.first_air_date ?? '').slice(0, 4));
-  return withPoster.find((r) => yearOf(r) === year) ?? withPoster[0] ?? null;
+  const q = norm(query);
+  const BONUS = /making[- ]?of|assembled|podcast|behind the scenes|documentary|featurette|rassemblement|coulisses/i;
+  const score = (r) =>
+    (q && [r.title, r.name, r.original_title, r.original_name].some((n) => norm(n) === q) ? 3 : 0) +
+    (yearOf(r) === year ? 2 : 0) -
+    ([r.title, r.name, r.original_title, r.original_name].some((n) => BONUS.test(n ?? '')) ? 10 : 0);
+  const ranked = withPoster.map((r, i) => ({ r, i, score: score(r) })).sort((a, b) => b.score - a.score || a.i - b.i);
+  return ranked[0]?.r ?? null;
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -32,23 +41,29 @@ async function tmdb(path, params, key) {
   return res.json();
 }
 
-async function findPoster(t, key) {
-  const year = Number(t.releaseDate.slice(0, 4));
+async function seasonPoster(tvId, season, fallback, key) {
+  try {
+    const s = await tmdb(`/tv/${tvId}/season/${season}`, {}, key);
+    return s.poster_path ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function findPoster(t, key, showCache) {
   const isFilm = t.type === 'film';
   const q = searchQuery(t.title);
-  const search = await tmdb(isFilm ? '/search/movie' : '/search/tv', { query: q }, key);
-  const hit = pickResult(search.results ?? [], year);
-  if (!hit) return null;
-  let poster = hit.poster_path;
   const season = seasonNumber(t.title);
-  if (!isFilm && season) {
-    try {
-      const s = await tmdb(`/tv/${hit.id}/season/${season}`, {}, key);
-      if (s.poster_path) poster = s.poster_path;
-    } catch {
-      /* on garde l'affiche de la série */
-    }
+  if (!isFilm && season && season > 1 && showCache.has(q)) {
+    const show = showCache.get(q);
+    return { tmdbId: show.id, poster: await seasonPoster(show.id, season, show.poster_path, key) };
   }
+  const year = Number(t.releaseDate.slice(0, 4));
+  const search = await tmdb(isFilm ? '/search/movie' : '/search/tv', { query: q }, key);
+  const hit = pickResult(search.results ?? [], year, q);
+  if (!hit) return null;
+  if (!isFilm) showCache.set(q, hit);
+  const poster = !isFilm && season ? await seasonPoster(hit.id, season, hit.poster_path, key) : hit.poster_path;
   return { tmdbId: hit.id, poster };
 }
 
@@ -65,10 +80,12 @@ async function main() {
 
   let found = 0;
   const missing = [];
-  for (const t of data) {
+  const showCache = new Map();
+  const bySeason = [...data].sort((a, b) => (seasonNumber(a.title) ?? 1) - (seasonNumber(b.title) ?? 1));
+  for (const t of bySeason) {
     if (t.poster && !force) continue;
     try {
-      const r = await findPoster(t, key);
+      const r = await findPoster(t, key, showCache);
       if (r) {
         Object.assign(t, r);
         found += 1;
