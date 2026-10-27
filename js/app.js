@@ -3,7 +3,7 @@ import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUnt
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
 import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
-import { $, h, today } from './ui/dom.js?v=__BUILD__';
+import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
@@ -63,6 +63,18 @@ function applyTheme() {
   else if (oled) root.dataset.oled = ''; // Auto : le CSS applique le noir OLED seulement quand le système est sombre
   const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
   if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+}
+
+// Bouton du bandeau : Auto, puis Clair, puis Sombre, puis retour à Auto. L'icône montre le mode actuel.
+const THEME_CYCLE = ['auto', 'light', 'dark'];
+const THEME_INFO = { auto: ['contrast', 'Auto'], light: ['light-mode', 'Clair'], dark: ['dark-mode', 'Sombre'] };
+function renderThemeToggle() {
+  const [iconName, label] = THEME_INFO[ctx.view.theme] ?? THEME_INFO.auto;
+  const next = THEME_INFO[THEME_CYCLE[(THEME_CYCLE.indexOf(ctx.view.theme) + 1) % THEME_CYCLE.length]][1];
+  const btn = $('theme-toggle');
+  btn.setAttribute('aria-label', `Thème : ${label}. Passer à ${next}`);
+  btn.title = `Thème : ${label}`;
+  btn.firstElementChild.replaceChildren(icon(iconName));
 }
 
 /* ---------- Stockage durable ---------- */
@@ -126,6 +138,7 @@ function render({ detail = true } = {}) {
     else a.removeAttribute('aria-current');
   });
   ROUTES.forEach((r) => { $(`screen-${r}`).hidden = r !== ctx.route; });
+  renderThemeToggle();
   document.title = `${ROUTE_TITLES[ctx.route]} · Chrono-MCU`;
   if (ctx.route === 'voir') renderVoir(ctx);
   else if (ctx.route === 'progression') renderProgression(ctx);
@@ -276,6 +289,11 @@ async function main() {
   ctx.route = routeFromHash();
 
   setupVoir(ctx);
+  $('theme-toggle').addEventListener('click', () => {
+    const next = THEME_CYCLE[(THEME_CYCLE.indexOf(ctx.view.theme) + 1) % THEME_CYCLE.length];
+    ctx.setView({ theme: next });
+    $('theme-status').textContent = `Thème : ${THEME_INFO[next][1]}`;
+  });
   $('snackbar-action').addEventListener('click', () => {
     if (!undoSnapshot) return;
     const snapshot = undoSnapshot;

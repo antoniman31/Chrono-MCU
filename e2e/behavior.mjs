@@ -310,6 +310,28 @@ await scenario('réglages : une seule section ouverte, conservée quand on chang
   check(/Clair/.test(await page.locator('[data-sec="look"] .desc').first().innerText()), 'le résumé devrait indiquer le thème choisi');
 });
 
+await scenario('bouton de thème du bandeau : visible partout, cycle Auto > Clair > Sombre, synchronisé avec Réglages', async (page) => {
+  const theme = () => page.evaluate(() => document.documentElement.dataset.theme ?? 'auto');
+  const label = () => page.getAttribute('#theme-toggle', 'aria-label');
+  for (const route of ['voir', 'progression', 'reglages']) {
+    await go(page, route);
+    check(await page.locator('#theme-toggle').isVisible(), `le bouton de thème doit être visible sur ${route}`);
+  }
+  check(/Thème : Auto/.test(await label()), `libellé initial inattendu : ${await label()}`);
+  await page.click('#theme-toggle');
+  check((await theme()) === 'light' && /Thème : Clair/.test(await label()), `après un appui : Clair attendu (${await theme()}, ${await label()})`);
+  check(/Clair/.test(await page.locator('#theme-status').innerText()), 'le changement doit être annoncé');
+  await page.click('#theme-toggle');
+  check((await theme()) === 'dark' && /Thème : Sombre/.test(await label()), `après deux appuis : Sombre attendu (${await theme()})`);
+  await page.click('#theme-toggle');
+  check((await theme()) === 'auto', 'après trois appuis : retour à Auto');
+  await page.click('#theme-toggle');
+  await go(page, 'reglages');
+  check(await page.locator('[data-fk="theme:light"]').isChecked(), 'Réglages doit refléter le thème choisi avec le bouton');
+  await reload(page);
+  check((await theme()) === 'light', 'le thème choisi doit être conservé après rechargement');
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');

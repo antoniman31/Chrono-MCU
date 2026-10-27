@@ -200,7 +200,9 @@ body.sheet-open { overflow: hidden; }
 html { scroll-padding-top: var(--appbar-h); scroll-padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
 .appbar, main { max-width: 760px; margin-inline: auto; padding-inline: 16px; }
 .appbar { height: var(--appbar-h); display: flex; align-items: center; position: sticky; top: 0; z-index: 4; background: var(--bg); max-width: none; }
-.appbar h1 { max-width: 760px; width: 100%; margin-inline: auto; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
+.appbar-in { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; max-width: 760px; margin-inline: auto; }
+.appbar h1 { min-width: 0; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
+#theme-toggle { margin-inline-end: -4px; color: var(--fg); }
 /* Titre : bloc rouge à coin chanfreiné et capitales condensées blanches, dans l'esprit d'un logo de franchise (style seulement, ce n'est pas le logo Marvel) */
 .logo {
   display: inline-block; max-width: 100%; padding: .16em .65em .06em .5em; background: var(--accent-btn); color: #fff;
