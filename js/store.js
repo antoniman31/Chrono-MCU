@@ -4,7 +4,7 @@ export const STORAGE_KEY = 'chrono-mcu:v1';
 export const STATE_VERSION = 1;
 
 export function defaultState() {
-  return { version: STATE_VERSION, order: 'chrono', seen: {}, notes: {}, lastSeenKey: null };
+  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, lastSeenKey: null };
 }
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -24,20 +24,17 @@ export function validateState(s) {
       if (!isDay(day)) errors.push(`seen["${key}"]: date invalide`);
     }
   }
-  if (!isObject(s.notes)) errors.push('notes invalide');
-  else {
-    for (const [id, n] of Object.entries(s.notes)) {
-      if (!isObject(n)) errors.push(`notes["${id}"]: invalide`);
-      else {
-        if ('rating' in n && !(Number.isInteger(n.rating) && n.rating >= 1 && n.rating <= 5)) {
-          errors.push(`notes["${id}"].rating: entier 1 à 5 attendu`);
-        }
-        if ('text' in n && typeof n.text !== 'string') errors.push(`notes["${id}"].text invalide`);
-      }
-    }
+  if ('ignored' in s) {
+    if (!isObject(s.ignored)) errors.push('ignored invalide');
+    else if (!Object.values(s.ignored).every((v) => v === true)) errors.push('ignored: valeurs true attendues');
   }
   if (s.lastSeenKey !== null && typeof s.lastSeenKey !== 'string') errors.push('lastSeenKey invalide');
   return errors;
+}
+
+// Ne garde que les champs connus: les anciennes notes et commentaires sont abandonnés ici
+function clean(s) {
+  return { version: s.version, order: s.order, seen: s.seen, ignored: s.ignored ?? {}, lastSeenKey: s.lastSeenKey };
 }
 
 export function loadState(storage) {
@@ -45,7 +42,7 @@ export function loadState(storage) {
     const raw = storage?.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
-    return validateState(parsed).length === 0 ? parsed : defaultState();
+    return validateState(parsed).length === 0 ? clean(parsed) : defaultState();
   } catch {
     return defaultState();
   }
@@ -80,7 +77,7 @@ export function toggleUnit(state, key, today) {
 }
 
 export function setTitleSeen(state, title, value, today) {
-  if (title.upcoming) return state;
+  if (title.upcoming || state.ignored[title.id]) return state;
   if (title.type === 'film') {
     if (Boolean(state.seen[title.id]) === value) return state;
     return toggleUnit(state, title.id, today);
@@ -94,6 +91,16 @@ export function setTitleSeen(state, title, value, today) {
   }
   if (value) lastSeenKey = keys[keys.length - 1];
   return withSeen(state, seen, lastSeenKey);
+}
+
+export const isIgnored = (state, id) => Boolean(state.ignored[id]);
+
+export function setIgnored(state, id, value) {
+  if (isIgnored(state, id) === value) return state;
+  const ignored = { ...state.ignored };
+  if (value) ignored[id] = true;
+  else delete ignored[id];
+  return { ...state, ignored };
 }
 
 export function isTitleSeen(state, title) {
@@ -121,20 +128,5 @@ export function importState(text) {
   }
   const errors = validateState(parsed);
   if (errors.length) return { ok: false, error: `Fichier invalide: ${errors[0]}` };
-  return { ok: true, state: parsed };
-}
-
-export function setNote(state, titleId, patch) {
-  if ('rating' in patch && patch.rating != null) {
-    if (!(Number.isInteger(patch.rating) && patch.rating >= 1 && patch.rating <= 5)) {
-      throw new Error('rating: entier 1 à 5 attendu');
-    }
-  }
-  const next = { ...state.notes[titleId], ...patch };
-  if (next.rating == null) delete next.rating;
-  if (!next.text) delete next.text;
-  const notes = { ...state.notes };
-  if (Object.keys(next).length === 0) delete notes[titleId];
-  else notes[titleId] = next;
-  return { ...state, notes };
+  return { ok: true, state: clean(parsed) };
 }

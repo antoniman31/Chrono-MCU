@@ -1,8 +1,9 @@
-import { sortTitles } from './logic.js?v=__BUILD__';
-import { exportState, importState, isTitleSeen, loadState, saveState, setNote, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
+import { countedTitles, sortTitles } from './logic.js?v=__BUILD__';
+import { exportState, importState, isTitleSeen, loadState, saveState, setIgnored, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { $, h, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
+import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
 import { renderProgression } from './ui/progression.js?v=__BUILD__';
 import { renderBackupSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
@@ -26,6 +27,7 @@ const isExpanded = () => expandedQuery.matches;
 
 const ctx = {
   titles: [],
+  counted: [],
   byId: new Map(),
   state: loadState(storage),
   view: loadView(storage),
@@ -97,6 +99,7 @@ function renderDetailPane() {
 }
 
 function render({ detail = true } = {}) {
+  ctx.counted = countedTitles(ctx.titles, ctx.state.ignored);
   document.querySelectorAll('.nav-item').forEach((a) => {
     if (a.dataset.route === ctx.route) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -134,11 +137,10 @@ ctx.toggleTitle = (t) => {
 ctx.toggleEpisode = (t, e, seen) => update(toggleUnit(ctx.state, `${t.id}/${e.n}`, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title} ép. ${e.n}`);
 ctx.toggleUnit = (unit, label) => update(toggleUnit(ctx.state, unit.key, today()), `Vu : ${label}`);
 ctx.togglePhase = (phase, all) =>
-  update(setPhaseSeen(ctx.state, sortTitles(ctx.titles, ctx.state.order), phase, !all, today()), `${all ? 'Décoché' : 'Coché'} : phase ${phase}`);
-ctx.setNote = (id, patch) => {
-  ctx.state = setNote(ctx.state, id, patch);
-  saveState(storage, ctx.state);
-  render({ detail: false });
+  update(setPhaseSeen(ctx.state, sortTitles(ctx.counted, ctx.state.order), phase, !all, today()), `${all ? 'Décoché' : 'Coché'} : phase ${phase}`);
+ctx.toggleIgnore = (t) => {
+  const ignored = Boolean(ctx.state.ignored[t.id]);
+  update(setIgnored(ctx.state, t.id, !ignored), `${ignored ? 'Plus ignoré' : 'Ignoré'} : ${t.title}`);
 };
 ctx.setFilter = (patch) => {
   Object.assign(ctx.filters, patch);
@@ -161,7 +163,7 @@ ctx.toggleCollapse = (phase) => {
 /* ---------- Feuilles et fiche ---------- */
 ctx.closeSheet = closeSheet;
 
-ctx.openDetail = (id, opener = null, { focus = null } = {}) => {
+ctx.openDetail = (id, opener = null) => {
   const t = ctx.byId.get(id);
   if (!t) return;
   if (isExpanded()) {
@@ -169,17 +171,15 @@ ctx.openDetail = (id, opener = null, { focus = null } = {}) => {
     ctx.sheetDetailId = null;
     closeSheet();
     render();
-    const pane = $('detail-pane');
-    (focus === 'notes' ? pane.querySelector('.stars input') : null)?.focus();
     return;
   }
   ctx.sheetDetailId = id;
   openSheet({
     title: t.title, kind: 'detail', opener: opener ?? document.activeElement,
-    render: (body) => renderDetail(body, ctx, id, { showTitle: false }),
+    hero: backdropImg(t, ctx.view),
+    render: (body) => renderDetail(body, ctx, id, { showTitle: false, showPoster: false }),
     onClose: () => { ctx.sheetDetailId = null; },
   });
-  if (focus === 'notes') $('sheet-body').querySelector('.stars input')?.focus();
 };
 ctx.openItemMenu = (id, opener) => openSheet({ title: ctx.byId.get(id).title, kind: 'menu', opener, render: (body) => renderItemMenu(body, ctx, id) });
 ctx.openFilters = (opener) => openSheet({ title: 'Filtres', kind: 'filters', opener, render: (body) => renderFiltersSheet(body, ctx) });

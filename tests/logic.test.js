@@ -204,3 +204,19 @@ test('suggestNext: clé inconnue = repli sur le premier non vu; l\'ordre actif c
   assert.equal(suggestNext(titles, { a: 1 }, 'release', 'a').status, 'end');
   assert.equal(suggestNext(titles, { a: 1 }, 'chrono', 'a').unit.key, 'b');
 });
+
+import { countedTitles } from '../js/logic.js';
+
+test('suggestNext: un titre ignoré n\'est jamais proposé, même s\'il suit le dernier coché', () => {
+  // chrono: a, b, s/1, s/2 ; b est le dernier coché et s est ignorée
+  assert.equal(suggestNext(titles, { b: 1 }, 'chrono', 'b', { s: true }).status, 'end');
+  // dernier coché dans un titre ignoré après coup: on continue à partir de sa position, sans rappeler les titres sautés avant
+  assert.equal(suggestNext(titles, { s: 1 }, 'chrono', 's/1', { s: true }).status, 'end');
+  assert.equal(suggestNext(titles, { a: 1, b: 1 }, 'chrono', 'b', { s: true }).status, 'done');
+});
+
+test('countedTitles: retire les titres ignorés de progression et stats', () => {
+  const counted = countedTitles(titles, { a: true });
+  assert.equal(counted.some((t) => t.id === 'a'), false);
+  assert.equal(progress(counted, {}).total, progress(titles, {}).total - 1);
+});

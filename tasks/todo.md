@@ -67,7 +67,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Fichiers: css/style.css
 
 ## Phase 5: v1.5
-- [x] T15 Notes et étoiles
+- [x] T15 Notes et étoiles (retirées ensuite)
   - Acceptation: texte + note 1 à 5 par titre, persistés, inclus dans l'export
   - Vérif: tests store + manuel
   - Fichiers: js/store.js, js/app.js, css/style.css, tests/store.test.js

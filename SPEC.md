@@ -5,7 +5,7 @@ Application web de suivi de visionnage du MCU (films + séries Disney+), inspir�
 
 ### Périmètre
 - v1 (cœur) : case « vu », deux ordres, progression globale et par phase, filtres phase/type, « prochain à voir », export/import JSON.
-- v1.5 : (1) notes perso + note étoilée par titre, (2) mode « je reprends », (5) statistiques (heures vues/restantes, rythme, date de fin estimée).
+- v1.5 : (1) notes perso + note étoilée par titre (retirées ensuite, voir Évolutions), (2) mode « je reprends », (5) statistiques (heures vues/restantes, rythme, date de fin estimée).
 - Hors périmètre : comptes, synchro cloud, affiches TMDB, partage social, notifications, scènes post-générique, prérequis, parcours alternatifs.
 
 ## Hypothèses
@@ -49,9 +49,9 @@ Film : `runtimeMin` obligatoire, pas d'`episodes`. Série : `episodes` obligatoi
 ```json
 { "version": 1, "order": "chrono|release",
   "seen": {"iron-man": "2026-10-27", "wandavision/1": "2026-10-28"},
-  "notes": {"iron-man": {"rating": 4, "text": "..."}}, "lastSeenKey": "wandavision/1" }
+  "ignored": {"iron-man": true}, "lastSeenKey": "wandavision/1" }
 ```
-Une série est « vue » quand tous ses épisodes le sont (dérivé, jamais stocké). Les notes sont par titre (film ou série), pas par épisode.
+Une série est « vue » quand tous ses épisodes le sont (dérivé, jamais stocké). `ignored` liste les titres écartés du suivi (série entière, jamais par épisode).
 
 ## Code Style
 Fonctions pures dans `logic.js`, sans accès au DOM ni au storage ; effets de bord confinés à `store.js` et `app.js`.
@@ -72,7 +72,7 @@ Tests unitaires `node --test` sur `logic.js` (tri, filtres, progression, prochai
 4. **Filtres** : par phase et par type (film/série), combinables ; la progression globale reste sur l'ensemble.
 5. **Prochain à voir** : première unité non vue (film ou épisode) dans l'ordre actif, les épisodes d'une série étant dans l'ordre `n` ; `null` quand tout est vu.
 6. **Export/Import** : l'export produit un JSON ; l'import d'un export valide restitue l'état à l'identique ; un fichier invalide est rejeté avec message, sans écraser l'état existant.
-7. **Notes (v1.5)** : texte libre + note 1 à 5 par titre, persistés, modifiables, incluses dans l'export.
+7. **Ignorer un titre** : un film ou une série ignoré est exclu de la progression, des statistiques et du « Prochain à voir », reste visible grisé avec un badge « ignoré », se réactive en un tap ; l'état est inclus dans l'export (remplace les notes de la v1.5).
 8. **Je reprends (v1.5)** : `lastSeenKey` mis à jour à chaque coche ; un bandeau propose l'unité suivante dans l'ordre actif ; indépendant de l'ordre choisi.
 9. **Statistiques (v1.5)** : heures vues, heures restantes (somme des `runtimeMin` des unités, épisodes inclus), rythme = heures vues / jours écoulés depuis la première coche, date de fin estimée ; affichage « n/a » si moins de 2 jours de données.
 10. **Robustesse** : localStorage indisponible ou corrompu = l'app démarre à vide sans crash.
@@ -105,6 +105,10 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 - « Prochain à voir » = première unité non vue **après le dernier coché** (`suggestNext`), jamais ce qui a été sauté ; sans historique, le premier titre de la liste ; fin de liste atteinte ou tout vu = message sans rappel. Remplace l'ancien « Je reprends ».
 
 - Noir OLED indépendant du thème : `theme` ∈ `auto|light|dark` + `oled` (booléen) dans les préférences d'affichage. En Auto, `data-oled` sur `<html>` active le noir pur seulement quand le système est sombre (CSS `prefers-color-scheme`). L'ancien thème `oled` est migré en `dark` + `oled`.
+
+- Affiches agrandies (liste 72x108, panneau latéral 160x240, carte « Prochain à voir » 64x96) ; en-tête image paysage (`backdrop`, 16:9, fixe en haut) dans la feuille de fiche d'un titre ; dates au format JJ/MM/AAAA : `releaseDateFr` pour les films (sortie salle France, repli sur `releaseDate`), `airDate` par épisode (TVmaze, diffusion d'origine), affichées dans la liste, la fiche et le menu d'une ligne.
+
+- Notes et commentaires supprimés définitivement (retirés de l'UI, du stockage au chargement et de l'import/export ; les anciens fichiers restent importables, leurs notes sont ignorées). Ajout de `ignored` (état optionnel, absent = vide) ; `suggestNext` accepte les titres ignorés. Champ `overview` (résumé TMDB en français, 300 caractères max, `fetch-posters.mjs --details`) affiché dans la fiche ; l'affiche portrait n'apparaît plus dans la feuille de fiche (redondante avec l'image paysage), elle reste dans le panneau latéral.
 
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.

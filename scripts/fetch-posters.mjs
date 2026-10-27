@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 const API = 'https://api.themoviedb.org/3';
 const KEY_ORDER = [
-  'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'chronoOrder', 'runtimeMin', 'postCredits',
-  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'verified', 'episodes',
+  'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'releaseDateFr', 'chronoOrder', 'runtimeMin', 'postCredits',
+  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'backdrop', 'overview', 'verified', 'episodes',
 ];
 
 export function searchQuery(title) {
@@ -29,6 +29,33 @@ export function pickResult(results, year, query = '') {
     ([r.title, r.name, r.original_title, r.original_name].some((n) => BONUS.test(n ?? '')) ? 10 : 0);
   const ranked = withPoster.map((r, i) => ({ r, i, score: score(r) })).sort((a, b) => b.score - a.score || a.i - b.i);
   return ranked[0]?.r ?? null;
+}
+
+// Résumé court: les premières phrases entières tenant dans `max` caractères (au moins la première, coupée proprement si besoin)
+export function shortOverview(text, max = 300) {
+  const clean = (text ?? '').replace(/\s+/g, ' ').trim();
+  if (!clean) return null;
+  const sentences = clean.split(/(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ«"'])/);
+  let out = '';
+  for (const s of sentences) {
+    const next = out ? `${out} ${s}` : s;
+    if (next.length > max && out) break;
+    out = next;
+  }
+  if (out.length <= max) return out;
+  const cut = out.slice(0, max - 1);
+  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:\s]+$/, '')}…`;
+}
+
+// Sortie en salle en France: type 3 (cinéma), à défaut 2 (cinéma limité) puis 1 (première); la plus ancienne date du type retenu
+export function frenchRelease(results) {
+  const fr = (results ?? []).find((r) => r.iso_3166_1 === 'FR');
+  if (!fr) return null;
+  for (const type of [3, 2, 1]) {
+    const dates = (fr.release_dates ?? []).filter((d) => d.type === type && d.release_date).map((d) => d.release_date.slice(0, 10)).sort();
+    if (dates.length) return dates[0];
+  }
+  return null;
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -67,6 +94,53 @@ async function findPoster(t, key, showCache) {
   return { tmdbId: hit.id, poster };
 }
 
+async function overviewFor(t, key) {
+  const season = seasonNumber(t.title);
+  if (t.type === 'serie' && season) {
+    const s = await tmdb(`/tv/${t.tmdbId}/season/${season}`, {}, key);
+    if (s.overview?.trim()) return s.overview;
+  }
+  return (await tmdb(`/${t.type === 'film' ? 'movie' : 'tv'}/${t.tmdbId}`, {}, key)).overview;
+}
+
+async function addDetails(data, key, force) {
+  let filled = 0;
+  const missing = [];
+  for (const t of data) {
+    if (!t.tmdbId) continue;
+    const film = t.type === 'film';
+    const needBackdrop = !t.backdrop;
+    const needFr = film && !t.upcoming && !t.releaseDateFr;
+    const needOverview = !t.overview;
+    if (!force && !needBackdrop && !needFr && !needOverview) continue;
+    try {
+      if (force || needOverview) {
+        const short = shortOverview(await overviewFor(t, key));
+        if (short) {
+          t.overview = short;
+          filled += 1;
+        } else missing.push(`${t.title} (résumé français)`);
+      }
+      const info = await tmdb(`/${film ? 'movie' : 'tv'}/${t.tmdbId}`, {}, key);
+      if (info.backdrop_path && (force || needBackdrop)) {
+        t.backdrop = info.backdrop_path;
+        filled += 1;
+      } else if (!info.backdrop_path) missing.push(`${t.title} (image paysage)`);
+      if (film && !t.upcoming) {
+        const fr = frenchRelease((await tmdb(`/movie/${t.tmdbId}/release_dates`, {}, key)).results);
+        if (fr) {
+          t.releaseDateFr = fr;
+          filled += 1;
+        } else missing.push(`${t.title} (date France)`);
+      }
+    } catch (e) {
+      missing.push(`${t.title} (${e.message})`);
+    }
+    await sleep(120);
+  }
+  return { filled, missing };
+}
+
 async function main() {
   const key = process.env.TMDB_API_KEY;
   if (!key) {
@@ -77,6 +151,15 @@ async function main() {
   const dry = process.argv.includes('--dry');
   const path = new URL('../data/mcu.json', import.meta.url);
   const data = JSON.parse(readFileSync(path, 'utf8'));
+
+  if (process.argv.includes('--details')) {
+    const { filled, missing: gaps } = await addDetails(data, key, force);
+    const out = data.map((t) => Object.fromEntries(KEY_ORDER.filter((k) => k in t).map((k) => [k, t[k]])));
+    if (!dry) writeFileSync(path, `${JSON.stringify(out, null, 2)}\n`);
+    console.log(`${filled} valeur(s) ajoutée(s) (images paysage, dates France, résumés)${dry ? ' (essai à blanc, rien écrit)' : ''}.`);
+    if (gaps.length) console.log(`Manquant : ${gaps.join(' ; ')}`);
+    return;
+  }
 
   let found = 0;
   const missing = [];
