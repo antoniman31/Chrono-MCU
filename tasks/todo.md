@@ -31,15 +31,15 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Fichiers: js/logic.js, tests/logic.test.js
 
 ## Phase 3: Persistance
-- [ ] T7 Store et localStorage robuste
+- [x] T7 Store et localStorage robuste
   - Acceptation: état par défaut, chargement/sauvegarde clé `chrono-mcu:v1`; storage indisponible ou corrompu = démarrage à vide sans crash
   - Vérif: tests avec storage factice (absent, JSON invalide)
   - Fichiers: js/store.js, tests/store.test.js
-- [ ] T8 Cocher film, épisode, série entière
+- [x] T8 Cocher film, épisode, série entière
   - Acceptation: cocher/décocher met à jour `seen` et `lastSeenKey`; cocher une série coche tous ses épisodes et inversement
   - Vérif: tests
   - Fichiers: js/store.js, tests/store.test.js
-- [ ] T9 Export/import
+- [x] T9 Export/import
   - Acceptation: export JSON; import d'un export valide restitue l'état; import invalide rejeté avec message, état existant intact; champ `version` vérifié
   - Vérif: tests aller-retour et cas invalides
   - Fichiers: js/store.js, tests/store.test.js
