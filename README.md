@@ -20,7 +20,7 @@ L'interface suit Material 3 : une barre de navigation en bas sur téléphone (ra
 python3 -m http.server 8000   # puis http://localhost:8000
 npm test                      # tests unitaires (Node 22+)
 npm run validate              # vérifie data/mcu.json
-npm install && npx playwright install chromium && npm run e2e   # accessibilité (axe-core), cibles tactiles, clavier
+npm install && npx playwright install --only-shell chromium && npm run e2e   # accessibilité (axe-core), cibles tactiles, clavier
 ```
 
 Le test `npm run e2e` (dépendances de développement seulement : `axe-core` et `playwright`) parcourt chaque écran et chaque feuille dans les 3 thèmes et 3 largeurs d'écran ; il tourne aussi dans la CI et bloque le déploiement en cas de régression.
