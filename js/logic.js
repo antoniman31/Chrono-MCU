@@ -18,7 +18,7 @@ export function toUnits(titles) {
         key: `${t.id}/${e.n}`,
         kind: 'episode',
         n: e.n,
-        title: e.title,
+        title: e.titleFr ?? e.title,
         runtimeMin: e.runtimeMin,
       }));
     }
@@ -40,7 +40,7 @@ function matchesQuery(t, query) {
   const q = normalizeText(query);
   if (!q) return true;
   if (normalizeText(t.title).includes(q)) return true;
-  return t.type === 'serie' && (t.episodes ?? []).some((e) => normalizeText(e.title).includes(q));
+  return t.type === 'serie' && (t.episodes ?? []).some((e) => normalizeText(e.title).includes(q) || (e.titleFr && normalizeText(e.titleFr).includes(q)));
 }
 
 export function filterTitles(titles, { phase = null, type = null, query = '', hideSeen = false, seen = {} } = {}) {
@@ -104,17 +104,20 @@ const DAY_MS = 86_400_000;
 const dayNumber = (s) => Math.floor(Date.parse(`${s}T00:00:00Z`) / DAY_MS);
 const fromDayNumber = (n) => new Date(n * DAY_MS).toISOString().slice(0, 10);
 
-export function stats(titles, seen, today) {
+// `catchUp` : unités marquées d'un coup pour rattraper un historique. Elles comptent dans les heures vues et restantes,
+// mais pas dans le rythme (sinon cocher 40 films d'un coup ferait exploser « Rythme » et « Fin estimée »).
+export function stats(titles, seen, today, catchUp = {}) {
   const units = toUnits(titles);
   const seenMin = units.filter((u) => seen[u.key]).reduce((sum, u) => sum + u.runtimeMin, 0);
   const remainingMin = units.filter((u) => !seen[u.key]).reduce((sum, u) => sum + u.runtimeMin, 0);
+  const regularMin = units.filter((u) => seen[u.key] && !catchUp[u.key]).reduce((sum, u) => sum + u.runtimeMin, 0);
 
-  const days = Object.values(seen).map(dayNumber);
+  const days = Object.entries(seen).filter(([key]) => !catchUp[key]).map(([, day]) => dayNumber(day));
   const elapsed = days.length ? dayNumber(today) - Math.min(...days) : 0;
-  if (elapsed < 2 || seenMin === 0) {
+  if (elapsed < 2 || regularMin === 0) {
     return { seenMin, remainingMin, paceMinPerDay: null, etaDate: null };
   }
-  const paceMinPerDay = seenMin / elapsed;
+  const paceMinPerDay = regularMin / elapsed;
   const etaDate = fromDayNumber(dayNumber(today) + Math.ceil(remainingMin / paceMinPerDay));
   return { seenMin, remainingMin, paceMinPerDay, etaDate };
 }

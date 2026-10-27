@@ -22,7 +22,7 @@ function episodesSection(ctx, t, ignored) {
     const fg = h('div', { class: 'item-fg' },
       checkbox({ checked: seen, disabled: ignored, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
-        h('span', { class: 'title', text: `Ép. ${e.n} — ${e.title}` }),
+        h('span', { class: 'title', text: `Ép. ${e.n} — ${e.titleFr ?? e.title}` }),
         h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
     const row = h('li', { class: `item${seen ? ' seen' : ''}` }, bg, fg);
     attachSwipe(row, fg, bg, swipe);

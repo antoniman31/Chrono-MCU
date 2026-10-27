@@ -1,11 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { seasonNumber } from './fetch-posters.mjs';
-
-const KEY_ORDER = [
-  'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'releaseDateFr', 'chronoOrder', 'runtimeMin', 'postCredits',
-  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'backdrop', 'overview', 'verified', 'episodes',
-];
+import { orderTitle } from './shared.mjs';
 
 export function compareSeries(mine, tvEpisodes) {
   const diffs = [];
@@ -81,11 +77,7 @@ async function main() {
   }
 
   if (write) {
-    const out = data.map((t) => {
-      const ordered = Object.fromEntries(KEY_ORDER.filter((k) => k in t).map((k) => [k, t[k]]));
-      if (t.episodes) ordered.episodes = t.episodes.map((e) => Object.fromEntries(['n', 'title', 'airDate', 'runtimeMin'].filter((k) => k in e).map((k) => [k, e[k]])));
-      return ordered;
-    });
+    const out = data.map(orderTitle);
     writeFileSync(path, `${JSON.stringify(out, null, 2)}\n`);
     console.log(`${changed} valeur(s) mise(s) à jour dans data/mcu.json.`);
   }

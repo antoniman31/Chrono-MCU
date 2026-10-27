@@ -131,6 +131,41 @@ await scenario('export puis import : aller-retour, fichier invalide sans effet',
   check(await checked(page, 'cb:iron-man'), 'un import invalide a modifié l\'état');
 });
 
+await scenario('rattrapage : « Tout marquer vu jusqu\'ici », rythme exclu, annulation', async (page) => {
+  await page.click('[data-fk="menu:iron-man"]');
+  const label = await page.locator('[data-fk="m-until"]').innerText();
+  check(/jusqu'ici \((\d+) titres\)/.test(label), `libellé inattendu : ${label}`);
+  await page.click('[data-fk="m-until"]');
+  const state = await stored(page);
+  const seenKeys = Object.keys(state.seen);
+  check(seenKeys.length >= 2 && seenKeys.every((k) => state.catchUp[k]), 'tout le rattrapage devrait être marqué catchUp');
+  check(await checked(page, 'cb:iron-man'), 'iron-man devrait être coché');
+  check(state.lastSeenKey === 'iron-man', `lastSeenKey inattendu : ${state.lastSeenKey}`);
+  await go(page, 'progression');
+  const text = await page.locator('#progress-screen').innerText();
+  check(/Rythme\s*\n?\s*n\/a/.test(text), 'le rythme devrait rester n/a après un rattrapage');
+  check(/rattrapage/.test(text), 'la note sur le rattrapage devrait s\'afficher');
+  await go(page, 'voir');
+  await page.click('#snackbar-action');
+  check(Object.keys((await stored(page)).seen).length === 0, 'l\'annulation devrait tout restaurer');
+});
+
+await scenario('titres d\'épisodes en français affichés dans la fiche', async (page) => {
+  const fr = await page.evaluate(async () => {
+    const data = await (await fetch('data/mcu.json')).json();
+    return data.find((t) => t.id === 'wandavision').episodes.find((e) => e.titleFr);
+  });
+  check(fr, 'aucun titre français pour WandaVision dans les données');
+  await page.click('[data-fk="open:wandavision"]');
+  await page.waitForSelector('#sheet[open]');
+  check((await page.locator('#sheet-body').innerText()).includes(fr.titleFr), `le titre « ${fr.titleFr} » devrait s'afficher`);
+  await page.keyboard.press('Escape');
+  await page.fill('#search', fr.title.slice(0, 8));
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'la recherche par titre d\'origine devrait trouver la série');
+  await page.fill('#search', fr.titleFr.slice(0, 8));
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'la recherche par titre français devrait trouver la série');
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await page.locator('[data-fk="s-oled"]').check({ force: true });

@@ -1,4 +1,4 @@
-import { ORDERS } from './logic.js?v=__BUILD__';
+import { ORDERS, sortTitles, toUnits } from './logic.js?v=__BUILD__';
 
 // Le nom de la clé reste « v1 » pour ne pas déplacer les données ; la version du contenu, elle, est dans `state.version`.
 export const STORAGE_KEY = 'chrono-mcu:v1';
@@ -6,7 +6,7 @@ export const BACKUP_KEY = 'chrono-mcu:v1:pre-v2';
 export const STATE_VERSION = 2;
 
 export function defaultState() {
-  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, lastSeenKey: null };
+  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, catchUp: {}, lastSeenKey: null };
 }
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -29,6 +29,10 @@ export function validateState(s) {
   if ('ignored' in s) {
     if (!isObject(s.ignored)) errors.push('ignored invalide');
     else if (!Object.values(s.ignored).every((v) => v === true)) errors.push('ignored: valeurs true attendues');
+  }
+  if ('catchUp' in s) {
+    if (!isObject(s.catchUp)) errors.push('catchUp invalide');
+    else if (!Object.values(s.catchUp).every((v) => v === true)) errors.push('catchUp: valeurs true attendues');
   }
   if (s.lastSeenKey !== null && typeof s.lastSeenKey !== 'string') errors.push('lastSeenKey invalide');
   return errors;
@@ -54,8 +58,8 @@ export function migrate(raw) {
     state = step(state);
   }
   // Ne garde que les champs connus
-  const { version, order, seen, ignored, lastSeenKey } = state;
-  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, lastSeenKey } };
+  const { version, order, seen, ignored, catchUp, lastSeenKey } = state;
+  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, catchUp: catchUp ?? {}, lastSeenKey } };
 }
 
 export function loadState(storage) {
@@ -92,8 +96,10 @@ export function setOrder(state, order) {
   return { ...state, order };
 }
 
+// Décocher une unité la sort aussi du rattrapage : si elle est re-cochée plus tard, c'est un vrai visionnage
 function withSeen(state, seen, lastSeenKey) {
-  return { ...state, seen, lastSeenKey };
+  const catchUp = Object.fromEntries(Object.entries(state.catchUp ?? {}).filter(([key]) => seen[key]));
+  return { ...state, seen, catchUp, lastSeenKey };
 }
 
 export function toggleUnit(state, key, today) {
@@ -161,4 +167,24 @@ export function importState(text) {
   const errors = validateState(migrated.state);
   if (errors.length) return { ok: false, error: `Fichier invalide: ${errors[0]}` };
   return { ok: true, state: migrated.state };
+}
+
+// Rattrapage : unités non vues, non ignorées et sorties, de la première jusqu'à la fin du titre `id` (incluse), dans l'ordre actif.
+export function pendingUntil(state, titles, id) {
+  const units = toUnits(sortTitles(titles.filter((t) => !state.ignored[t.id]), state.order));
+  let end = -1;
+  units.forEach((u, i) => { if (u.titleId === id) end = i; });
+  return end === -1 ? [] : units.slice(0, end + 1).filter((u) => !state.seen[u.key]);
+}
+
+export function markUntil(state, titles, id, today) {
+  const pending = pendingUntil(state, titles, id);
+  if (!pending.length) return state;
+  const seen = { ...state.seen };
+  const catchUp = { ...state.catchUp };
+  for (const u of pending) {
+    seen[u.key] = today;
+    catchUp[u.key] = true;
+  }
+  return { ...state, seen, catchUp, lastSeenKey: pending[pending.length - 1].key };
 }

@@ -249,30 +249,35 @@
       {
         "n": 1,
         "title": "Groot's First Steps",
+        "titleFr": "Les premiers pas de Groot",
         "airDate": "2022-08-10",
         "runtimeMin": 4
       },
       {
         "n": 2,
         "title": "The Little Guy",
+        "titleFr": "Le héros",
         "airDate": "2022-08-10",
         "runtimeMin": 4
       },
       {
         "n": 3,
         "title": "Groot's Pursuit",
+        "titleFr": "La quête de Groot",
         "airDate": "2022-08-10",
         "runtimeMin": 4
       },
       {
         "n": 4,
         "title": "Groot Takes a Bath",
+        "titleFr": "L'instant détente de Groot",
         "airDate": "2022-08-10",
         "runtimeMin": 4
       },
       {
         "n": 5,
         "title": "Magnum Opus",
+        "titleFr": "L'œuvre d'art de Groot",
         "airDate": "2022-08-10",
         "runtimeMin": 4
       }
@@ -296,30 +301,35 @@
       {
         "n": 1,
         "title": "Are You My Groot?",
+        "titleFr": "Tu es mon Groot ?",
         "airDate": "2023-09-06",
         "runtimeMin": 4
       },
       {
         "n": 2,
         "title": "Groot Noses Around",
+        "titleFr": "Groot a du nez",
         "airDate": "2023-09-06",
         "runtimeMin": 4
       },
       {
         "n": 3,
         "title": "Groot's Snow Day",
+        "titleFr": "Le bonhomme de neige de Groot",
         "airDate": "2023-09-06",
         "runtimeMin": 5
       },
       {
         "n": 4,
         "title": "Groot's Sweet Treat",
+        "titleFr": "Groot a envie d'une glace",
         "airDate": "2023-09-06",
         "runtimeMin": 4
       },
       {
         "n": 5,
         "title": "Groot and the Great Prophecy",
+        "titleFr": "Groot et la grande prophétie",
         "airDate": "2023-09-06",
         "runtimeMin": 6
       }
@@ -557,12 +567,14 @@
       {
         "n": 1,
         "title": "Glorious Purpose",
+        "titleFr": "Un destin exceptionnel",
         "airDate": "2021-06-09",
         "runtimeMin": 50
       },
       {
         "n": 2,
         "title": "The Variant",
+        "titleFr": "Le Variant",
         "airDate": "2021-06-16",
         "runtimeMin": 53
       },
@@ -575,18 +587,21 @@
       {
         "n": 4,
         "title": "The Nexus Event",
+        "titleFr": "Le Nexus",
         "airDate": "2021-06-30",
         "runtimeMin": 48
       },
       {
         "n": 5,
         "title": "Journey into Mystery",
+        "titleFr": "Voyage vers le mystère",
         "airDate": "2021-07-07",
         "runtimeMin": 48
       },
       {
         "n": 6,
         "title": "For All Time. Always.",
+        "titleFr": "Pour toujours. À jamais.",
         "airDate": "2021-07-14",
         "runtimeMin": 45
       }
@@ -616,6 +631,7 @@
       {
         "n": 2,
         "title": "Breaking Brad",
+        "titleFr": "Brad Fer",
         "airDate": "2023-10-12",
         "runtimeMin": 52
       },
@@ -628,6 +644,7 @@
       {
         "n": 4,
         "title": "Heart of the TVA",
+        "titleFr": "Le cœur du TVA",
         "airDate": "2023-10-26",
         "runtimeMin": 51
       },
@@ -640,6 +657,7 @@
       {
         "n": 6,
         "title": "Glorious Purpose",
+        "titleFr": "Glorieux destin",
         "airDate": "2023-11-09",
         "runtimeMin": 59
       }
@@ -664,54 +682,63 @@
       {
         "n": 1,
         "title": "What If... Captain Carter Were the First Avenger?",
+        "titleFr": "Et si… Captain Carter était devenue le premier Avenger ?",
         "airDate": "2021-08-11",
         "runtimeMin": 33
       },
       {
         "n": 2,
         "title": "What If... T'Challa Became a Star-Lord?",
+        "titleFr": "Et si... T'Challa était devenu Star-Lord ?",
         "airDate": "2021-08-18",
         "runtimeMin": 32
       },
       {
         "n": 3,
         "title": "What If... the World Lost Its Mightiest Heroes?",
+        "titleFr": "Et si... Le monde avait perdu ses plus puissant héros ?",
         "airDate": "2021-08-25",
         "runtimeMin": 32
       },
       {
         "n": 4,
         "title": "What If... Doctor Strange Lost His Heart Instead of His Hands?",
+        "titleFr": "Et si... Docteur Strange avait perdu son coeur au lieu de ses mains ?",
         "airDate": "2021-09-01",
         "runtimeMin": 36
       },
       {
         "n": 5,
         "title": "What If... Zombies?!",
+        "titleFr": "Et si... Des Zombies envahissaient la Terre ?",
         "airDate": "2021-09-08",
         "runtimeMin": 30
       },
       {
         "n": 6,
         "title": "What If... Killmonger Rescued Tony Stark?",
+        "titleFr": "Et si... Killmonger avait sauvé Tony Stark ?",
         "airDate": "2021-09-15",
         "runtimeMin": 33
       },
       {
         "n": 7,
         "title": "What If... Thor Were an Only Child?",
+        "titleFr": "Et si... Thor avait été fils unique ?",
         "airDate": "2021-09-22",
         "runtimeMin": 33
       },
       {
         "n": 8,
         "title": "What If... Ultron Won?",
+        "titleFr": "Et si... Ultron avait gagné ?",
         "airDate": "2021-09-29",
         "runtimeMin": 30
       },
       {
         "n": 9,
         "title": "What If... the Watcher Broke His Oath?",
+        "titleFr": "Et si... Le Gardien avait rompu son serment ?",
         "airDate": "2021-10-06",
         "runtimeMin": 35
       }
@@ -736,54 +763,63 @@
       {
         "n": 1,
         "title": "What If... Nebula Joined the Nova Corps?",
+        "titleFr": "Et si… Nebula avait rejoint les cohortes de Nova ?",
         "airDate": "2023-12-22",
         "runtimeMin": 29
       },
       {
         "n": 2,
         "title": "What If... Peter Quill Attacked Earth's Mightiest Heroes?",
+        "titleFr": "Et si... Peter Quill avait attaqué les plus grands héros de la Terre ?",
         "airDate": "2023-12-23",
         "runtimeMin": 30
       },
       {
         "n": 3,
         "title": "What If... Happy Hogan Saved Christmas?",
+        "titleFr": "Et si... Happy Hogan avait sauvé Noël ?",
         "airDate": "2023-12-24",
         "runtimeMin": 27
       },
       {
         "n": 4,
         "title": "What If... Iron Man Crashed into the Grandmaster?",
+        "titleFr": "Et si... Iron Man avait rencontré le Grand Maître ?",
         "airDate": "2023-12-25",
         "runtimeMin": 32
       },
       {
         "n": 5,
         "title": "What If... Captain Carter Fought the Hydra Stomper?",
+        "titleFr": "Et si... Captain Carter avait combattu l'Écraseur d'Hydra ?",
         "airDate": "2023-12-26",
         "runtimeMin": 31
       },
       {
         "n": 6,
         "title": "What If... Kahhori Reshaped the World?",
+        "titleFr": "Et si... Kahhori avait refait le monde ?",
         "airDate": "2023-12-27",
         "runtimeMin": 32
       },
       {
         "n": 7,
         "title": "What If... Hela Found the Ten Rings?",
+        "titleFr": "Et si... Hela avait trouvé les Dix Anneaux ?",
         "airDate": "2023-12-28",
         "runtimeMin": 29
       },
       {
         "n": 8,
         "title": "What If... the Avengers Assembled in 1602?",
+        "titleFr": "Et si...Les Avengers se rassemblaient en 1602 ?",
         "airDate": "2023-12-29",
         "runtimeMin": 30
       },
       {
         "n": 9,
         "title": "What If... Strange Supreme Intervened?",
+        "titleFr": "Et si... le Strange Suprême était intervenu ?",
         "airDate": "2023-12-30",
         "runtimeMin": 31
       }
@@ -808,48 +844,56 @@
       {
         "n": 1,
         "title": "What If... The Hulk Fought the Mech Avengers?",
+        "titleFr": "Et si… Hulk avait combattu les Mech Avengers ?",
         "airDate": "2024-12-22",
         "runtimeMin": 29
       },
       {
         "n": 2,
         "title": "What If... Agatha Went to Hollywood?",
+        "titleFr": "Et si… Agatha avait conquis Hollywood ?",
         "airDate": "2024-12-23",
         "runtimeMin": 28
       },
       {
         "n": 3,
         "title": "What If... The Red Guardian Stopped the Winter Soldier?",
+        "titleFr": "Et si... Le Gardien Rouge arrêtait le Soldat de l'Hiver ?",
         "airDate": "2024-12-24",
         "runtimeMin": 30
       },
       {
         "n": 4,
         "title": "What If... Howard the Duck Got Hitched?",
+        "titleFr": "Et si... Howard le canard se mariait ?",
         "airDate": "2024-12-25",
         "runtimeMin": 30
       },
       {
         "n": 5,
         "title": "What If... The Emergence Destroyed the Earth?",
+        "titleFr": "Et si… l'Émergence détruisait la Terre ?",
         "airDate": "2024-12-26",
         "runtimeMin": 31
       },
       {
         "n": 6,
         "title": "What If... 1872?",
+        "titleFr": "Et si… 1872 ?",
         "airDate": "2024-12-27",
         "runtimeMin": 30
       },
       {
         "n": 7,
         "title": "What If... The Watcher Disappeared?",
+        "titleFr": "Et si… le Gardien disparaissait ?",
         "airDate": "2024-12-28",
         "runtimeMin": 25
       },
       {
         "n": 8,
         "title": "What If... What If?",
+        "titleFr": "Et si…?",
         "airDate": "2024-12-29",
         "runtimeMin": 32
       }
@@ -873,54 +917,63 @@
       {
         "n": 1,
         "title": "Filmed Before a Live Studio Audience",
+        "titleFr": "Filmé devant public",
         "airDate": "2021-01-15",
         "runtimeMin": 27
       },
       {
         "n": 2,
         "title": "Don't Touch That Dial",
+        "titleFr": "Ne zappez pas",
         "airDate": "2021-01-15",
         "runtimeMin": 34
       },
       {
         "n": 3,
         "title": "Now in Color",
+        "titleFr": "On passe à la couleur",
         "airDate": "2021-01-22",
         "runtimeMin": 30
       },
       {
         "n": 4,
         "title": "We Interrupt This Program",
+        "titleFr": "Interruption du programme",
         "airDate": "2021-01-29",
         "runtimeMin": 33
       },
       {
         "n": 5,
         "title": "On a Very Special Episode...",
+        "titleFr": "Dans cet épisode très spécial…",
         "airDate": "2021-02-05",
         "runtimeMin": 38
       },
       {
         "n": 6,
         "title": "All-New Halloween Spooktacular!",
+        "titleFr": "Spécial Halloween",
         "airDate": "2021-02-12",
         "runtimeMin": 35
       },
       {
         "n": 7,
         "title": "Breaking the Fourth Wall",
+        "titleFr": "Briser le quatrième mur",
         "airDate": "2021-02-19",
         "runtimeMin": 34
       },
       {
         "n": 8,
         "title": "Previously On",
+        "titleFr": "Précédemment dans...",
         "airDate": "2021-02-26",
         "runtimeMin": 43
       },
       {
         "n": 9,
         "title": "The Series Finale",
+        "titleFr": "Le grand final",
         "airDate": "2021-03-05",
         "runtimeMin": 47
       }
@@ -964,36 +1017,42 @@
       {
         "n": 1,
         "title": "New World Order",
+        "titleFr": "Un nouvel ordre",
         "airDate": "2021-03-19",
         "runtimeMin": 47
       },
       {
         "n": 2,
         "title": "The Star-Spangled Man",
+        "titleFr": "L'Homme à la bannière étoilée",
         "airDate": "2021-03-26",
         "runtimeMin": 47
       },
       {
         "n": 3,
         "title": "Power Broker",
+        "titleFr": "Trafic d'influence",
         "airDate": "2021-04-02",
         "runtimeMin": 51
       },
       {
         "n": 4,
         "title": "The Whole World Is Watching",
+        "titleFr": "Le monde nous regarde",
         "airDate": "2021-04-09",
         "runtimeMin": 51
       },
       {
         "n": 5,
         "title": "Truth",
+        "titleFr": "La Vérité",
         "airDate": "2021-04-16",
         "runtimeMin": 57
       },
       {
         "n": 6,
         "title": "One World, One People",
+        "titleFr": "Un seul monde, un seul peuple",
         "airDate": "2021-04-23",
         "runtimeMin": 49
       }
@@ -1097,36 +1156,42 @@
       {
         "n": 1,
         "title": "Never Meet Your Heroes",
+        "titleFr": "Ne jamais rencontrer ses héros",
         "airDate": "2021-11-24",
         "runtimeMin": 47
       },
       {
         "n": 2,
         "title": "Hide and Seek",
+        "titleFr": "Cache-cache",
         "airDate": "2021-11-24",
         "runtimeMin": 49
       },
       {
         "n": 3,
         "title": "Echoes",
+        "titleFr": "Echos",
         "airDate": "2021-12-01",
         "runtimeMin": 44
       },
       {
         "n": 4,
         "title": "Partners, Am I Right?",
+        "titleFr": "On fait équipe, non ?",
         "airDate": "2021-12-08",
         "runtimeMin": 41
       },
       {
         "n": 5,
         "title": "Ronin",
+        "titleFr": "Le Ronin",
         "airDate": "2021-12-15",
         "runtimeMin": 45
       },
       {
         "n": 6,
         "title": "So This Is Christmas?",
+        "titleFr": "Tu parles d'un joyeux Noël !",
         "airDate": "2021-12-22",
         "runtimeMin": 62
       }
@@ -1150,36 +1215,42 @@
       {
         "n": 1,
         "title": "The Goldfish Problem",
+        "titleFr": "Le Problème du poisson rouge",
         "airDate": "2022-03-30",
         "runtimeMin": 47
       },
       {
         "n": 2,
         "title": "Summon the Suit",
+        "titleFr": "Invoque le costume",
         "airDate": "2022-04-06",
         "runtimeMin": 52
       },
       {
         "n": 3,
         "title": "The Friendly Type",
+        "titleFr": "En toute amitié",
         "airDate": "2022-04-13",
         "runtimeMin": 53
       },
       {
         "n": 4,
         "title": "The Tomb",
+        "titleFr": "Le tombeau",
         "airDate": "2022-04-20",
         "runtimeMin": 53
       },
       {
         "n": 5,
         "title": "Asylum",
+        "titleFr": "L'asile",
         "airDate": "2022-04-27",
         "runtimeMin": 50
       },
       {
         "n": 6,
         "title": "Gods and Monsters",
+        "titleFr": "Des dieux et des monstres",
         "airDate": "2022-05-04",
         "runtimeMin": 43
       }
@@ -1269,54 +1340,63 @@
       {
         "n": 1,
         "title": "A Normal Amount of Rage",
+        "titleFr": "Une colère normale et légitime",
         "airDate": "2022-08-18",
         "runtimeMin": 38
       },
       {
         "n": 2,
         "title": "Superhuman Law",
+        "titleFr": "Droit super-humain",
         "airDate": "2022-08-25",
         "runtimeMin": 28
       },
       {
         "n": 3,
         "title": "The People vs. Emil Blonsky",
+        "titleFr": "Le procès Blonsky",
         "airDate": "2022-09-01",
         "runtimeMin": 35
       },
       {
         "n": 4,
         "title": "Is This Not Real Magic?",
+        "titleFr": "Les lois de la magie",
         "airDate": "2022-09-08",
         "runtimeMin": 34
       },
       {
         "n": 5,
         "title": "Mean, Green, and Straight Poured into These Jeans",
+        "titleFr": "Méchante, verte et bien moulée dans son jean",
         "airDate": "2022-09-15",
         "runtimeMin": 31
       },
       {
         "n": 6,
         "title": "Just Jen",
+        "titleFr": "Simplement Jen",
         "airDate": "2022-09-22",
         "runtimeMin": 29
       },
       {
         "n": 7,
         "title": "The Retreat",
+        "titleFr": "Le refuge",
         "airDate": "2022-09-29",
         "runtimeMin": 32
       },
       {
         "n": 8,
         "title": "Ribbit and Rip It",
+        "titleFr": "L'habit ne fait pas la grenouille",
         "airDate": "2022-10-06",
         "runtimeMin": 34
       },
       {
         "n": 9,
         "title": "Whose Show Is This?",
+        "titleFr": "Le bon côté de la barre",
         "airDate": "2022-10-13",
         "runtimeMin": 35
       }
@@ -1340,36 +1420,42 @@
       {
         "n": 1,
         "title": "Generation Why",
+        "titleFr": "Les origines",
         "airDate": "2022-06-08",
         "runtimeMin": 47
       },
       {
         "n": 2,
         "title": "Crushed",
+        "titleFr": "Première mission",
         "airDate": "2022-06-15",
         "runtimeMin": 49
       },
       {
         "n": 3,
         "title": "Destined",
+        "titleFr": "Sa destinée",
         "airDate": "2022-06-22",
         "runtimeMin": 45
       },
       {
         "n": 4,
         "title": "Seeing Red",
+        "titleFr": "Retour aux sources",
         "airDate": "2022-06-29",
         "runtimeMin": 45
       },
       {
         "n": 5,
         "title": "Time and Again",
+        "titleFr": "D'une époque à une autre",
         "airDate": "2022-07-06",
         "runtimeMin": 40
       },
       {
         "n": 6,
         "title": "No Normal",
+        "titleFr": "Retour à la normale",
         "airDate": "2022-07-13",
         "runtimeMin": 49
       }
@@ -1413,36 +1499,42 @@
       {
         "n": 1,
         "title": "Take Me Home",
+        "titleFr": "Retour au bercail",
         "airDate": "2025-06-24",
         "runtimeMin": 41
       },
       {
         "n": 2,
         "title": "Will the Real Natalie Please Stand Up?",
+        "titleFr": "La vraie Natalie ?",
         "airDate": "2025-06-24",
         "runtimeMin": 50
       },
       {
         "n": 3,
         "title": "We in Danger, Girl",
+        "titleFr": "On est en danger, ma biche",
         "airDate": "2025-06-24",
         "runtimeMin": 56
       },
       {
         "n": 4,
         "title": "Bad Magic",
+        "titleFr": "Dans une autre dimension",
         "airDate": "2025-07-01",
         "runtimeMin": 53
       },
       {
         "n": 5,
         "title": "Karma's a Glitch",
+        "titleFr": "Y a comme un glitch",
         "airDate": "2025-07-01",
         "runtimeMin": 60
       },
       {
         "n": 6,
         "title": "The Past Is the Past",
+        "titleFr": "Le prix à payer",
         "airDate": "2025-07-01",
         "runtimeMin": 42
       }
@@ -1540,36 +1632,42 @@
       {
         "n": 1,
         "title": "Resurrection",
+        "titleFr": "Retour sur Terre",
         "airDate": "2023-06-21",
         "runtimeMin": 55
       },
       {
         "n": 2,
         "title": "Promises",
+        "titleFr": "Coup d’État",
         "airDate": "2023-06-28",
         "runtimeMin": 58
       },
       {
         "n": 3,
         "title": "Betrayed",
+        "titleFr": "Trahison",
         "airDate": "2023-07-05",
         "runtimeMin": 42
       },
       {
         "n": 4,
         "title": "Beloved",
+        "titleFr": "Sacrifices",
         "airDate": "2023-07-12",
         "runtimeMin": 36
       },
       {
         "n": 5,
         "title": "Harvest",
+        "titleFr": "Révolte",
         "airDate": "2023-07-19",
         "runtimeMin": 37
       },
       {
         "n": 6,
         "title": "Home",
+        "titleFr": "Dernière chance",
         "airDate": "2023-07-26",
         "runtimeMin": 36
       }
@@ -1631,54 +1729,63 @@
       {
         "n": 1,
         "title": "Seekest Thou the Road",
+        "titleFr": "\"Retrouvez la Route\"",
         "airDate": "2024-09-18",
         "runtimeMin": 42
       },
       {
         "n": 2,
         "title": "Circle Sewn with Fate / Unlock Thy Hidden Gate",
+        "titleFr": "\"Un nouveau présage dévoilera le passage\"",
         "airDate": "2024-09-18",
         "runtimeMin": 42
       },
       {
         "n": 3,
         "title": "Through Many Miles / Of Tricks and Trials",
+        "titleFr": "\"Qu'il vente, qu'il pleuve, à chaque épreuve\"",
         "airDate": "2024-09-25",
         "runtimeMin": 36
       },
       {
         "n": 4,
         "title": "If I Can't Reach You / Let My Song Teach You",
+        "titleFr": "\"Loin de la maison, écoute ma chanson\"",
         "airDate": "2024-10-02",
         "runtimeMin": 41
       },
       {
         "n": 5,
         "title": "Darkest Hour / Wake Thy Power",
+        "titleFr": "\"Dans la nuit noire, vienne le pouvoir\"",
         "airDate": "2024-10-09",
         "runtimeMin": 30
       },
       {
         "n": 6,
         "title": "Familiar by Thy Side",
+        "titleFr": "\"Une vision familière\"",
         "airDate": "2024-10-16",
         "runtimeMin": 47
       },
       {
         "n": 7,
         "title": "Death's Hand in Mine",
+        "titleFr": "\"La Mort pour nous guider\"",
         "airDate": "2024-10-23",
         "runtimeMin": 35
       },
       {
         "n": 8,
         "title": "Follow Me, My Friend / To Glory at the End",
+        "titleFr": "\"Partons maintenant car la gloire nous attend\"",
         "airDate": "2024-10-30",
         "runtimeMin": 49
       },
       {
         "n": 9,
         "title": "Maiden / Mother / Crone",
+        "titleFr": "\"Vierge, mère, bigote\"",
         "airDate": "2024-10-30",
         "runtimeMin": 42
       }
@@ -1721,54 +1828,63 @@
       {
         "n": 1,
         "title": "Heaven's Half Hour",
+        "titleFr": "Une demi-heure au Paradis",
         "airDate": "2025-03-04",
         "runtimeMin": 58
       },
       {
         "n": 2,
         "title": "Optics",
+        "titleFr": "Images",
         "airDate": "2025-03-04",
         "runtimeMin": 47
       },
       {
         "n": 3,
         "title": "The Hollow of His Hand",
+        "titleFr": "Au creux de Sa main",
         "airDate": "2025-03-11",
         "runtimeMin": 44
       },
       {
         "n": 4,
         "title": "Sic Semper Systema",
+        "titleFr": "Toujours le système",
         "airDate": "2025-03-18",
         "runtimeMin": 52
       },
       {
         "n": 5,
         "title": "With Interest",
+        "titleFr": "Dommages et intérêts",
         "airDate": "2025-03-25",
         "runtimeMin": 40
       },
       {
         "n": 6,
         "title": "Excessive Force",
+        "titleFr": "Méthodes excessives",
         "airDate": "2025-03-25",
         "runtimeMin": 42
       },
       {
         "n": 7,
         "title": "Art for Art's Sake",
+        "titleFr": "L'art pour l'art",
         "airDate": "2025-04-01",
         "runtimeMin": 40
       },
       {
         "n": 8,
         "title": "Isle of Joy",
+        "titleFr": "L'Île de la joie",
         "airDate": "2025-04-08",
         "runtimeMin": 49
       },
       {
         "n": 9,
         "title": "Straight to Hell",
+        "titleFr": "Aller simple pour l'Enfer",
         "airDate": "2025-04-15",
         "runtimeMin": 57
       }
@@ -1832,24 +1948,28 @@
       {
         "n": 1,
         "title": "Into the Lion's Den",
+        "titleFr": "Dans la tanière du lion",
         "airDate": "2025-08-01",
         "runtimeMin": 31
       },
       {
         "n": 2,
         "title": "Legends and Lies",
+        "titleFr": "Légendes et mensonges",
         "airDate": "2025-08-01",
         "runtimeMin": 31
       },
       {
         "n": 3,
         "title": "Lost and Found",
+        "titleFr": "Perdu et retrouvé",
         "airDate": "2025-08-01",
         "runtimeMin": 30
       },
       {
         "n": 4,
         "title": "The Last Panther",
+        "titleFr": "La dernière panthère",
         "airDate": "2025-08-01",
         "runtimeMin": 29
       }
@@ -1916,60 +2036,70 @@
       {
         "n": 1,
         "title": "Amazing Fantasy",
+        "titleFr": "Les Origines",
         "airDate": "2025-01-29",
         "runtimeMin": 30
       },
       {
         "n": 2,
         "title": "The Parker Luck",
+        "titleFr": "La Chance de Parker",
         "airDate": "2025-01-29",
         "runtimeMin": 29
       },
       {
         "n": 3,
         "title": "Secret Identity Crisis",
+        "titleFr": "Démasqué",
         "airDate": "2025-02-05",
         "runtimeMin": 32
       },
       {
         "n": 4,
         "title": "Hitting the Big Time",
+        "titleFr": "Un nouveau héros",
         "airDate": "2025-02-05",
         "runtimeMin": 33
       },
       {
         "n": 5,
         "title": "The Unicorn Unleashed",
+        "titleFr": "Rencontre avec la licorne",
         "airDate": "2025-02-05",
         "runtimeMin": 31
       },
       {
         "n": 6,
         "title": "Duel with the Devil",
+        "titleFr": "Combat contre le diable",
         "airDate": "2025-02-12",
         "runtimeMin": 29
       },
       {
         "n": 7,
         "title": "Scorpion Rising",
+        "titleFr": "Les Scorpions",
         "airDate": "2025-02-12",
         "runtimeMin": 29
       },
       {
         "n": 8,
         "title": "Tangled Web",
+        "titleFr": "Ultimatum",
         "airDate": "2025-02-12",
         "runtimeMin": 30
       },
       {
         "n": 9,
         "title": "Hero or Menace",
+        "titleFr": "Héros ou menace ?",
         "airDate": "2025-02-19",
         "runtimeMin": 31
       },
       {
         "n": 10,
         "title": "If This Be My Destiny...",
+        "titleFr": "Accepter son destin",
         "airDate": "2025-02-19",
         "runtimeMin": 33
       }
@@ -1993,6 +2123,7 @@
       {
         "n": 1,
         "title": "Matinee",
+        "titleFr": "Séance en journée",
         "airDate": "2026-01-27",
         "runtimeMin": 35
       },
@@ -2023,6 +2154,7 @@
       {
         "n": 6,
         "title": "Callback",
+        "titleFr": "Rappel",
         "airDate": "2026-01-27",
         "runtimeMin": 36
       },
@@ -2058,30 +2190,35 @@
       {
         "n": 1,
         "title": "The Northern Star",
+        "titleFr": "L'étoile polaire",
         "airDate": "2026-03-24",
         "runtimeMin": 51
       },
       {
         "n": 2,
         "title": "Shoot the Moon",
+        "titleFr": "Viser plus haut",
         "airDate": "2026-03-31",
         "runtimeMin": 46
       },
       {
         "n": 3,
         "title": "The Scales & the Sword",
+        "titleFr": "La balance et l'épée",
         "airDate": "2026-03-31",
         "runtimeMin": 47
       },
       {
         "n": 4,
         "title": "Gloves Off",
+        "titleFr": "On ne prend plus de gants",
         "airDate": "2026-04-07",
         "runtimeMin": 51
       },
       {
         "n": 5,
         "title": "The Grand Design",
+        "titleFr": "Le Grand dessein",
         "airDate": "2026-04-14",
         "runtimeMin": 50
       },
@@ -2094,12 +2231,14 @@
       {
         "n": 7,
         "title": "The Hateful Darkness",
+        "titleFr": "Les ténèbres haineuses",
         "airDate": "2026-04-28",
         "runtimeMin": 44
       },
       {
         "n": 8,
         "title": "The Southern Cross",
+        "titleFr": "La Croix du Sud",
         "airDate": "2026-05-05",
         "runtimeMin": 51
       }
@@ -2157,12 +2296,14 @@
       {
         "n": 1,
         "title": "No Strings",
+        "titleFr": "Sans attaches",
         "airDate": "2026-10-13",
         "runtimeMin": 53
       },
       {
         "n": 2,
         "title": "Theseus",
+        "titleFr": "Thésée",
         "airDate": "2026-10-13",
         "runtimeMin": 45
       },
