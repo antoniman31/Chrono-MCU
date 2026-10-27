@@ -118,3 +118,18 @@ test('import invalide: rejeté avec message, jamais d\'état retourné', () => {
     assert.equal('state' in r, false);
   }
 });
+
+import { setNote } from '../js/store.js';
+
+test('setNote: crée, fusionne, supprime quand vide, valide la note', () => {
+  let s = setNote(defaultState(), 'f', { rating: 4 });
+  assert.deepEqual(s.notes.f, { rating: 4 });
+  s = setNote(s, 'f', { text: 'top' });
+  assert.deepEqual(s.notes.f, { rating: 4, text: 'top' });
+  s = setNote(s, 'f', { rating: null });
+  assert.deepEqual(s.notes.f, { text: 'top' });
+  s = setNote(s, 'f', { text: '' });
+  assert.equal('f' in s.notes, false);
+  assert.throws(() => setNote(s, 'f', { rating: 6 }));
+  assert.deepEqual(validateState(setNote(s, 'f', { rating: 5, text: 'x' })), []);
+});

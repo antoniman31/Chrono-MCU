@@ -115,3 +115,18 @@ export function importState(text) {
   if (errors.length) return { ok: false, error: `Fichier invalide: ${errors[0]}` };
   return { ok: true, state: parsed };
 }
+
+export function setNote(state, titleId, patch) {
+  if ('rating' in patch && patch.rating != null) {
+    if (!(Number.isInteger(patch.rating) && patch.rating >= 1 && patch.rating <= 5)) {
+      throw new Error('rating: entier 1 à 5 attendu');
+    }
+  }
+  const next = { ...state.notes[titleId], ...patch };
+  if (next.rating == null) delete next.rating;
+  if (!next.text) delete next.text;
+  const notes = { ...state.notes };
+  if (Object.keys(next).length === 0) delete notes[titleId];
+  else notes[titleId] = next;
+  return { ...state, notes };
+}

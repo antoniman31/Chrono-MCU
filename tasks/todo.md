@@ -45,37 +45,37 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Fichiers: js/store.js, tests/store.test.js
 
 ## Phase 4: UI cœur
-- [ ] T10 Liste et cases à cocher
+- [x] T10 Liste et cases à cocher
   - Acceptation: affichage de la liste dans l'ordre actif, cocher films/épisodes, séries repliables avec « n/total »
   - Vérif: manuel, rechargement conserve l'état
   - Fichiers: js/app.js, index.html, css/style.css
-- [ ] T11 Bascule d'ordre et filtres
+- [x] T11 Bascule d'ordre et filtres
   - Acceptation: bascule chrono/sortie sans changer la progression; filtres phase/type
   - Vérif: manuel
   - Fichiers: js/app.js, index.html, css/style.css
-- [ ] T12 Progression et prochain à voir
+- [x] T12 Progression et prochain à voir
   - Acceptation: barre globale et par phase; bandeau « prochain à voir » cliquable
   - Vérif: manuel + valeurs égales aux tests de logique
   - Fichiers: js/app.js, css/style.css
-- [ ] T13 Export/import dans l'UI
+- [x] T13 Export/import dans l'UI
   - Acceptation: boutons export (téléchargement) et import (fichier) avec message d'erreur lisible
   - Vérif: aller-retour manuel
   - Fichiers: js/app.js, index.html
-- [ ] T14 Responsive et thème sombre
+- [x] T14 Responsive et thème sombre
   - Acceptation: pas de scroll horizontal dès 360 px; thème sombre lisible
   - Vérif: Playwright (viewports 360 et 1280) captures
   - Fichiers: css/style.css
 
 ## Phase 5: v1.5
-- [ ] T15 Notes et étoiles
+- [x] T15 Notes et étoiles
   - Acceptation: texte + note 1 à 5 par titre, persistés, inclus dans l'export
   - Vérif: tests store + manuel
   - Fichiers: js/store.js, js/app.js, css/style.css, tests/store.test.js
-- [ ] T16 Je reprends
+- [x] T16 Je reprends
   - Acceptation: bandeau de reprise basé sur `lastSeenKey`, indépendant de l'ordre
   - Vérif: tests logique + manuel
   - Fichiers: js/logic.js, js/app.js, tests/logic.test.js
-- [ ] T17 Statistiques
+- [x] T17 Statistiques
   - Acceptation: heures vues/restantes, rythme, date de fin estimée; « n/a » sous 2 jours de données
   - Vérif: tests avec dates fixes
   - Fichiers: js/logic.js, js/app.js, tests/logic.test.js, css/style.css

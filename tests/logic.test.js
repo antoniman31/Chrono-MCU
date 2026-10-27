@@ -88,3 +88,48 @@ test('prochain à voir: sauter un épisode intermédiaire le remonte', () => {
 test('prochain à voir: catalogue vide', () => {
   assert.equal(nextToWatch([], {}, 'chrono'), null);
 });
+
+import { resumeFrom, stats } from '../js/logic.js';
+
+test('reprise: unité suivante après la dernière vue, dans l\'ordre actif', () => {
+  const seen = { a: '2026-01-01' };
+  assert.equal(resumeFrom(titles, seen, 'chrono', 'a').key, 'b');
+  assert.equal(resumeFrom(titles, { b: 1 }, 'release', 'b').key, 's/1');
+});
+
+test('reprise: saute les déjà vus, null si rien après ou clé inconnue', () => {
+  assert.equal(resumeFrom(titles, { a: 1, b: 1 }, 'chrono', 'a').key, 's/1');
+  assert.equal(resumeFrom(titles, { 's/2': 1 }, 'chrono', 's/2'), null);
+  assert.equal(resumeFrom(titles, {}, 'chrono', null), null);
+  assert.equal(resumeFrom(titles, {}, 'chrono', 'zzz'), null);
+});
+
+test('reprise: la progression ne dépend pas de l\'ordre, la suggestion si', () => {
+  const seen = { a: 1 };
+  assert.equal(resumeFrom(titles, seen, 'chrono', 'a').key, 'b');
+  assert.equal(resumeFrom(titles, seen, 'release', 'a'), null);
+});
+
+test('stats: heures vues/restantes, rythme et date de fin estimée', () => {
+  // a,b = 100 min chacun; s = 2 x 30 min. Total 260.
+  const seen = { a: '2026-01-01', b: '2026-01-05' };
+  const r = stats(titles, seen, '2026-01-11'); // 10 jours écoulés
+  assert.equal(r.seenMin, 200);
+  assert.equal(r.remainingMin, 60);
+  assert.equal(r.paceMinPerDay, 20);
+  assert.equal(r.etaDate, '2026-01-14'); // 60 / 20 = 3 jours
+});
+
+test('stats: n/a sous 2 jours de données, rien vu, ou aucune donnée', () => {
+  assert.equal(stats(titles, { a: '2026-01-10' }, '2026-01-11').etaDate, null);
+  assert.equal(stats(titles, { a: '2026-01-10' }, '2026-01-11').paceMinPerDay, null);
+  assert.equal(stats(titles, {}, '2026-01-11').etaDate, null);
+  assert.equal(stats(titles, {}, '2026-01-11').remainingMin, 260);
+});
+
+test('stats: tout vu = fin estimée aujourd\'hui', () => {
+  const seen = { a: '2026-01-01', b: '2026-01-01', 's/1': '2026-01-01', 's/2': '2026-01-01' };
+  const r = stats(titles, seen, '2026-01-11');
+  assert.equal(r.remainingMin, 0);
+  assert.equal(r.etaDate, '2026-01-11');
+});

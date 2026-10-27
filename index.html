@@ -3,13 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#121316">
   <title>Chrono-MCU</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <main id="app">
-    <h1>Chrono-MCU</h1>
-    <p>Suivi de visionnage du MCU.</p>
+    <header class="top">
+      <h1>Chrono-MCU</h1>
+      <div class="data-actions">
+        <button type="button" id="export">Exporter</button>
+        <label class="button" for="import">Importer</label>
+        <input type="file" id="import" accept="application/json,.json" hidden>
+      </div>
+    </header>
+    <p id="message" role="status" hidden></p>
+    <section id="progress" aria-label="Progression"></section>
+    <section id="banners"></section>
+    <section class="controls" aria-label="Affichage">
+      <div class="seg" role="group" aria-label="Ordre">
+        <button type="button" data-order="chrono">Chronologique</button>
+        <button type="button" data-order="release">Sortie</button>
+      </div>
+      <label>Phase
+        <select id="filter-phase"><option value="">Toutes</option></select>
+      </label>
+      <label>Type
+        <select id="filter-type">
+          <option value="">Tous</option>
+          <option value="film">Films</option>
+          <option value="serie">Séries</option>
+        </select>
+      </label>
+    </section>
+    <section id="stats" aria-label="Statistiques"></section>
+    <ol id="list" class="list"></ol>
   </main>
   <script type="module" src="js/app.js"></script>
 </body>
