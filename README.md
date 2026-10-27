@@ -10,6 +10,8 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 - « Prochain à voir » et « Je reprends » (suite de ta dernière coche).
 - Notes (1 à 5 étoiles + commentaire) par titre.
 - Statistiques : heures vues et restantes, rythme, date de fin estimée (disponible après 2 jours d'usage).
+- Recherche par titre ou par épisode (insensible aux accents), case « Masquer les terminés », bouton « Annuler » (8 secondes) après chaque coche.
+- Badge « autre réalité » pour les titres hors de la timeline principale (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man).
 - Indicateur de scènes mi-générique / post-générique par film (sans description, donc sans spoiler).
 - Export / import JSON de la progression (sauvegarde, changement d'appareil).
 
@@ -35,6 +37,7 @@ Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm
 
 - `id` unique et stable (la progression est stockée avec cet id : le changer perd les coches) ;
 - `chronoOrder` unique par titre ;
+- `altUniverse` : `true` pour un titre situé dans une autre réalité (absent sinon) ;
 - `postCredits` (films) : tableau de `"mid"` / `"end"` ; `[]` = aucune scène ; champ absent = inconnu (aucun badge) ;
 - film : `runtimeMin` obligatoire ; série : `episodes` (`n` de 1 à N, `title`, `runtimeMin`).
 

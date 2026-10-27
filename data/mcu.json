@@ -491,6 +491,7 @@
     "saga": "multiverse",
     "releaseDate": "2021-08-11",
     "chronoOrder": 28,
+    "altUniverse": true,
     "verified": true,
     "episodes": [
       {
@@ -548,6 +549,7 @@
     "saga": "multiverse",
     "releaseDate": "2023-12-22",
     "chronoOrder": 29,
+    "altUniverse": true,
     "verified": true,
     "episodes": [
       {
@@ -605,6 +607,7 @@
     "saga": "multiverse",
     "releaseDate": "2024-12-22",
     "chronoOrder": 30,
+    "altUniverse": true,
     "verified": true,
     "episodes": [
       {
@@ -1422,6 +1425,7 @@
     "saga": "multiverse",
     "releaseDate": "2025-09-24",
     "chronoOrder": 59,
+    "altUniverse": true,
     "verified": true,
     "episodes": [
       {
@@ -1454,6 +1458,7 @@
     "saga": "multiverse",
     "releaseDate": "2025-01-29",
     "chronoOrder": 60,
+    "altUniverse": true,
     "verified": true,
     "episodes": [
       {

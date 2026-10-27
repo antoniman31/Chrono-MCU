@@ -21,6 +21,9 @@
     <section id="progress" aria-label="Progression"></section>
     <section id="banners"></section>
     <section class="controls" aria-label="Affichage">
+      <label class="search">Recherche
+        <input type="search" id="search" placeholder="Titre ou épisode…" autocomplete="off">
+      </label>
       <div class="seg" role="group" aria-label="Ordre">
         <button type="button" data-order="chrono">Chronologique</button>
         <button type="button" data-order="release">Sortie</button>
@@ -36,10 +39,15 @@
         </select>
       </label>
       <label class="check"><input type="checkbox" id="group-phase"> Grouper par phase</label>
+      <label class="check"><input type="checkbox" id="hide-done"> Masquer les terminés</label>
       <label class="check" id="posters-toggle" hidden><input type="checkbox" id="show-posters"> Afficher les affiches</label>
     </section>
     <section id="stats" aria-label="Statistiques"></section>
     <ol id="list" class="list"></ol>
+    <div id="undo" role="status" hidden>
+      <span id="undo-text"></span>
+      <button type="button" id="undo-btn">Annuler</button>
+    </div>
     <footer id="credits" hidden>
       <p class="muted">Affiches : <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
     </footer>

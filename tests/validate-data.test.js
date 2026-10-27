@@ -80,3 +80,9 @@ test('poster et tmdbId: formats stricts', () => {
   assert.ok(validate([film({ poster: '/ok.gif' })]).some((e) => e.includes('poster')));
   assert.ok(validate([film({ tmdbId: 0 })]).some((e) => e.includes('tmdbId')));
 });
+
+test('altUniverse: true ou absent', () => {
+  assert.deepEqual(validate([film({ altUniverse: true })]), []);
+  assert.ok(validate([film({ altUniverse: false })]).some((e) => e.includes('altUniverse')));
+  assert.ok(validate([film({ altUniverse: 'oui' })]).some((e) => e.includes('altUniverse')));
+});

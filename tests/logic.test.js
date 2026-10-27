@@ -143,3 +143,31 @@ test('titres à venir: ignorés des unités, de la progression et du prochain à
   assert.equal(nextToWatch([soon], {}, 'chrono'), null);
   assert.equal(filterTitles([a, soon], { phase: 6 }).length, 1);
 });
+
+import { normalizeText, titleSeen } from '../js/logic.js';
+
+test('normalizeText: sans accents ni casse', () => {
+  assert.equal(normalizeText('  Les Éternels '), 'les eternels');
+});
+
+test('recherche: titre, épisode, accents; vide = tout', () => {
+  const eternels = film('eternels', 7, '2021-11-05');
+  eternels.title = 'Les Éternels';
+  const t = [a, eternels, s];
+  s.episodes[1].title = 'Doorman';
+  assert.equal(filterTitles(t, { query: '' }).length, 3);
+  assert.deepEqual(filterTitles(t, { query: 'eternels' }).map((x) => x.id), ['eternels']);
+  assert.deepEqual(filterTitles(t, { query: 'DOORMAN' }).map((x) => x.id), ['s']);
+  assert.deepEqual(filterTitles(t, { query: 'zzz' }), []);
+});
+
+test('masquer les terminés: films vus, séries entièrement vues; série partielle gardée', () => {
+  assert.equal(titleSeen(a, { a: '2026-01-01' }), true);
+  assert.equal(titleSeen(s, { 's/1': 1 }), false);
+  assert.equal(titleSeen(s, { 's/1': 1, 's/2': 1 }), true);
+  const seen = { a: 1, 's/1': 1 };
+  assert.deepEqual(filterTitles([a, b, s], { hideSeen: true, seen }).map((x) => x.id), ['b', 's']);
+  assert.deepEqual(filterTitles([a, b, s], { hideSeen: false, seen }).length, 3);
+  const all = { a: 1, b: 1, 's/1': 1, 's/2': 1 };
+  assert.deepEqual(filterTitles([a, b, s], { hideSeen: true, seen: all }), []);
+});

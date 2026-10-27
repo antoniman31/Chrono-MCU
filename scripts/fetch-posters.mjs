@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 const API = 'https://api.themoviedb.org/3';
 const KEY_ORDER = [
   'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'chronoOrder', 'runtimeMin', 'postCredits',
-  'upcoming', 'tmdbId', 'poster', 'verified', 'episodes',
+  'upcoming', 'altUniverse', 'tmdbId', 'poster', 'verified', 'episodes',
 ];
 
 export function searchQuery(title) {
