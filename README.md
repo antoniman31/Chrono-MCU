@@ -25,9 +25,9 @@ npm run validate              # vérifie data/mcu.json
 
 Tout le catalogue est dans `data/mcu.json` (phases 1 à 6, jusqu'à Avengers : Secret Wars). Chaque entrée a un champ `verified` : `true` quand dates, titres et durées sont recoupés avec des sources (TheTVDB, Apple TV, presse), `false` quand une partie reste estimée (durées d'épisodes approximatives, titres d'épisodes génériques « Épisode n », séries en cours). Un badge « à vérifier » s'affiche dans l'app.
 
-L'ordre chronologique suit l'ordre Disney+ tel que je l'ai reconstitué : fiable jusqu'à Endgame, une approximation ensuite (les sources divergent, notamment sur la place de Loki). Corrige `chronoOrder` si ton Disney+ diffère.
+L'ordre chronologique suit la frise publiée par le jeu de données ouvert [Marvel Archive](https://github.com/les2/marvel-screen-archive) (`timelineOrder`, métadonnées sous licence CC BY 4.0), complété à la main pour les titres qu'il ne place pas (Loki 2, What If 2 et 3, Eyes of Wakanda, Marvel Zombies, titres 2025-2026). Ce n'est pas une copie vérifiée de l'ordre affiché sur Disney+ : corrige `chronoOrder` si le tien diffère. Les titres d'épisodes de Daredevil, What If, Loki 2 et WandaVision ont été recoupés avec le catalogue [mcu-completionist-watchlist](https://github.com/CinematicArchivesHQ/mcu-completionist-watchlist).
 
-Les durées d'épisodes varient de quelques minutes selon les sources (avec ou sans générique) : elles sont indicatives. Encore à vérifier : WandaVision, Falcon, Loki 2, What If 2 et 3, Daredevil 1 et 2, Wonder Man, VisionQuest (durées issues de fuites ou estimées, titres génériques pour Daredevil 2).
+Les durées d'épisodes varient de quelques minutes selon les sources (avec ou sans générique) : elles sont indicatives. Encore à vérifier (durées issues de fuites ou estimées) : WandaVision, Falcon, Loki 2, What If 2 et 3, Daredevil 1 et 2, Wonder Man, VisionQuest, Your Friendly Neighborhood Spider-Man, I Am Groot 2, The Punisher: One Last Kill.
 
 Les titres pas encore sortis portent `"upcoming": true` (sans `runtimeMin` ni `episodes`). Ils s'affichent « à venir » et ne comptent pas dans la progression. À leur sortie : retirer `upcoming`, ajouter durée ou épisodes.
 
