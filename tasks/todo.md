@@ -17,15 +17,15 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Fichiers: scripts/validate-data.mjs, tests/validate-data.test.js
 
 ## Phase 2: Logique pure
-- [ ] T4 Dépliage en unités et tri
+- [x] T4 Dépliage en unités et tri
   - Acceptation: `toUnits(titles)` produit films + épisodes; `sortTitles(titles, order)` pour chrono et sortie
   - Vérif: `node --test`
   - Fichiers: js/logic.js, tests/logic.test.js
-- [ ] T5 Progression et filtres
+- [x] T5 Progression et filtres
   - Acceptation: `progress(titles, seen)` global et par phase; `filterTitles` par phase/type combinables; progression globale inchangée par les filtres
   - Vérif: tests dont cas limites (tout vu, rien vu, série partielle)
   - Fichiers: js/logic.js, tests/logic.test.js
-- [ ] T6 Prochain à voir
+- [x] T6 Prochain à voir
   - Acceptation: première unité non vue dans l'ordre actif; `null` si tout est vu; épisodes dans l'ordre `n`
   - Vérif: tests chrono et sortie
   - Fichiers: js/logic.js, tests/logic.test.js
