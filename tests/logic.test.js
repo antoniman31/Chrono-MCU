@@ -240,3 +240,43 @@ test('titres d\'épisodes en français : unité et recherche', () => {
   assert.equal(filterTitles(fr, { query: 'pilot' }).length, 1);
   assert.equal(filterTitles(fr, { query: 'inconnu' }).length, 0);
 });
+
+import { isReleased, releasedView } from '../js/logic.js';
+
+const ongoing = {
+  id: 'o', title: 'O', type: 'serie', phase: 6, saga: 'multiverse', releaseDate: '2026-10-01', chronoOrder: 9, verified: true,
+  episodes: [
+    { n: 1, title: 'a', airDate: '2026-10-01', runtimeMin: 30 },
+    { n: 2, title: 'b', airDate: '2026-11-03', runtimeMin: 30 },
+    { n: 3, title: 'c', airDate: '2026-11-10', runtimeMin: 30 },
+  ],
+};
+
+test('isReleased : le jour même de la date d\'origine, jamais avant ; sans date = sorti', () => {
+  assert.equal(isReleased({ airDate: '2026-11-03' }, '2026-11-02'), false);
+  assert.equal(isReleased({ airDate: '2026-11-03' }, '2026-11-03'), true);
+  assert.equal(isReleased({ airDate: '2026-11-03' }, '2026-12-01'), true);
+  assert.equal(isReleased({}, '2026-01-01'), true);
+});
+
+test('releasedView : retire les épisodes à venir, garde les numéros, série sans épisode sorti = à venir', () => {
+  const v = releasedView([ongoing, a], '2026-10-27');
+  assert.deepEqual(v[0].episodes.map((e) => e.n), [1]);
+  assert.equal(v[0].upcoming, undefined);
+  assert.equal(v[1], a, 'un film reste le même objet');
+  assert.equal(releasedView([ongoing], '2026-11-03')[0].episodes.length, 2);
+  assert.equal(releasedView([ongoing], '2026-11-10')[0], ongoing, 'tout est sorti : même objet');
+  const none = releasedView([ongoing], '2026-09-01')[0];
+  assert.equal(none.upcoming, true);
+});
+
+test('releasedView : progression, « Prochain à voir » et statistiques ne comptent que les épisodes sortis', () => {
+  const before = releasedView([ongoing], '2026-10-27');
+  assert.equal(progress(before, {}).total, 1);
+  assert.equal(stats(before, {}, '2026-10-27').remainingMin, 30);
+  const seen = { 'o/1': '2026-10-02' };
+  assert.equal(suggestNext(before, seen, 'chrono', 'o/1').status, 'done'); // tout ce qui est sorti est vu
+  const after = releasedView([ongoing], '2026-11-03');
+  assert.equal(progress(after, seen).total, 2);
+  assert.equal(suggestNext(after, seen, 'chrono', 'o/1').unit.key, 'o/2');
+});

@@ -1,7 +1,8 @@
 import { isIgnored, isTitleSeen } from '../store.js?v=__BUILD__';
-import { formatShort, h, icon, hours } from './dom.js?v=__BUILD__';
+import { formatShort, h, icon, hours, today } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
+import { isReleased } from '../logic.js?v=__BUILD__';
 
 export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
 
@@ -14,7 +15,18 @@ export function metaLine(t) {
 }
 
 function episodesSection(ctx, t, ignored) {
+  const day = today();
+  const released = t.episodes.filter((e) => isReleased(e, day));
   const rows = t.episodes.map((e) => {
+    if (!isReleased(e, day)) {
+      // Pas encore sorti : visible, mais sans case et hors de tous les comptes
+      return h('li', { class: 'item upcoming-ep' },
+        h('div', { class: 'item-fg' },
+          h('span', { class: 'cb', 'aria-hidden': 'true' }),
+          h('div', { class: 'ep-text' },
+            h('span', { class: 'title', text: `Ép. ${e.n} — ${e.titleFr ?? e.title}` }),
+            h('span', { class: 'meta', text: `Sort le ${formatShort(e.airDate)}` }))));
+    }
     const key = `${t.id}/${e.n}`;
     const seen = Boolean(ctx.state.seen[key]);
     const swipe = ignored ? { right: null, left: null } : { right: { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleEpisode(t, e, seen) }, left: null };
@@ -28,8 +40,10 @@ function episodesSection(ctx, t, ignored) {
     attachSwipe(row, fg, bg, swipe);
     return row;
   });
+  const seenCount = released.filter((e) => ctx.state.seen[`${t.id}/${e.n}`]).length;
+  const pending = t.episodes.length - released.length;
   return h('section', { class: 'episodes', 'aria-labelledby': `eps-h-${t.id}` },
-    h('h3', { id: `eps-h-${t.id}`, text: `Épisodes (${t.episodes.filter((e) => ctx.state.seen[`${t.id}/${e.n}`]).length}/${t.episodes.length} vus)` }),
+    h('h3', { id: `eps-h-${t.id}`, text: `Épisodes (${seenCount}/${released.length} vus${pending ? `, ${pending} à venir` : ''})` }),
     h('ul', { class: 'items' }, rows));
 }
 
@@ -39,7 +53,7 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
     container.replaceChildren(h('p', { class: 'detail-empty', text: 'Titre introuvable.' }));
     return;
   }
-  const seen = isTitleSeen(ctx.state, t);
+  const seen = isTitleSeen(ctx.state, ctx.availById.get(t.id) ?? t);
   const ignored = isIgnored(ctx.state, t.id);
   const poster = showPoster ? posterImg(t, ctx.view, 'w342', 96, 144) : null;
   const children = [

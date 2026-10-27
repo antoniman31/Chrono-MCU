@@ -64,6 +64,25 @@ const progressTotal = async (page) => {
   return result;
 };
 
+await scenario('épisodes pas encore sortis : exclus des comptes jusqu\'à leur date', async (page, context) => {
+  await context.clock.setFixedTime(new Date('2026-10-27T12:00:00'));
+  await reload(page);
+  const before = await progressTotal(page);
+  await page.fill('#search', 'VisionQuest');
+  const meta = await page.locator('[data-fk="open:visionquest"]').innerText();
+  check(/\(2 à venir\)/.test(meta), `la liste devrait annoncer 2 épisodes à venir : ${meta.replace(/\n/g, ' | ')}`);
+  await page.click('[data-fk="open:visionquest"]');
+  await page.waitForSelector('#sheet[open]');
+  const sheet = await page.locator('#sheet-body').innerText();
+  check(/Sort le 03\/11\/2026/.test(sheet) && /Sort le 10\/11\/2026/.test(sheet), 'la fiche devrait afficher les dates de sortie des épisodes 7 et 8');
+  check(await page.locator('[data-fk="ep:visionquest/7"]').count() === 0, 'un épisode à venir ne doit pas avoir de case');
+  await page.keyboard.press('Escape');
+  await context.clock.setFixedTime(new Date('2026-11-11T12:00:00'));
+  await reload(page);
+  const after = await progressTotal(page);
+  check(after.total - before.total === 2, `les 2 épisodes devraient entrer dans le total (${before.total} -> ${after.total})`);
+});
+
 await scenario('persistance : une coche survit au rechargement', async (page) => {
   await page.click('[data-fk="cb:iron-man"]');
   check(await checked(page, 'cb:iron-man'), 'la case n\'est pas cochée après le clic');

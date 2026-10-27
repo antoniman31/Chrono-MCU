@@ -1,4 +1,4 @@
-import { filterTitles, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
+import { filterTitles, isReleased, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
 import { isIgnored, isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
 import { $, formatShort, h, hours, icon, today, withFocusRestore } from './dom.js?v=__BUILD__';
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
@@ -50,7 +50,19 @@ function renderResume(ctx) {
   } else {
     content = h('div', { class: 'row' }, h('div', { class: 'name', text: status === 'done' ? 'Tout est vu. Bravo.' : 'Tu es arrivé à la fin de la liste.' }));
   }
-  $('resume').replaceChildren(h('section', { class: 'card card-tonal resume', 'aria-label': 'Suite du visionnage' }, content));
+  // Séries commencées dont un épisode sort bientôt : on sait quand reprendre
+  const day = today();
+  const coming = ctx.allTitles
+    .filter((t) => t.type === 'serie' && !t.upcoming && !state.ignored[t.id] && t.episodes.some((e) => state.seen[`${t.id}/${e.n}`]))
+    .map((t) => ({ t, next: t.episodes.find((e) => !isReleased(e, day)) }))
+    .filter((x) => x.next)
+    .sort((a, b) => a.next.airDate.localeCompare(b.next.airDate))
+    .slice(0, 2);
+  const comingRows = coming.map(({ t, next }) =>
+    h('div', { class: 'row' }, h('div', { class: 'text' },
+      h('div', { class: 'label', text: 'Prochainement' }),
+      h('div', { class: 'name', text: `${t.title} : épisode ${next.n} le ${formatShort(next.airDate)}` }))));
+  $('resume').replaceChildren(h('section', { class: 'card card-tonal resume', 'aria-label': 'Suite du visionnage' }, content, comingRows));
 }
 
 function itemFor(ctx, t) {
@@ -70,8 +82,10 @@ function itemFor(ctx, t) {
   const ignored = isIgnored(state, t.id);
   const done = t.type === 'serie' ? t.episodes.filter((e) => state.seen[`${t.id}/${e.n}`]).length : 0;
   const partial = t.type === 'serie' && done > 0 && !seen;
+  const total = t.type === 'serie' ? ctx.byId.get(t.id).episodes.length : 0;
+  const pending = t.type === 'serie' ? total - t.episodes.length : 0;
   const meta = t.type === 'serie'
-    ? `Série · ${done}/${t.episodes.length} ép. · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
+    ? `Série · ${done}/${total} ép.${pending ? ` (${pending} à venir)` : ''} · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
     : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
   const seenSpec = { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleTitle(t) };
   const ignoreSpec = { icon: ignored ? 'visibility' : 'block', label: ignored ? 'Ne plus ignorer' : 'Ignorer', run: () => ctx.toggleIgnore(t) };
@@ -204,7 +218,7 @@ export function renderFiltersSheet(body, ctx) {
 }
 
 export function renderItemMenu(body, ctx, id) {
-  const t = ctx.byId.get(id);
+  const t = ctx.availById.get(id) ?? ctx.byId.get(id);
   const seen = isTitleSeen(ctx.state, t);
   const action = (iconName, label, onclick, key) =>
     h('li', {}, h('button', { type: 'button', class: 'sheet-action', 'data-fk': key, onclick }, icon(iconName), label));

@@ -1,4 +1,4 @@
-import { countedTitles, sortTitles } from './logic.js?v=__BUILD__';
+import { countedTitles, releasedView, sortTitles } from './logic.js?v=__BUILD__';
 import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setIgnored, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
@@ -27,9 +27,11 @@ const expandedQuery = window.matchMedia('(min-width: 840px)');
 const isExpanded = () => expandedQuery.matches;
 
 const ctx = {
-  titles: [],
+  allTitles: [], // catalogue complet (fiches, épisodes à venir)
+  titles: [], // catalogue « sorti » à la date du jour : tout ce qui se compte (voir releasedView)
   counted: [],
-  byId: new Map(),
+  byId: new Map(), // titres complets
+  availById: new Map(), // titres sortis
   state: loadState(storage),
   view: loadView(storage),
   filters: { tab: 'all', query: '', phase: null, hideSeen: false },
@@ -113,6 +115,8 @@ function renderDetailPane() {
 }
 
 function render({ detail = true } = {}) {
+  ctx.titles = releasedView(ctx.allTitles, today());
+  ctx.availById = new Map(ctx.titles.map((t) => [t.id, t]));
   ctx.counted = countedTitles(ctx.titles, ctx.state.ignored);
   document.querySelectorAll('.nav-item').forEach((a) => {
     if (a.dataset.route === ctx.route) a.setAttribute('aria-current', 'page');
@@ -145,7 +149,8 @@ function update(next, label = null, { detail = true } = {}) {
 }
 ctx.update = update;
 
-ctx.toggleTitle = (t) => {
+ctx.toggleTitle = (full) => {
+  const t = ctx.availById.get(full.id) ?? full; // seuls les épisodes sortis se cochent
   const seen = isTitleSeen(ctx.state, t);
   update(setTitleSeen(ctx.state, t, !seen, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title}`);
 };
@@ -257,12 +262,13 @@ async function main() {
   try {
     const res = await fetch('data/mcu.json?v=__BUILD__');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    ctx.titles = await res.json();
+    ctx.allTitles = await res.json();
+    ctx.titles = ctx.allTitles;
   } catch (e) {
     showMessage(`Impossible de charger le catalogue (${e.message}).`, true);
     return;
   }
-  ctx.byId = new Map(ctx.titles.map((t) => [t.id, t]));
+  ctx.byId = new Map(ctx.allTitles.map((t) => [t.id, t]));
   ctx.route = routeFromHash();
 
   setupVoir(ctx);
@@ -289,6 +295,14 @@ async function main() {
   });
 
   window.addEventListener('hashchange', onRouteChange);
+  // Onglet resté ouvert d'un jour à l'autre : les sorties du jour doivent apparaître au retour
+  let renderedDay = today();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && today() !== renderedDay) {
+      renderedDay = today();
+      render();
+    }
+  });
   expandedQuery.addEventListener?.('change', () => {
     if (isExpanded() && sheetKind() === 'detail') {
       ctx.selectedId = ctx.sheetDetailId;

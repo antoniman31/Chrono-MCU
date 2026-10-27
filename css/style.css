@@ -492,3 +492,5 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .card-nudge { margin-bottom: 12px; display: grid; gap: 4px; }
 .card-nudge .nudge-title { font-size: 1rem; line-height: 1.5rem; font-weight: 500; }
 .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin-top: 4px; }
+
+.item.upcoming-ep .title, .item.upcoming-ep .meta { color: var(--muted); }
