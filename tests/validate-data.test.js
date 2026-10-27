@@ -1,0 +1,53 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { validate } from '../scripts/validate-data.mjs';
+
+const film = (o = {}) => ({
+  id: 'f1', title: 'F1', type: 'film', phase: 1, saga: 'infinity',
+  releaseDate: '2008-05-02', chronoOrder: 1, runtimeMin: 100, verified: true, ...o,
+});
+const serie = (o = {}) => ({
+  id: 's1', title: 'S1', type: 'serie', phase: 4, saga: 'multiverse',
+  releaseDate: '2021-01-15', chronoOrder: 2, verified: true,
+  episodes: [{ n: 1, title: 'E1', runtimeMin: 30 }, { n: 2, title: 'E2', runtimeMin: 30 }], ...o,
+});
+
+test('le catalogue réel est valide', () => {
+  const data = JSON.parse(readFileSync(new URL('../data/mcu.json', import.meta.url), 'utf8'));
+  assert.deepEqual(validate(data), []);
+});
+
+test('film et série valides', () => {
+  assert.deepEqual(validate([film(), serie()]), []);
+});
+
+test('rejette un non-tableau', () => {
+  assert.equal(validate({}).length, 1);
+});
+
+test('rejette ids et chronoOrder en double', () => {
+  const errs = validate([film(), film()]);
+  assert.ok(errs.some((e) => e.includes('id en double')));
+  assert.ok(errs.some((e) => e.includes('chronoOrder en double')));
+});
+
+test('rejette date impossible', () => {
+  assert.ok(validate([film({ releaseDate: '2008-02-31' })]).some((e) => e.includes('releaseDate')));
+});
+
+test('film sans runtimeMin ou avec episodes', () => {
+  assert.ok(validate([film({ runtimeMin: undefined })]).some((e) => e.includes('runtimeMin')));
+  assert.ok(validate([film({ episodes: [] })]).some((e) => e.includes('episodes')));
+});
+
+test('série sans épisodes, épisodes non continus, runtimeMin interdit', () => {
+  assert.ok(validate([serie({ episodes: [] })]).length > 0);
+  const gap = serie({ episodes: [{ n: 1, title: 'a', runtimeMin: 30 }, { n: 3, title: 'b', runtimeMin: 30 }] });
+  assert.ok(validate([gap]).some((e) => e.includes('n=2')));
+  assert.ok(validate([serie({ runtimeMin: 60 })]).some((e) => e.includes('interdit')));
+});
+
+test('rejette verified non booléen', () => {
+  assert.ok(validate([film({ verified: 'oui' })]).some((e) => e.includes('verified')));
+});

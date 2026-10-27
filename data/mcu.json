@@ -1,0 +1,1262 @@
+[
+  {
+    "id": "captain-america-first-avenger",
+    "title": "Captain America : First Avenger",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2011-07-22",
+    "chronoOrder": 1,
+    "runtimeMin": 124,
+    "verified": true
+  },
+  {
+    "id": "captain-marvel",
+    "title": "Captain Marvel",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2019-03-08",
+    "chronoOrder": 2,
+    "runtimeMin": 124,
+    "verified": true
+  },
+  {
+    "id": "iron-man",
+    "title": "Iron Man",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2008-05-02",
+    "chronoOrder": 3,
+    "runtimeMin": 126,
+    "verified": true
+  },
+  {
+    "id": "iron-man-2",
+    "title": "Iron Man 2",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2010-05-07",
+    "chronoOrder": 4,
+    "runtimeMin": 124,
+    "verified": true
+  },
+  {
+    "id": "l-incroyable-hulk",
+    "title": "L'Incroyable Hulk",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2008-06-13",
+    "chronoOrder": 5,
+    "runtimeMin": 112,
+    "verified": true
+  },
+  {
+    "id": "thor",
+    "title": "Thor",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2011-05-06",
+    "chronoOrder": 6,
+    "runtimeMin": 115,
+    "verified": true
+  },
+  {
+    "id": "avengers",
+    "title": "Avengers",
+    "type": "film",
+    "phase": 1,
+    "saga": "infinity",
+    "releaseDate": "2012-05-04",
+    "chronoOrder": 7,
+    "runtimeMin": 143,
+    "verified": true
+  },
+  {
+    "id": "thor-le-monde-des-tenebres",
+    "title": "Thor : Le Monde des ténèbres",
+    "type": "film",
+    "phase": 2,
+    "saga": "infinity",
+    "releaseDate": "2013-11-08",
+    "chronoOrder": 8,
+    "runtimeMin": 112,
+    "verified": true
+  },
+  {
+    "id": "iron-man-3",
+    "title": "Iron Man 3",
+    "type": "film",
+    "phase": 2,
+    "saga": "infinity",
+    "releaseDate": "2013-05-03",
+    "chronoOrder": 9,
+    "runtimeMin": 130,
+    "verified": true
+  },
+  {
+    "id": "captain-america-le-soldat-de-l-hiver",
+    "title": "Captain America : Le Soldat de l'hiver",
+    "type": "film",
+    "phase": 2,
+    "saga": "infinity",
+    "releaseDate": "2014-04-04",
+    "chronoOrder": 10,
+    "runtimeMin": 136,
+    "verified": true
+  },
+  {
+    "id": "les-gardiens-de-la-galaxie",
+    "title": "Les Gardiens de la Galaxie",
+    "type": "film",
+    "phase": 2,
+    "saga": "infinity",
+    "releaseDate": "2014-08-01",
+    "chronoOrder": 11,
+    "runtimeMin": 121,
+    "verified": true
+  },
+  {
+    "id": "les-gardiens-de-la-galaxie-vol-2",
+    "title": "Les Gardiens de la Galaxie Vol. 2",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2017-05-05",
+    "chronoOrder": 12,
+    "runtimeMin": 136,
+    "verified": true
+  },
+  {
+    "id": "avengers-l-ere-d-ultron",
+    "title": "Avengers : L'Ère d'Ultron",
+    "type": "film",
+    "phase": 2,
+    "saga": "infinity",
+    "releaseDate": "2015-05-01",
+    "chronoOrder": 13,
+    "runtimeMin": 141,
+    "verified": true
+  },
+  {
+    "id": "ant-man",
+    "title": "Ant-Man",
+    "type": "film",
+    "phase": 2,
+    "saga": "infinity",
+    "releaseDate": "2015-07-17",
+    "chronoOrder": 14,
+    "runtimeMin": 117,
+    "verified": true
+  },
+  {
+    "id": "captain-america-civil-war",
+    "title": "Captain America : Civil War",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2016-05-06",
+    "chronoOrder": 15,
+    "runtimeMin": 147,
+    "verified": true
+  },
+  {
+    "id": "black-widow",
+    "title": "Black Widow",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-07-09",
+    "chronoOrder": 16,
+    "runtimeMin": 134,
+    "verified": true
+  },
+  {
+    "id": "black-panther",
+    "title": "Black Panther",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2018-02-16",
+    "chronoOrder": 17,
+    "runtimeMin": 134,
+    "verified": true
+  },
+  {
+    "id": "spider-man-homecoming",
+    "title": "Spider-Man : Homecoming",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2017-07-07",
+    "chronoOrder": 18,
+    "runtimeMin": 133,
+    "verified": true
+  },
+  {
+    "id": "doctor-strange",
+    "title": "Doctor Strange",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2016-11-04",
+    "chronoOrder": 19,
+    "runtimeMin": 115,
+    "verified": true
+  },
+  {
+    "id": "thor-ragnarok",
+    "title": "Thor : Ragnarok",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2017-11-03",
+    "chronoOrder": 20,
+    "runtimeMin": 130,
+    "verified": true
+  },
+  {
+    "id": "ant-man-et-la-guepe",
+    "title": "Ant-Man et la Guêpe",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2018-07-06",
+    "chronoOrder": 21,
+    "runtimeMin": 118,
+    "verified": true
+  },
+  {
+    "id": "avengers-infinity-war",
+    "title": "Avengers : Infinity War",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2018-04-27",
+    "chronoOrder": 22,
+    "runtimeMin": 149,
+    "verified": true
+  },
+  {
+    "id": "avengers-endgame",
+    "title": "Avengers : Endgame",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2019-04-26",
+    "chronoOrder": 23,
+    "runtimeMin": 181,
+    "verified": true
+  },
+  {
+    "id": "loki-saison-1",
+    "title": "Loki (saison 1)",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-06-09",
+    "chronoOrder": 24,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Glorious Purpose",
+        "runtimeMin": 52
+      },
+      {
+        "n": 2,
+        "title": "The Variant",
+        "runtimeMin": 50
+      },
+      {
+        "n": 3,
+        "title": "Lamentis",
+        "runtimeMin": 49
+      },
+      {
+        "n": 4,
+        "title": "The Nexus Event",
+        "runtimeMin": 49
+      },
+      {
+        "n": 5,
+        "title": "Journey into Mystery",
+        "runtimeMin": 48
+      },
+      {
+        "n": 6,
+        "title": "For All Time. Always.",
+        "runtimeMin": 50
+      }
+    ]
+  },
+  {
+    "id": "what-if-saison-1",
+    "title": "What If...? (saison 1)",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-08-11",
+    "chronoOrder": 25,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 33
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 33
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 33
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 33
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 33
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 33
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 33
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 33
+      },
+      {
+        "n": 9,
+        "title": "Épisode 9",
+        "runtimeMin": 33
+      }
+    ]
+  },
+  {
+    "id": "falcon-et-le-soldat-de-l-hiver",
+    "title": "Falcon et le Soldat de l'hiver",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-03-19",
+    "chronoOrder": 26,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "New World Order",
+        "runtimeMin": 49
+      },
+      {
+        "n": 2,
+        "title": "The Star-Spangled Man",
+        "runtimeMin": 47
+      },
+      {
+        "n": 3,
+        "title": "Power Broker",
+        "runtimeMin": 49
+      },
+      {
+        "n": 4,
+        "title": "The Whole World Is Watching",
+        "runtimeMin": 49
+      },
+      {
+        "n": 5,
+        "title": "Truth",
+        "runtimeMin": 53
+      },
+      {
+        "n": 6,
+        "title": "One World, One People",
+        "runtimeMin": 67
+      }
+    ]
+  },
+  {
+    "id": "wandavision",
+    "title": "WandaVision",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-01-15",
+    "chronoOrder": 27,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Filmed Before a Live Studio Audience",
+        "runtimeMin": 29
+      },
+      {
+        "n": 2,
+        "title": "Don't Touch That Dial",
+        "runtimeMin": 27
+      },
+      {
+        "n": 3,
+        "title": "Now in Color",
+        "runtimeMin": 33
+      },
+      {
+        "n": 4,
+        "title": "We Interrupt This Program",
+        "runtimeMin": 41
+      },
+      {
+        "n": 5,
+        "title": "On a Very Special Episode...",
+        "runtimeMin": 34
+      },
+      {
+        "n": 6,
+        "title": "All-New Halloween Spooktacular!",
+        "runtimeMin": 28
+      },
+      {
+        "n": 7,
+        "title": "Breaking the Fourth Wall",
+        "runtimeMin": 35
+      },
+      {
+        "n": 8,
+        "title": "Previously On",
+        "runtimeMin": 41
+      },
+      {
+        "n": 9,
+        "title": "The Series Finale",
+        "runtimeMin": 48
+      }
+    ]
+  },
+  {
+    "id": "spider-man-far-from-home",
+    "title": "Spider-Man : Far From Home",
+    "type": "film",
+    "phase": 3,
+    "saga": "infinity",
+    "releaseDate": "2019-07-02",
+    "chronoOrder": 28,
+    "runtimeMin": 129,
+    "verified": false
+  },
+  {
+    "id": "shang-chi-et-la-legende-des-dix-anneaux",
+    "title": "Shang-Chi et la Légende des Dix Anneaux",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-09-03",
+    "chronoOrder": 29,
+    "runtimeMin": 132,
+    "verified": false
+  },
+  {
+    "id": "les-eternels",
+    "title": "Les Éternels",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-11-05",
+    "chronoOrder": 30,
+    "runtimeMin": 156,
+    "verified": false
+  },
+  {
+    "id": "spider-man-no-way-home",
+    "title": "Spider-Man : No Way Home",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-12-17",
+    "chronoOrder": 31,
+    "runtimeMin": 148,
+    "verified": false
+  },
+  {
+    "id": "hawkeye",
+    "title": "Hawkeye",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-11-24",
+    "chronoOrder": 32,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Never Meet Your Heroes",
+        "runtimeMin": 48
+      },
+      {
+        "n": 2,
+        "title": "Hide and Seek",
+        "runtimeMin": 48
+      },
+      {
+        "n": 3,
+        "title": "Echoes",
+        "runtimeMin": 47
+      },
+      {
+        "n": 4,
+        "title": "Partners, Am I Right?",
+        "runtimeMin": 47
+      },
+      {
+        "n": 5,
+        "title": "Ronin",
+        "runtimeMin": 48
+      },
+      {
+        "n": 6,
+        "title": "So This Is Christmas?",
+        "runtimeMin": 66
+      }
+    ]
+  },
+  {
+    "id": "moon-knight",
+    "title": "Moon Knight",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-03-30",
+    "chronoOrder": 33,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "The Goldfish Problem",
+        "runtimeMin": 46
+      },
+      {
+        "n": 2,
+        "title": "Summon the Suit",
+        "runtimeMin": 46
+      },
+      {
+        "n": 3,
+        "title": "The Friendly Type",
+        "runtimeMin": 45
+      },
+      {
+        "n": 4,
+        "title": "The Tomb",
+        "runtimeMin": 46
+      },
+      {
+        "n": 5,
+        "title": "Asylum",
+        "runtimeMin": 45
+      },
+      {
+        "n": 6,
+        "title": "Gods and Monsters",
+        "runtimeMin": 45
+      }
+    ]
+  },
+  {
+    "id": "miss-marvel",
+    "title": "Miss Marvel",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-06-08",
+    "chronoOrder": 34,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Generation Why",
+        "runtimeMin": 48
+      },
+      {
+        "n": 2,
+        "title": "Crushed",
+        "runtimeMin": 40
+      },
+      {
+        "n": 3,
+        "title": "Destined",
+        "runtimeMin": 45
+      },
+      {
+        "n": 4,
+        "title": "Seeing Red",
+        "runtimeMin": 42
+      },
+      {
+        "n": 5,
+        "title": "Time and Again",
+        "runtimeMin": 41
+      },
+      {
+        "n": 6,
+        "title": "No Normal",
+        "runtimeMin": 45
+      }
+    ]
+  },
+  {
+    "id": "doctor-strange-in-the-multiverse-of-madness",
+    "title": "Doctor Strange in the Multiverse of Madness",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-05-06",
+    "chronoOrder": 35,
+    "runtimeMin": 126,
+    "verified": false
+  },
+  {
+    "id": "thor-love-and-thunder",
+    "title": "Thor : Love and Thunder",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-07-08",
+    "chronoOrder": 36,
+    "runtimeMin": 119,
+    "verified": false
+  },
+  {
+    "id": "werewolf-by-night",
+    "title": "Werewolf by Night",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-10-07",
+    "chronoOrder": 37,
+    "runtimeMin": 53,
+    "verified": false
+  },
+  {
+    "id": "black-panther-wakanda-forever",
+    "title": "Black Panther : Wakanda Forever",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-11-11",
+    "chronoOrder": 38,
+    "runtimeMin": 161,
+    "verified": false
+  },
+  {
+    "id": "special-les-gardiens-de-la-galaxie-joyeuses-fetes",
+    "title": "Spécial Les Gardiens de la Galaxie : Joyeuses Fêtes",
+    "type": "film",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-11-25",
+    "chronoOrder": 39,
+    "runtimeMin": 44,
+    "verified": false
+  },
+  {
+    "id": "she-hulk-avocate",
+    "title": "She-Hulk : Avocate",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2022-08-18",
+    "chronoOrder": 40,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 30
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 30
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 30
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 30
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 30
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 30
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 30
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 30
+      },
+      {
+        "n": 9,
+        "title": "Épisode 9",
+        "runtimeMin": 30
+      }
+    ]
+  },
+  {
+    "id": "ant-man-et-la-guepe-quantumania",
+    "title": "Ant-Man et la Guêpe : Quantumania",
+    "type": "film",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2023-02-17",
+    "chronoOrder": 41,
+    "runtimeMin": 125,
+    "verified": false
+  },
+  {
+    "id": "les-gardiens-de-la-galaxie-vol-3",
+    "title": "Les Gardiens de la Galaxie Vol. 3",
+    "type": "film",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2023-05-05",
+    "chronoOrder": 42,
+    "runtimeMin": 150,
+    "verified": false
+  },
+  {
+    "id": "secret-invasion",
+    "title": "Secret Invasion",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2023-06-21",
+    "chronoOrder": 43,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 45
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 45
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 45
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 45
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 45
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 45
+      }
+    ]
+  },
+  {
+    "id": "loki-saison-2",
+    "title": "Loki (saison 2)",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2023-10-05",
+    "chronoOrder": 44,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Ouroboros",
+        "runtimeMin": 51
+      },
+      {
+        "n": 2,
+        "title": "Breaking Brad",
+        "runtimeMin": 47
+      },
+      {
+        "n": 3,
+        "title": "1893",
+        "runtimeMin": 47
+      },
+      {
+        "n": 4,
+        "title": "Heart of the TVA",
+        "runtimeMin": 47
+      },
+      {
+        "n": 5,
+        "title": "Science/Fiction",
+        "runtimeMin": 53
+      },
+      {
+        "n": 6,
+        "title": "Glorious Purpose",
+        "runtimeMin": 54
+      }
+    ]
+  },
+  {
+    "id": "the-marvels",
+    "title": "The Marvels",
+    "type": "film",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2023-11-10",
+    "chronoOrder": 45,
+    "runtimeMin": 105,
+    "verified": false
+  },
+  {
+    "id": "echo",
+    "title": "Echo",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2024-01-09",
+    "chronoOrder": 46,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 42
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 42
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 42
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 42
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 42
+      }
+    ]
+  },
+  {
+    "id": "what-if-saison-2",
+    "title": "What If...? (saison 2)",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2023-12-22",
+    "chronoOrder": 47,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 33
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 33
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 33
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 33
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 33
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 33
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 33
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 33
+      },
+      {
+        "n": 9,
+        "title": "Épisode 9",
+        "runtimeMin": 33
+      }
+    ]
+  },
+  {
+    "id": "what-if-saison-3",
+    "title": "What If...? (saison 3)",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2024-12-27",
+    "chronoOrder": 48,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 33
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 33
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 33
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 33
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 33
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 33
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 33
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 33
+      }
+    ]
+  },
+  {
+    "id": "deadpool-wolverine",
+    "title": "Deadpool & Wolverine",
+    "type": "film",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2024-07-26",
+    "chronoOrder": 49,
+    "runtimeMin": 128,
+    "verified": false
+  },
+  {
+    "id": "agatha-all-along",
+    "title": "Agatha All Along",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2024-09-18",
+    "chronoOrder": 50,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 40
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 40
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 40
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 40
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 40
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 40
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 40
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 40
+      },
+      {
+        "n": 9,
+        "title": "Épisode 9",
+        "runtimeMin": 40
+      }
+    ]
+  },
+  {
+    "id": "eyes-of-wakanda",
+    "title": "Eyes of Wakanda",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2025-08-01",
+    "chronoOrder": 51,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 25
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 25
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 25
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 25
+      }
+    ]
+  },
+  {
+    "id": "daredevil-born-again-saison-1",
+    "title": "Daredevil : Born Again (saison 1)",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2025-03-04",
+    "chronoOrder": 52,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 50
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 50
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 50
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 50
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 50
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 50
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 50
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 50
+      },
+      {
+        "n": 9,
+        "title": "Épisode 9",
+        "runtimeMin": 50
+      }
+    ]
+  },
+  {
+    "id": "captain-america-brave-new-world",
+    "title": "Captain America : Brave New World",
+    "type": "film",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2025-02-14",
+    "chronoOrder": 53,
+    "runtimeMin": 118,
+    "verified": false
+  },
+  {
+    "id": "thunderbolts",
+    "title": "Thunderbolts*",
+    "type": "film",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2025-05-02",
+    "chronoOrder": 54,
+    "runtimeMin": 127,
+    "verified": false
+  },
+  {
+    "id": "ironheart",
+    "title": "Ironheart",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2025-06-24",
+    "chronoOrder": 55,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 45
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 45
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 45
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 45
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 45
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 45
+      }
+    ]
+  },
+  {
+    "id": "les-quatre-fantastiques-premiers-pas",
+    "title": "Les Quatre Fantastiques : Premiers Pas",
+    "type": "film",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2025-07-25",
+    "chronoOrder": 56,
+    "runtimeMin": 115,
+    "verified": false
+  },
+  {
+    "id": "marvel-zombies",
+    "title": "Marvel Zombies",
+    "type": "serie",
+    "phase": 5,
+    "saga": "multiverse",
+    "releaseDate": "2025-09-24",
+    "chronoOrder": 57,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 25
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 25
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 25
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 25
+      }
+    ]
+  }
+]
