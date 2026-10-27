@@ -102,6 +102,17 @@ export function releasedView(titles, today) {
   });
 }
 
+// Versions d'un film (ressortie avec des scènes en plus, par exemple) : le titre garde une seule case, mais sa durée et ses scènes
+// post-générique suivent la version que l'utilisateur dit avoir vue (`chosen` : { idDuFilm: idDeLaVersion }, absent = version d'origine).
+export function withVersions(titles, chosen = {}) {
+  return titles.map((t) => {
+    if (!Array.isArray(t.versions)) return t;
+    const v = t.versions.find((x) => x.id === chosen[t.id]);
+    if (!v) return { ...t, activeVersion: null };
+    return { ...t, activeVersion: v.id, runtimeMin: v.runtimeMin ?? t.runtimeMin, postCredits: v.postCredits ?? t.postCredits };
+  });
+}
+
 export const countedTitles = (titles, ignored = {}) => titles.filter((t) => !ignored[t.id]);
 
 export function suggestNext(titles, seen, order, lastSeenKey, ignored = {}) {

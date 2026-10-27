@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BACKUP_KEY, STATE_VERSION, migrate, STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
-  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil, setTitleIgnored, setSkip,
+  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil, setTitleIgnored, setSkip, setTitleVersion,
 } from '../js/store.js';
 
 const film = { id: 'f', type: 'film' };
@@ -171,8 +171,8 @@ test('anciens états: notes abandonnées au chargement et à l\'import, ignored 
 test('migrate: v1 devient v2 (notes abandonnées, ignored ajouté), v2 inchangé, futur refusé', () => {
   assert.equal(STATE_VERSION, 2);
   const v1 = { version: 1, order: 'release', seen: { f: D1 }, notes: { f: { rating: 3 } }, lastSeenKey: 'f' };
-  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, catchUp: {}, skip: [], included: {}, lastSeenKey: 'f' } });
-  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, catchUp: {}, skip: [], included: {}, lastSeenKey: null };
+  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: 'f' } });
+  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: null };
   assert.deepEqual(migrate(v2), { ok: true, state: v2 });
   const future = migrate({ version: 9, order: 'chrono', seen: {}, lastSeenKey: null });
   assert.equal(future.ok, false);
@@ -291,4 +291,19 @@ test('skip et included : validés, exportés, importés', () => {
   assert.ok(validateState({ ...s, skip: 'series' }).length > 0);
   assert.ok(validateState({ ...s, included: { x: false } }).length > 0);
   assert.equal(migrate({ version: 2, order: 'chrono', seen: {}, lastSeenKey: null }).state.skip.length, 0);
+});
+
+test('versions d\'un film : choix mémorisé, retiré en revenant à l\'original, validé et conservé par l\'import', () => {
+  let s = defaultState();
+  s = setTitleVersion(s, 'eg', 'encore');
+  assert.deepEqual(s.versions, { eg: 'encore' });
+  assert.deepEqual(validateState(s), []);
+  assert.ok(validateState({ ...s, versions: { eg: 3 } }).length > 0);
+  assert.ok(validateState({ ...s, versions: [] }).length > 0);
+  const back = importState(exportState(s));
+  assert.equal(back.ok, true);
+  assert.deepEqual(back.state.versions, { eg: 'encore' });
+  assert.deepEqual(setTitleVersion(s, 'eg', null).versions, {});
+  assert.deepEqual(migrate({ version: 2, order: 'chrono', seen: {}, lastSeenKey: null }).state.versions, {}, 'un ancien état n\'a pas de versions');
+  assert.equal(s.versions.eg, 'encore', 'l\'état d\'origine n\'est pas modifié');
 });

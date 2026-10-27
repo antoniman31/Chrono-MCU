@@ -1,5 +1,5 @@
-import { countedTitles, releasedView, sortTitles } from './logic.js?v=__BUILD__';
-import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
+import { countedTitles, releasedView, sortTitles, withVersions } from './logic.js?v=__BUILD__';
+import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
 import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
@@ -28,7 +28,8 @@ const expandedQuery = window.matchMedia('(min-width: 840px)');
 const isExpanded = () => expandedQuery.matches;
 
 const ctx = {
-  allTitles: [], // catalogue complet (fiches, épisodes à venir)
+  rawTitles: [], // catalogue tel que dans data/mcu.json
+  allTitles: [], // catalogue complet (fiches, épisodes à venir), versions choisies appliquées
   titles: [], // catalogue « sorti » à la date du jour : tout ce qui se compte (voir releasedView)
   ignoredMap: {}, // titres ignorés (explicitement ou par catégorie) : { id: true }
   counted: [],
@@ -129,6 +130,8 @@ function renderDetailPane() {
 }
 
 function render({ detail = true } = {}) {
+  ctx.allTitles = withVersions(ctx.rawTitles, ctx.state.versions);
+  ctx.byId = new Map(ctx.allTitles.map((t) => [t.id, t]));
   ctx.titles = releasedView(ctx.allTitles, today());
   ctx.availById = new Map(ctx.titles.map((t) => [t.id, t]));
   ctx.ignoredMap = effectiveIgnored(ctx.state, ctx.allTitles);
@@ -183,6 +186,10 @@ ctx.markUntil = (t) => {
 ctx.toggleIgnore = (t) => {
   const ignored = Boolean(ctx.ignoredMap[t.id]);
   update(setTitleIgnored(ctx.state, t, !ignored), `${ignored ? 'Réintégré' : 'Ignoré'} : ${t.title}`);
+};
+ctx.setVersion = (title, versionId) => {
+  const v = title.versions?.find((x) => x.id === versionId);
+  update(setTitleVersion(ctx.state, title.id, versionId), `${title.title} : version ${v ? v.label : 'd\'origine'}`);
 };
 ctx.setSkip = (id, skipped) => update(setSkip(ctx.state, id, skipped, ctx.allTitles), `${categoryLabel(id)} : ${skipped ? 'non suivi' : 'suivi'}`);
 ctx.setFilter = (patch) => {
@@ -279,7 +286,8 @@ async function main() {
   try {
     const res = await fetch('data/mcu.json?v=__BUILD__');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    ctx.allTitles = await res.json();
+    ctx.rawTitles = await res.json();
+    ctx.allTitles = withVersions(ctx.rawTitles, ctx.state.versions);
     ctx.titles = ctx.allTitles;
   } catch (e) {
     showMessage(`Impossible de charger le catalogue (${e.message}).`, true);

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sortTitles, toUnits, filterTitles, progress, nextToWatch } from '../js/logic.js';
+import { sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions } from '../js/logic.js';
 
 const film = (id, chronoOrder, releaseDate, phase = 1, runtimeMin = 100) => ({
   id, title: id, type: 'film', phase, saga: 'infinity', releaseDate, chronoOrder, runtimeMin, verified: true,
@@ -279,4 +279,28 @@ test('releasedView : progression, « Prochain à voir » et statistiques ne comp
   const after = releasedView([ongoing], '2026-11-03');
   assert.equal(progress(after, seen).total, 2);
   assert.equal(suggestNext(after, seen, 'chrono', 'o/1').unit.key, 'o/2');
+});
+
+test('withVersions : la version choisie change la durée et les scènes, pas le reste', () => {
+  const eg = { ...film('eg', 1, '2019-04-26', 3, 181), postCredits: [], versions: [{ id: 'encore', label: 'Encore', runtimeMin: 185, postCredits: ['end'] }] };
+  const other = film('o', 2, '2020-01-01');
+  const [none, same] = withVersions([eg, other], {});
+  assert.equal(none.runtimeMin, 181);
+  assert.equal(none.activeVersion, null);
+  assert.equal(same, other, 'un titre sans version est renvoyé tel quel');
+  const [enc] = withVersions([eg, other], { eg: 'encore' });
+  assert.equal(enc.runtimeMin, 185);
+  assert.deepEqual(enc.postCredits, ['end']);
+  assert.equal(enc.activeVersion, 'encore');
+  assert.equal(enc.id, 'eg');
+  assert.equal(eg.runtimeMin, 181, 'le catalogue d\'origine n\'est pas modifié');
+  assert.equal(withVersions([eg], { eg: 'inconnue' })[0].runtimeMin, 181, 'une version inconnue est ignorée');
+});
+
+test('withVersions : les heures du titre suivent la version choisie', () => {
+  const eg = { ...film('eg', 1, '2019-04-26', 3, 181), versions: [{ id: 'encore', label: 'Encore', runtimeMin: 185 }] };
+  const seen = { eg: '2026-10-01' };
+  const base = stats(withVersions([eg], {}), seen, '2026-10-02');
+  const enc = stats(withVersions([eg], { eg: 'encore' }), seen, '2026-10-02');
+  assert.equal(enc.seenMin - base.seenMin, 4);
 });

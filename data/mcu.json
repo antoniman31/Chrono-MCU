@@ -547,7 +547,20 @@
     "poster": "/qXekTarZKRrVfnBwhS6xevt6BGU.jpg",
     "backdrop": "/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg",
     "overview": "Après leur défaite face au Titan Thanos qui dans le film précédent s'est approprié toutes les pierres du Gant de l'infini, les Avengers et les Gardiens de la Galaxie ayant survécu à son claquement de doigts qui a pulvérisé « la moitié de toute forme de vie dans l'Univers », Captain America, Thor…",
-    "verified": true
+    "verified": true,
+    "versions": [
+      {
+        "id": "encore",
+        "label": "Encore",
+        "badge": "nouvelle scène post-générique",
+        "releaseDate": "2026-09-25",
+        "runtimeMin": 185,
+        "postCredits": [
+          "end"
+        ],
+        "note": "Ressortie avec une introduction, quatre minutes de scènes en plus et une nouvelle scène post-générique liée à Avengers : Doomsday (informations de presse)."
+      }
+    ]
   },
   {
     "id": "loki-saison-1",

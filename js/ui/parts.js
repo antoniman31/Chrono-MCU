@@ -31,6 +31,11 @@ export function titleBadges(t, ignored = false) {
   if (!t.verified && !t.upcoming) out.push(h('span', { class: 'badge warn', text: 'à vérifier' }));
   if (t.upcoming) out.push(h('span', { class: 'badge soon', text: 'à venir' }));
   if (t.altUniverse) out.push(h('span', { class: 'badge alt', text: 'autre réalité' }));
+  if (Array.isArray(t.versions)) {
+    const v = t.versions.find((x) => x.id === t.activeVersion);
+    // Version choisie : on l'affiche ; sinon on signale seulement que la version existe et ce qu'elle ajoute
+    out.push(h('span', { class: 'badge', text: v ? `version ${v.label}` : `version ${t.versions[0].label} : ${t.versions[0].badge}` }));
+  }
   if (Array.isArray(t.postCredits)) {
     if (t.postCredits.length === 0) out.push(h('span', { class: 'badge', text: 'sans scène' }));
     if (t.postCredits.includes('mid')) out.push(h('span', { class: 'badge', text: 'scène mi-générique' }));

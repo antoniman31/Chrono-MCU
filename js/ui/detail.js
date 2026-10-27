@@ -15,6 +15,21 @@ export function metaLine(t) {
   return `Série · ${year} · ${t.episodes.length} ép. · ${hours(total)} · phase ${t.phase}`;
 }
 
+// Films ayant plusieurs versions : une seule case « vu », mais la durée et les scènes comptées suivent la version choisie
+function versionSection(ctx, t) {
+  const options = [{ id: null, label: 'Originale' }, ...t.versions.map((v) => ({ id: v.id, label: v.label }))];
+  const current = t.activeVersion ?? null;
+  return h('section', { class: 'versions', 'aria-labelledby': `ver-h-${t.id}` },
+    h('h3', { id: `ver-h-${t.id}`, text: 'Version regardée' }),
+    h('fieldset', { class: 'theme-field' },
+      h('legend', { class: 'sr-only', text: 'Version regardée' }),
+      h('div', { class: 'seg3' }, options.map((o) =>
+        h('label', { class: 'segopt' },
+          h('input', { type: 'radio', name: `version-${t.id}`, value: o.id ?? '', checked: current === o.id, 'data-fk': `version:${t.id}:${o.id ?? 'original'}`, onchange: () => ctx.setVersion(t, o.id) }),
+          h('span', { class: 'face', text: o.label }))))),
+    t.versions.map((v) => h('p', { class: 'muted t-body-sm', text: `${v.label}, ressortie le ${formatShort(v.releaseDate)} : ${v.runtimeMin} min. ${v.note}` })));
+}
+
 function episodesSection(ctx, t, ignored) {
   const day = today();
   const released = t.episodes.filter((e) => isReleased(e, day));
@@ -83,6 +98,7 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
       key: `detail-ignore:${t.id}`, onclick: () => ctx.toggleIgnore(t),
     }));
     children.push(h('div', { class: 'actions' }, actions));
+    if (t.type === 'film' && Array.isArray(t.versions)) children.push(versionSection(ctx, t));
     if (t.type === 'serie') children.push(episodesSection(ctx, t, ignored));
   } else {
     children.push(h('p', { class: 'muted', text: 'Ce titre n\'est pas encore sorti : il ne compte pas dans ta progression.' }));

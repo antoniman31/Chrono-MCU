@@ -108,3 +108,13 @@ test('overview: texte non vide de 400 caractères maximum', () => {
   assert.ok(validate([film({ overview: '' })]).some((e) => e.includes('overview')));
   assert.ok(validate([film({ overview: 'x'.repeat(401) })]).some((e) => e.includes('overview')));
 });
+
+test('versions : réservées aux films, bien formées, sans doublon d\'identifiant', () => {
+  const v = { id: 'encore', label: 'Encore', badge: 'nouvelle scène', note: 'Ressortie', releaseDate: '2026-09-25', runtimeMin: 185, postCredits: ['end'] };
+  assert.deepEqual(validate([film({ versions: [v] })]), []);
+  assert.ok(validate([film({ versions: [] })]).length > 0);
+  assert.ok(validate([film({ versions: [v, v] })]).length > 0);
+  assert.ok(validate([film({ versions: [{ ...v, runtimeMin: 0 }] })]).length > 0);
+  assert.ok(validate([film({ versions: [{ ...v, postCredits: ['x'] }] })]).length > 0);
+  assert.ok(validate([serie({ versions: [v] })]).length > 0);
+});
