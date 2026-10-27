@@ -516,13 +516,22 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
   .phasebar { position: sticky; top: var(--appbar-h); }
   html { scroll-padding-top: calc(var(--appbar-h) + var(--phasebar-h, 0px)); }
 }
-.phase-tabs { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+.phase-tabs { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); padding-top: 6px; }
 .phase-tabs::-webkit-scrollbar { display: none; }
-.ptab { flex: none; scroll-snap-align: center; position: relative; min-height: 48px; padding: 0 16px; background: none; border: 0; font-size: .875rem; font-weight: 500; letter-spacing: .01em; color: var(--muted); }
-.ptab:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
-.ptab:focus-visible { outline-offset: -3px; }
-.ptab[aria-selected="true"] { color: var(--fg); font-weight: 700; box-shadow: inset 0 -3px 0 var(--accent-btn); }
-.pfill { position: absolute; left: 16px; right: 16px; bottom: 6px; height: 2px; border-radius: 1px; background: linear-gradient(var(--ok), var(--ok)) left / var(--p, 0%) 100% no-repeat, var(--border); }
-.phase-info { display: grid; gap: 0; padding: 6px 0 8px; overflow-wrap: anywhere; }
+/* Frise : un rond par phase (anneau vert = part vue), reliés par un trait ; la phase courante a un anneau rouge et son libellé */
+.ptab { flex: 1 0 44px; scroll-snap-align: center; position: relative; display: grid; justify-items: center; align-content: start; gap: 2px; min-height: 56px; padding: 0 0 2px; background: none; border: 0; color: var(--muted); font-size: .6875rem; line-height: 1rem; }
+.ptab::before { content: ""; position: absolute; top: calc(1.0625rem - 1px); left: 0; right: 0; height: 2px; background: var(--border); }
+.ptab:first-child::before { left: 50%; }
+.ptab:last-child::before { right: 50%; }
+.ptab:only-child::before { display: none; }
+.pdot { position: relative; z-index: 1; display: grid; place-items: center; width: 2.125rem; height: 2.125rem; border-radius: 50%; background: conic-gradient(var(--ok) var(--p, 0%), var(--outline) 0); }
+.pnum { display: grid; place-items: center; width: calc(100% - 6px); height: calc(100% - 6px); border-radius: 50%; background: var(--bg); color: var(--fg); font-size: .9375rem; font-weight: 700; }
+.plabel { visibility: hidden; white-space: nowrap; }
+.ptab:hover .pdot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--fg) 12%, transparent); }
+.ptab:focus-visible { outline-offset: -2px; }
+.ptab[aria-selected="true"] { color: var(--fg); font-weight: 700; }
+.ptab[aria-selected="true"] .pdot { background: conic-gradient(var(--ok) var(--p, 0%), var(--accent-btn) 0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+.ptab[aria-selected="true"] .plabel { visibility: visible; }
+.phase-info { display: grid; gap: 0; padding: 4px 0 8px; text-align: center; overflow-wrap: anywhere; }
 .phase-info strong { font-size: .9375rem; line-height: 1.375rem; font-weight: 500; }
 .phase-info span { font-size: .8125rem; line-height: 1.125rem; color: var(--muted); }

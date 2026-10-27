@@ -51,8 +51,9 @@ function renderPhaseBar(ctx) {
   bar.replaceChildren(...phases.map((p) => {
     const tab = h('button', {
       type: 'button', class: 'ptab', role: 'tab', 'aria-selected': 'false', tabindex: -1, 'aria-controls': 'list-panel',
-      'data-fk': `ptab:${p}`, 'data-phase': String(p), onclick: () => goToPhase(ctx, p),
-    }, `Phase ${p}`, h('span', { class: 'pfill', 'aria-hidden': 'true' }));
+      'aria-label': `Phase ${p}, ${byPhase[p]?.percent ?? 0} % vu`, 'data-fk': `ptab:${p}`, 'data-phase': String(p), onclick: () => goToPhase(ctx, p),
+    }, h('span', { class: 'pdot', 'aria-hidden': 'true' }, h('span', { class: 'pnum', text: String(p) })),
+    h('span', { class: 'plabel', 'aria-hidden': 'true', text: `Phase ${p}` }));
     tab.style.setProperty('--p', `${byPhase[p]?.percent ?? 0}%`);
     return tab;
   }));
