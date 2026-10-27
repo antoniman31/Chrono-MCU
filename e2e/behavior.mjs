@@ -338,7 +338,7 @@ await scenario('film à versions (Endgame Encore) : une seule case, durée et sc
   check(/181 min/.test(await row().innerText()), 'par défaut : durée d\'origine (181 min)');
   const total = async () => (await page.evaluate(() => JSON.parse(localStorage.getItem('chrono-mcu:v1'))?.versions ?? {}));
   await page.click('[data-fk="open:avengers-endgame"]');
-  await page.locator('[data-fk="version:avengers-endgame:encore"]').check({ force: true });
+  await page.locator('label.segopt', { has: page.locator('[data-fk="version:avengers-endgame:encore"]') }).click();
   check((await total())['avengers-endgame'] === 'encore', 'le choix de version doit être enregistré');
   await page.keyboard.press('Escape');
   check(/185 min/.test(await row().innerText()) && /version Encore/.test(await row().innerText()), `après le choix : 185 min et badge « version Encore » (${await row().innerText()})`);
@@ -347,7 +347,7 @@ await scenario('film à versions (Endgame Encore) : une seule case, durée et sc
   await reload(page);
   check(/185 min/.test(await row().innerText()), 'le choix doit survivre au rechargement');
   await page.click('[data-fk="open:avengers-endgame"]');
-  await page.locator('[data-fk="version:avengers-endgame:original"]').check({ force: true });
+  await page.locator('label.segopt', { has: page.locator('[data-fk="version:avengers-endgame:original"]') }).click();
   check(Object.keys(await total()).length === 0, 'revenir à l\'originale doit effacer le choix');
 });
 
