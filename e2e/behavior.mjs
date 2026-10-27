@@ -222,7 +222,15 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
 
 await scenario('barre des phases : sous la barre d\'outils, appui = défilement, suivi du défilement, clavier, fixe en haut', async (page) => {
   check(!(await page.locator('#phasebar').isVisible()), 'en ordre chronologique la barre des phases doit être cachée');
+  check((await page.locator('#list .group').count()) === 0, 'en ordre chronologique la liste ne doit pas être groupée par phase');
+  await page.click('#open-filters');
+  check((await page.locator('[data-fk="f-group"]').count()) === 0, 'en ordre chronologique l\'option « Grouper par phase » doit être absente');
+  await page.click('[data-fk="f-done"]');
   await page.click('[data-order="release"]');
+  check((await page.locator('#list .group').count()) > 0, 'en ordre de sortie la liste est groupée par phase');
+  await page.click('#open-filters');
+  check((await page.locator('[data-fk="f-group"]').count()) === 1, 'en ordre de sortie l\'option « Grouper par phase » doit être proposée');
+  await page.click('[data-fk="f-done"]');
   const after = await page.evaluate(() => Boolean(document.querySelector('.toolbar').compareDocumentPosition(document.querySelector('#phase-tabs')) & Node.DOCUMENT_POSITION_FOLLOWING));
   check(after, 'la barre des phases doit suivre la barre d\'outils');
   check((await page.locator('#phase-tabs [role=tab]').count()) === 6, 'six onglets de phase attendus (plus de « Toutes »)');

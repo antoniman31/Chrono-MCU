@@ -188,7 +188,8 @@ function renderList(ctx) {
     list.replaceChildren(h('p', { class: 'empty', text: 'Aucun titre pour ces filtres.' }));
     return;
   }
-  if (!view.groupByPhase) {
+  // Le regroupement par phase n'a de sens qu'en ordre de sortie : en ordre chronologique les phases se mélangent
+  if (!view.groupByPhase || state.order === 'chrono') {
     list.replaceChildren(h('ul', { class: 'items' }, shown.map((t) => {
       const li = itemFor(ctx, t);
       li.dataset.phase = String(t.phase);
@@ -306,7 +307,8 @@ export function renderFiltersSheet(body, ctx) {
     h('div', { class: 'sheet-group' },
       h('h3', { text: 'Affichage' }),
       switchRow('Masquer les terminés', 'Cache les films et séries entièrement vus', filters.hideSeen, (e) => ctx.setFilter({ hideSeen: e.target.checked }), 'f-hide'),
-      switchRow('Grouper par phase', 'Une section repliable par phase', view.groupByPhase, (e) => ctx.setView({ groupByPhase: e.target.checked }), 'f-group')),
+      // Option absente en ordre chronologique (la préférence reste mémorisée pour l'ordre de sortie)
+      ctx.state.order === 'chrono' ? null : switchRow('Grouper par phase', 'Une section repliable par phase', view.groupByPhase, (e) => ctx.setView({ groupByPhase: e.target.checked }), 'f-group')),
     h('div', { class: 'sheet-footer' },
       btn({ label: 'Réinitialiser', variant: 'text', key: 'f-reset', onclick: () => ctx.setFilter({ phase: null, hideSeen: false }) }),
       btn({ label: 'Terminé', variant: 'filled', key: 'f-done', onclick: () => ctx.closeSheet() })));
