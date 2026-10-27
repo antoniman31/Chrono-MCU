@@ -12,7 +12,7 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 - Statistiques : heures vues et restantes, rythme, date de fin estimée (disponible après 2 jours d'usage).
 - Recherche par titre ou par épisode (insensible aux accents), case « Masquer les terminés », bouton « Annuler » (8 secondes) après chaque coche.
 - Badge « autre réalité » pour les titres hors de la timeline principale (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man).
-- Indicateur de scènes mi-générique / post-générique par film (sans description, donc sans spoiler).
+- Indicateur de scènes mi-générique / post-générique par film (sans description, donc sans spoiler), recoupé avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe).
 - Export / import JSON de la progression (sauvegarde, changement d'appareil).
 
 ## Lancer en local
@@ -38,10 +38,15 @@ Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm
 - `id` unique et stable (la progression est stockée avec cet id : le changer perd les coches) ;
 - `chronoOrder` unique par titre ;
 - `altUniverse` : `true` pour un titre situé dans une autre réalité (absent sinon) ;
-- `postCredits` (films) : tableau de `"mid"` / `"end"` ; `[]` = aucune scène ; champ absent = inconnu (aucun badge) ;
+- `postCredits` (films) : tableau de `"mid"` / `"end"` ; `[]` = aucune scène après le générique ; champ absent = inconnu (aucun badge) ;
+- `tvmazeId` (séries) : identifiant TVmaze pour le contrôle des durées ;
 - film : `runtimeMin` obligatoire ; série : `episodes` (`n` de 1 à N, `title`, `runtimeMin`).
 
 Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à la main.
+
+## Contrôle automatique des durées
+
+Chaque série porte un `tvmazeId`. `node scripts/check-data.mjs` compare les durées et le nombre d'épisodes de `data/mcu.json` à TVmaze et sort en erreur s'il y a un écart ; avec `--write`, il met à jour les durées et passe `verified` à `true` quand tous les épisodes ont une durée TVmaze. Le workflow `.github/workflows/data-check.yml` le lance chaque lundi (et à la demande dans l'onglet Actions) : un échec est signalé par GitHub. Il ne tourne pas sur les PR, pour qu'une panne de TVmaze ne bloque pas un merge.
 
 ## Affiches
 

@@ -86,3 +86,9 @@ test('altUniverse: true ou absent', () => {
   assert.ok(validate([film({ altUniverse: false })]).some((e) => e.includes('altUniverse')));
   assert.ok(validate([film({ altUniverse: 'oui' })]).some((e) => e.includes('altUniverse')));
 });
+
+test('tvmazeId: séries seulement, entier positif', () => {
+  assert.deepEqual(validate([serie({ tvmazeId: 41748 })]), []);
+  assert.ok(validate([film({ tvmazeId: 1 })]).some((e) => e.includes('tvmazeId')));
+  assert.ok(validate([serie({ tvmazeId: 0 })]).some((e) => e.includes('tvmazeId')));
+});

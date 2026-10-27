@@ -96,6 +96,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Recherche (titre/épisode, sans accents), « Masquer les terminés » (titres entièrement vus), annulation de la dernière coche (8 s, un seul niveau), champ `altUniverse` + badge « autre réalité ». Idées inspirées de Chronologeek ; aucun contenu ni ordre éditorial repris.
 
+- Scènes post-générique complétées et recoupées avec la liste Wikipedia (corrections : Thor n'a qu'une scène, L'Incroyable Hulk aucune). Champ `tvmazeId` + `scripts/check-data.mjs` + workflow hebdomadaire pour contrôler les durées de séries.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

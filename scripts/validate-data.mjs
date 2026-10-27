@@ -39,6 +39,7 @@ export function validate(data) {
     if ('poster' in t && !(typeof t.poster === 'string' && /^\/[A-Za-z0-9_-]+\.(jpg|png)$/.test(t.poster))) {
       errors.push(`${at}: poster doit être un chemin TMDB du type "/abc123.jpg"`);
     }
+    if ('tvmazeId' in t && !(t.type === 'serie' && isPosInt(t.tvmazeId))) errors.push(`${at}: tvmazeId réservé aux séries (entier positif)`);
     if ('tmdbId' in t && !isPosInt(t.tmdbId)) errors.push(`${at}: tmdbId doit être un entier positif`);
 
     if ('postCredits' in t) {
