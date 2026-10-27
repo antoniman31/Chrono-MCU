@@ -30,39 +30,65 @@ function followSection(ctx) {
   const followed = ctx.counted.filter((t) => !t.upcoming);
   const s = stats(ctx.counted, ctx.state.seen, today(), ctx.state.catchUp);
   const total = `${followed.length} titre${followed.length > 1 ? 's' : ''} suivi${followed.length > 1 ? 's' : ''}, ${hoursText(s.seenMin + s.remainingMin)} au total`;
-  return h('section', { class: 'settings-section card', 'aria-labelledby': 's-follow' },
-    h('h3', { id: 's-follow', text: 'Ce que je suis' }),
-    h('p', { class: 'muted t-body-sm', text: 'Décoche une catégorie pour l\'exclure de ta progression, de tes statistiques et du « Prochain à voir ». Tu peux réintégrer un titre précis depuis son menu.' }),
-    rows,
-    h('p', { class: 'follow-total', role: 'status', text: total }));
+  const active = CATEGORIES.length - skip.filter((id) => CATEGORIES.some((c) => c.id === id)).length;
+  return {
+    summary: `${active} catégorie${active > 1 ? 's' : ''} sur ${CATEGORIES.length} · ${followed.length} titre${followed.length > 1 ? 's' : ''}`,
+    content: [
+      h('p', { class: 'muted t-body-sm', text: 'Décoche une catégorie pour l\'exclure de ta progression, de tes statistiques et du « Prochain à voir ». Tu peux réintégrer un titre précis depuis son menu.' }),
+      rows,
+      h('p', { class: 'follow-total', role: 'status', text: total }),
+    ],
+  };
 }
 
 const hoursText = (min) => `${(min / 60).toFixed(1).replace('.', ',')} h`;
 
+// Section ouverte (une seule à la fois) : conservée d'un affichage à l'autre, sinon chaque réglage la refermerait
+let openSection = 'look';
+
+function accordion(id, iconName, title, summary, children) {
+  const el = h('details', { class: 'acc card', name: 'reglages', 'data-sec': id },
+    h('summary', { class: 'acc-head' },
+      h('span', { class: 'sec-ic', 'aria-hidden': 'true' }, icon(iconName)),
+      h('span', { class: 'text' }, h('span', { class: 'acc-title', text: title }), h('span', { class: 'desc', text: summary })),
+      icon('expand', 'acc-chev')),
+    h('div', { class: 'acc-body' }, children));
+  el.open = openSection === id;
+  // Mis à jour au clic (le clavier déclenche aussi un clic sur <summary>), avant que le navigateur ne change l'état
+  el.querySelector('summary').addEventListener('click', () => {
+    openSection = el.open ? null : id;
+  });
+  return el;
+}
+
 export function renderReglages(ctx) {
   const { view } = ctx;
   const hasPosters = ctx.titles.some((t) => t.poster);
-  const themeFieldset = h('fieldset', {},
-    h('legend', { text: 'Thème' }),
-    THEME_LABELS.map(([value, label, desc]) =>
-      h('label', { class: 'radio' },
+  const theme = THEME_LABELS.find(([value]) => value === view.theme) ?? THEME_LABELS[0];
+  const themeFieldset = h('fieldset', { class: 'theme-field' },
+    h('legend', { class: 'sr-only', text: 'Thème' }),
+    h('div', { class: 'seg3' }, THEME_LABELS.map(([value, label]) =>
+      h('label', { class: 'segopt' },
         h('input', { type: 'radio', name: 'theme', value, checked: view.theme === value, 'data-fk': `theme:${value}`, onchange: () => ctx.setView({ theme: value }) }),
-        h('span', { class: 'dot', 'aria-hidden': 'true' }),
-        h('span', { class: 'text' }, label, desc ? h('span', { class: 'desc', text: desc }) : null))));
+        h('span', { class: 'face', text: label })))),
+    theme[2] ? h('p', { class: 'desc theme-desc', text: theme[2] }) : null);
 
   const lb = view.lastBackup;
   const backupDesc = lb
     ? `Dernière sauvegarde : ${formatShort(lb.day)} (${daysAgoLabel(daysBetween(lb.day, today()))})`
     : 'Jamais sauvegardée : exporte ta progression';
+  const backupShort = lb ? `Sauvegardé ${daysAgoLabel(daysBetween(lb.day, today()))}` : 'Jamais sauvegardée';
   const persistNote = ctx.persisted === true
     ? 'Stockage protégé : le navigateur ne devrait pas effacer ta progression.'
     : ctx.persisted === false
       ? 'Stockage non protégé : le navigateur peut effacer les données du site. Exporte régulièrement, et installe l\'application sur ton écran d\'accueil si ton navigateur le propose.'
       : null;
 
+  const follow = followSection(ctx);
+  const lookSummary = [theme[1], view.oled ? 'noir OLED' : null, hasPosters ? (view.showPosters ? 'affiches' : 'sans affiches') : null].filter(Boolean).join(' · ');
+
   const sections = [
-    h('section', { class: 'settings-section card', 'aria-labelledby': 's-look' },
-      h('h3', { id: 's-look', text: 'Apparence' }),
+    accordion('look', 'palette', 'Apparence', lookSummary, [
       themeFieldset,
       h('label', { class: 'setting switch-row' },
         h('span', { class: 'text' }, 'Noir OLED', h('span', { class: 'desc', text: 'Fond noir pur quand le mode sombre est actif, y compris en Auto. Économise la batterie des écrans OLED.' })),
@@ -73,16 +99,16 @@ export function renderReglages(ctx) {
           h('span', { class: 'text' }, 'Afficher les affiches', h('span', { class: 'desc', text: 'Chargées depuis TMDB' })),
           h('input', { type: 'checkbox', role: 'switch', checked: view.showPosters, 'data-fk': 's-posters', onchange: (e) => ctx.setView({ showPosters: e.target.checked }) }),
           h('span', { class: 'switch', 'aria-hidden': 'true' }))
-        : null),
-    followSection(ctx),
-    h('section', { class: 'settings-section card', 'aria-labelledby': 's-data' },
-      h('h3', { id: 's-data', text: 'Données' }),
+        : null,
+    ]),
+    accordion('follow', 'check', 'Ce que je suis', follow.summary, follow.content),
+    accordion('data', 'backup', 'Données', backupShort, [
       h('button', { type: 'button', class: 'setting', 'aria-haspopup': 'dialog', 'data-fk': 's-backup', onclick: (e) => ctx.openBackup(e.currentTarget) },
         h('span', { class: 'text' }, 'Sauvegarde et restauration', h('span', { class: 'desc', text: backupDesc })),
         icon('chevron')),
-      persistNote ? h('p', { class: 'muted t-body-sm', text: persistNote }) : null),
-    h('section', { class: 'settings-section card about', 'aria-labelledby': 's-about' },
-      h('h3', { id: 's-about', text: 'À propos' }),
+      persistNote ? h('p', { class: 'muted t-body-sm', text: persistNote }) : null,
+    ]),
+    accordion('about', 'info', 'À propos', ctx.versionLabel, [
       h('p', { class: 'muted', text: 'Chrono-MCU suit ton visionnage du MCU (films et séries Disney+), sans compte : ta progression reste dans ce navigateur.' }),
       h('p', { class: 'muted', text: 'Sur écran tactile, glisse une ligne vers la droite pour la marquer vue, vers la gauche pour l\'ignorer.' }),
       h('ul', { class: 'link-list' },
@@ -93,9 +119,10 @@ export function renderReglages(ctx) {
         hasPosters ? link('https://www.themoviedb.org', 'TMDB', 'affiches') : null),
       h('p', { class: 'muted', text: 'Application non officielle : sans lien avec Marvel, Disney ou leurs ayants droit. Le titre reprend un style, pas un logo.' }),
       hasPosters ? h('p', { class: 'muted', text: 'This product uses the TMDB API but is not endorsed or certified by TMDB.' }) : null,
-      h('p', { class: 'muted version', text: ctx.versionLabel })),
+      h('p', { class: 'muted version', text: ctx.versionLabel }),
+    ]),
   ];
-  $('settings-screen').replaceChildren(...sections.filter(Boolean));
+  $('settings-screen').replaceChildren(...sections);
 }
 
 export function renderBackupSheet(body, ctx) {
