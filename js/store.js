@@ -7,7 +7,7 @@ export const BACKUP_KEY = 'chrono-mcu:v1:pre-v2';
 export const STATE_VERSION = 2;
 
 export function defaultState() {
-  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, catchUp: {}, skip: [], included: {}, lastSeenKey: null };
+  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: null };
 }
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -38,6 +38,10 @@ export function validateState(s) {
     if (!isObject(s.included)) errors.push('included invalide');
     else if (!Object.values(s.included).every((v) => v === true)) errors.push('included: valeurs true attendues');
   }
+  if ('versions' in s) {
+    if (!isObject(s.versions)) errors.push('versions invalide');
+    else if (!Object.values(s.versions).every((v) => typeof v === 'string' && v !== '')) errors.push('versions: identifiants de version attendus');
+  }
   if ('catchUp' in s) {
     if (!isObject(s.catchUp)) errors.push('catchUp invalide');
     else if (!Object.values(s.catchUp).every((v) => v === true)) errors.push('catchUp: valeurs true attendues');
@@ -66,8 +70,8 @@ export function migrate(raw) {
     state = step(state);
   }
   // Ne garde que les champs connus
-  const { version, order, seen, ignored, catchUp, skip, included, lastSeenKey } = state;
-  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, catchUp: catchUp ?? {}, skip: skip ?? [], included: included ?? {}, lastSeenKey } };
+  const { version, order, seen, ignored, catchUp, skip, included, versions, lastSeenKey } = state;
+  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, catchUp: catchUp ?? {}, skip: skip ?? [], included: included ?? {}, versions: versions ?? {}, lastSeenKey } };
 }
 
 export function loadState(storage) {
@@ -195,6 +199,14 @@ export function markUntil(state, titles, id, today) {
     catchUp[u.key] = true;
   }
   return { ...state, seen, catchUp, lastSeenKey: pending[pending.length - 1].key };
+}
+
+// Version d'un film regardée (null : version d'origine). Champ optionnel de l'état : pas de changement de STATE_VERSION.
+export function setTitleVersion(state, titleId, versionId) {
+  const versions = { ...(state.versions ?? {}) };
+  if (versionId) versions[titleId] = versionId;
+  else delete versions[titleId];
+  return { ...state, versions };
 }
 
 // Ignorer / réintégrer un titre en tenant compte des catégories coupées : « ignorer » est explicite et l'emporte toujours ;

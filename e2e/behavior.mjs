@@ -332,6 +332,25 @@ await scenario('bouton de thème du bandeau : visible partout, cycle Auto > Clai
   check((await theme()) === 'light', 'le thème choisi doit être conservé après rechargement');
 });
 
+await scenario('film à versions (Endgame Encore) : une seule case, durée et scènes suivent la version choisie', async (page) => {
+  const row = () => page.locator('li.item', { has: page.locator('[data-fk="open:avengers-endgame"]') }).first();
+  check(/version Encore : nouvelle scène post-générique/.test(await row().innerText()), 'la liste doit signaler la version Encore et sa nouvelle scène');
+  check(/181 min/.test(await row().innerText()), 'par défaut : durée d\'origine (181 min)');
+  const total = async () => (await page.evaluate(() => JSON.parse(localStorage.getItem('chrono-mcu:v1'))?.versions ?? {}));
+  await page.click('[data-fk="open:avengers-endgame"]');
+  await page.locator('label.segopt', { has: page.locator('[data-fk="version:avengers-endgame:encore"]') }).click();
+  check((await total())['avengers-endgame'] === 'encore', 'le choix de version doit être enregistré');
+  await page.keyboard.press('Escape');
+  check(/185 min/.test(await row().innerText()) && /version Encore/.test(await row().innerText()), `après le choix : 185 min et badge « version Encore » (${await row().innerText()})`);
+  check(/scène post-générique/.test(await row().innerText()), 'la scène post-générique de l\'Encore doit être comptée');
+  check((await page.locator('[data-fk="cb:avengers-endgame"]').count()) === 1, 'une seule case pour le film');
+  await reload(page);
+  check(/185 min/.test(await row().innerText()), 'le choix doit survivre au rechargement');
+  await page.click('[data-fk="open:avengers-endgame"]');
+  await page.locator('label.segopt', { has: page.locator('[data-fk="version:avengers-endgame:original"]') }).click();
+  check(Object.keys(await total()).length === 0, 'revenir à l\'originale doit effacer le choix');
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');

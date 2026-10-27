@@ -94,6 +94,10 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   await audit(page, `${where} fiche série`);
   if (vname !== 'expanded') await page.keyboard.press('Escape');
 
+  await page.click('[data-fk="open:avengers-endgame"]');
+  await audit(page, `${where} fiche film à versions`);
+  if (vname !== 'expanded') await page.keyboard.press('Escape');
+
   await page.click('[data-fk="cb:iron-man"]');
   await audit(page, `${where} snackbar`);
 
