@@ -141,6 +141,60 @@ await Promise.all(Array.from({ length: 4 }, async () => {
   await context.close();
 }
 
+// Swipe tactile : droite = vu, gauche = ignorer, geste court = rien ; un swipe n'ouvre pas la fiche (événements tactiles réels via CDP)
+{
+  const context = await browser.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, reducedMotion: 'reduce' });
+  await blockImages(context);
+  const page = await context.newPage();
+  page.on('pageerror', (e) => fail('swipe', `erreur JS : ${e.message}`));
+  await page.goto(base);
+  await page.waitForSelector('body[data-ready]', { state: 'attached' });
+  const cdp = await context.newCDPSession(page);
+  const touch = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  const drag = async (row, from, to) => {
+    // Au milieu de l'écran : ni le snackbar (en bas) ni la barre d'application (en haut) ne doivent recouvrir la ligne testée
+    await row.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await page.waitForTimeout(50);
+    const box = await row.boundingBox();
+    const y = box.y + box.height / 2;
+    await touch('touchStart', box.x + from, y);
+    for (let i = 1; i <= 8; i += 1) await touch('touchMove', box.x + from + ((to - from) * i) / 8, y);
+    await touch('touchEnd');
+    await page.waitForTimeout(150);
+  };
+  const row = (id) => page.locator(`li.item:has([data-fk="cb:${id}"])`);
+
+  await drag(row('iron-man'), 60, 120);
+  if (await page.locator('[data-fk="cb:iron-man"]').isChecked()) fail('swipe', 'un geste court ne doit rien cocher');
+  await drag(row('iron-man'), 60, 300);
+  if (!(await page.locator('[data-fk="cb:iron-man"]').isChecked())) fail('swipe', 'un swipe à droite doit marquer le titre comme vu');
+  if (await page.locator('#sheet[open]').count()) fail('swipe', 'un swipe ne doit pas ouvrir la fiche');
+  await drag(row('iron-man'), 60, 300);
+  if (await page.locator('[data-fk="cb:iron-man"]').isChecked()) fail('swipe', 'un second swipe à droite doit repasser le titre en non vu');
+  await drag(row('iron-man'), 300, 60);
+  if (!(await row('iron-man').locator('.badge', { hasText: 'ignoré' }).count())) fail('swipe', 'un swipe à gauche doit ignorer le titre');
+  if (!(await page.locator('[data-fk="cb:iron-man"]').isDisabled())) fail('swipe', 'un titre ignoré ne doit plus être cochable');
+  await drag(row('iron-man'), 300, 60);
+  if (await row('iron-man').locator('.badge', { hasText: 'ignoré' }).count()) fail('swipe', 'un swipe sur un titre ignoré doit le réactiver');
+  // Épisodes dans la fiche : swipe à droite = vu, pas d'action à gauche
+  await page.click('[data-fk="open:wandavision"]');
+  const ep = page.locator('li.item:has([data-fk="ep:wandavision/1"])');
+  await page.waitForTimeout(400);
+  const epBox = await ep.boundingBox();
+  const epY = epBox.y + epBox.height / 2;
+  const epDrag = async (from, to) => {
+    await touch('touchStart', epBox.x + from, epY);
+    for (let i = 1; i <= 8; i += 1) await touch('touchMove', epBox.x + from + ((to - from) * i) / 8, epY);
+    await touch('touchEnd');
+    await page.waitForTimeout(150);
+  };
+  await epDrag(300, 60);
+  if (await page.locator('[data-fk="ep:wandavision/1"]').isChecked()) fail('swipe', 'un swipe à gauche sur un épisode ne doit rien faire');
+  await epDrag(60, 300);
+  if (!(await page.locator('[data-fk="ep:wandavision/1"]').isChecked())) fail('swipe', 'un swipe à droite sur un épisode doit le marquer comme vu');
+  await context.close();
+}
+
 await browser.close();
 server.close();
 console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états) en ${((Date.now() - started) / 1000).toFixed(0)} s.`);

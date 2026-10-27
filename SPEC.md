@@ -110,6 +110,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Notes et commentaires supprimés définitivement (retirés de l'UI, du stockage au chargement et de l'import/export ; les anciens fichiers restent importables, leurs notes sont ignorées). Ajout de `ignored` (état optionnel, absent = vide) ; `suggestNext` accepte les titres ignorés. Champ `overview` (résumé TMDB en français, 300 caractères max, `fetch-posters.mjs --details`) affiché dans la fiche ; l'affiche portrait n'apparaît plus dans la feuille de fiche (redondante avec l'image paysage), elle reste dans le panneau latéral.
 
+- Swipe tactile (`js/ui/swipe.js`) sur les lignes de la liste À voir et les épisodes de la fiche : droite = vu / non vu, gauche = ignorer / réactiver (série entière pour « Vu »), validé au relâchement au-delà de 40 % de la largeur, verrou horizontal après 8 px, marge de 24 px aux bords de l'écran, pointeurs tactiles et stylet seulement. Raccourci : la case, le menu et la fiche restent la voie principale ; le fond (icône + libellé) est masqué aux lecteurs d'écran ; annulation par le snackbar habituel.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 
