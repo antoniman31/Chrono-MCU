@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#121316">
   <meta name="color-scheme" content="light dark">
   <title>Chrono-MCU</title>
-  <script>try{var t=JSON.parse(localStorage.getItem('chrono-mcu:view')||'{}').theme;if(t==='light'||t==='dark'||t==='oled')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>try{var v=JSON.parse(localStorage.getItem('chrono-mcu:view')||'{}'),t=v.theme,o=v.oled===true||t==='oled',r=document.documentElement;if(t==='light')r.dataset.theme='light';else if(t==='dark'||t==='oled')r.dataset.theme=o?'oled':'dark';else if(o)r.dataset.oled=''}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css?v=__BUILD__">
 </head>
 <body>

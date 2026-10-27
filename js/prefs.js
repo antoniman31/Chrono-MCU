@@ -1,12 +1,14 @@
 export const VIEW_KEY = 'chrono-mcu:view';
-export const THEMES = ['auto', 'light', 'dark', 'oled'];
+export const THEMES = ['auto', 'light', 'dark'];
 
 export function normalizeView(saved) {
   return {
     groupByPhase: saved?.groupByPhase !== false,
     showPosters: saved?.showPosters !== false,
     collapsedPhases: Array.isArray(saved?.collapsedPhases) ? saved.collapsedPhases.filter(Number.isInteger) : [],
-    theme: THEMES.includes(saved?.theme) ? saved.theme : 'auto',
+    // Anciennes sauvegardes : le thème « oled » est devenu « sombre » + noir OLED
+    theme: saved?.theme === 'oled' ? 'dark' : THEMES.includes(saved?.theme) ? saved.theme : 'auto',
+    oled: saved?.oled === true || saved?.theme === 'oled',
   };
 }
 

@@ -46,8 +46,12 @@ let snackPaused = false;
 /* ---------- Thème ---------- */
 function applyTheme() {
   const root = document.documentElement;
-  if (ctx.view.theme === 'auto') delete root.dataset.theme;
-  else root.dataset.theme = ctx.view.theme;
+  const { theme, oled } = ctx.view;
+  delete root.dataset.theme;
+  delete root.dataset.oled;
+  if (theme === 'light') root.dataset.theme = 'light';
+  else if (theme === 'dark') root.dataset.theme = oled ? 'oled' : 'dark';
+  else if (oled) root.dataset.oled = ''; // Auto : le CSS applique le noir OLED seulement quand le système est sombre
   const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
   if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
 }
@@ -144,7 +148,7 @@ ctx.setFilter = (patch) => {
 ctx.setView = (patch) => {
   Object.assign(ctx.view, patch);
   saveView(storage, ctx.view);
-  if ('theme' in patch) applyTheme();
+  if ('theme' in patch || 'oled' in patch) applyTheme();
   render();
   refreshSheet();
 };

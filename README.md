@@ -10,7 +10,7 @@ L'interface suit Material 3 : une barre de navigation en bas sur téléphone (ra
 - **Fiche d'un titre** (bottom sheet sur téléphone, panneau à droite sur grand écran) : détails, scènes après le générique, note sur 5 et commentaire, et pour une série la liste des épisodes à cocher. Le bouton « ⋮ » d'une ligne ouvre un menu d'actions.
 - Cocher un film, un épisode, une série entière ou une phase entière ; chaque coche propose « Annuler » pendant 10 secondes.
 - **Progression** : pourcentage global, barre par phase (avec case pour cocher la phase), heures vues et restantes, rythme et date de fin estimée (après 2 jours d'usage).
-- **Réglages** : thème clair, sombre, noir OLED ou Auto (suit le système), affiches, sauvegarde et restauration (export / import JSON), sources et version.
+- **Réglages** : thème Auto (suit le système), Clair ou Sombre, plus un interrupteur « Noir OLED » (noir pur) qui s'applique au mode sombre, y compris quand le thème est en Auto ; affiches, sauvegarde et restauration (export / import JSON), sources et version.
 - Badges : « à vérifier », « autre réalité » (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man), scènes mi-générique / post-générique par film (recoupées avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe)).
 - Accessibilité : cibles tactiles de 48 px, contrastes WCAG AA dans les trois thèmes, navigation au clavier, feuilles modales natives (focus piégé, Échap), texte qui suit la taille choisie dans le système, `prefers-reduced-motion` respecté.
 

@@ -104,6 +104,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - « Prochain à voir » = première unité non vue **après le dernier coché** (`suggestNext`), jamais ce qui a été sauté ; sans historique, le premier titre de la liste ; fin de liste atteinte ou tout vu = message sans rappel. Remplace l'ancien « Je reprends ».
 
+- Noir OLED indépendant du thème : `theme` ∈ `auto|light|dark` + `oled` (booléen) dans les préférences d'affichage. En Auto, `data-oled` sur `<html>` active le noir pur seulement quand le système est sombre (CSS `prefers-color-scheme`). L'ancien thème `oled` est migré en `dark` + `oled`.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

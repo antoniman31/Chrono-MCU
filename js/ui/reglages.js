@@ -2,10 +2,9 @@ import { $, h, icon } from './dom.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
 
 const THEME_LABELS = [
-  ['auto', 'Auto', 'Suit le réglage de ton appareil'],
+  ['auto', 'Auto', 'Suit le réglage de ton appareil (clair ou sombre)'],
   ['light', 'Clair', null],
   ['dark', 'Sombre', null],
-  ['oled', 'Noir OLED', 'Noir pur, économise la batterie des écrans OLED'],
 ];
 
 const link = (href, name, desc) =>
@@ -26,6 +25,10 @@ export function renderReglages(ctx) {
     h('section', { class: 'settings-section card', 'aria-labelledby': 's-look' },
       h('h3', { id: 's-look', text: 'Apparence' }),
       themeFieldset,
+      h('label', { class: 'setting switch-row' },
+        h('span', { class: 'text' }, 'Noir OLED', h('span', { class: 'desc', text: 'Fond noir pur quand le mode sombre est actif, y compris en Auto. Économise la batterie des écrans OLED.' })),
+        h('input', { type: 'checkbox', role: 'switch', checked: view.oled, 'data-fk': 's-oled', onchange: (e) => ctx.setView({ oled: e.target.checked }) }),
+        h('span', { class: 'switch', 'aria-hidden': 'true' })),
       hasPosters
         ? h('label', { class: 'setting switch-row' },
           h('span', { class: 'text' }, 'Afficher les affiches', h('span', { class: 'desc', text: 'Chargées depuis TMDB' })),

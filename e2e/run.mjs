@@ -1,5 +1,5 @@
 // Contrôles de bout en bout : accessibilité (axe-core), taille des cibles tactiles et parcours clavier,
-// dans les 3 thèmes et 3 largeurs d'écran (compact, medium, expanded). Lancer avec `npm run e2e`.
+// dans les variantes de thème (clair, sombre, noir OLED, Auto + OLED) et 3 largeurs d'écran (compact, medium, expanded). Lancer avec `npm run e2e`.
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -55,11 +55,17 @@ async function audit(page, where) {
 }
 
 const viewports = [['compact', 360, 740], ['medium', 768, 900], ['expanded', 1280, 900]];
-for (const theme of ['light', 'dark', 'oled']) {
+const variants = {
+  light: [{ theme: 'light' }, 'light'],
+  dark: [{ theme: 'dark' }, 'dark'],
+  oled: [{ theme: 'dark', oled: true }, 'dark'],
+  'auto-oled': [{ theme: 'auto', oled: true }, 'dark'],
+};
+for (const [theme, [prefs, scheme]] of Object.entries(variants)) {
   for (const [vname, width, height] of viewports) {
     const where = `${theme}/${vname}`;
-    const context = await browser.newContext({ viewport: { width, height }, colorScheme: theme === 'light' ? 'light' : 'dark' });
-    await context.addInitScript(([t]) => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ theme: t })); } catch { /* ignore */ } }, [theme]);
+    const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme });
+    await context.addInitScript(([v]) => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify(v)); } catch { /* ignore */ } }, [prefs]);
     const page = await context.newPage();
     page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
     await page.goto(base);
@@ -120,7 +126,7 @@ for (const theme of ['light', 'dark', 'oled']) {
 
 await browser.close();
 server.close();
-console.log(`${checks} contrôles d'accessibilité exécutés (3 thèmes × 3 largeurs × 8 états).`);
+console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états).`);
 if (failures.length) {
   console.log(`${failures.length} problème(s) :`);
   [...new Set(failures)].forEach((f) => console.log(` - ${f}`));
