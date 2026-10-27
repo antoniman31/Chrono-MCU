@@ -415,6 +415,16 @@ await scenario('effacer ma progression : sauvegarde téléchargée, coches effac
   check((await seen()) === 1, 'Annuler doit rendre la coche');
 });
 
+await scenario('affiches de la liste : toutes de la même taille, même avec des badges longs', async (page) => {
+  // Les tests bloquent les images TMDB ; ici on sert une image de 1 pixel pour que les affiches existent
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  await page.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: png }));
+  await reload(page);
+  await page.waitForFunction(() => document.querySelectorAll('#list .poster').length > 5);
+  const sizes = await page.evaluate(() => [...new Set([...document.querySelectorAll('#list .poster')].map((i) => `${Math.round(i.getBoundingClientRect().width)}x${Math.round(i.getBoundingClientRect().height)}`))]);
+  check(sizes.length === 1, `toutes les affiches doivent avoir la même taille : ${sizes.join(', ')}`);
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');
