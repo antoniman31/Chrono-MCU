@@ -3,6 +3,7 @@ import { daysAgoLabel, daysBetween } from '../backup.js?v=__BUILD__';
 import { CATEGORIES, matchesCategory } from '../categories.js?v=__BUILD__';
 import { stats } from '../logic.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
+import { DEFAULT_GOAL, NUDGE_CHOICES } from '../prefs.js?v=__BUILD__';
 
 const THEME_LABELS = [
   ['auto', 'Auto', 'Suit le réglage de ton appareil (clair ou sombre)'],
@@ -85,7 +86,7 @@ export function renderReglages(ctx) {
       : null;
 
   const follow = followSection(ctx);
-  const lookSummary = [theme[1], view.oled ? 'noir OLED' : null, hasPosters ? (view.showPosters ? 'affiches' : 'sans affiches') : null].filter(Boolean).join(' · ');
+  const lookSummary = [theme[1], view.oled ? 'noir OLED' : null, view.spoilerFree ? 'sans spoiler' : null, hasPosters ? (view.showPosters ? 'affiches' : 'sans affiches') : null].filter(Boolean).join(' · ');
 
   const sections = [
     accordion('look', 'palette', 'Apparence', lookSummary, [
@@ -93,6 +94,10 @@ export function renderReglages(ctx) {
       h('label', { class: 'setting switch-row' },
         h('span', { class: 'text' }, 'Noir OLED', h('span', { class: 'desc', text: 'Fond noir pur quand le mode sombre est actif, y compris en Auto. Économise la batterie des écrans OLED.' })),
         h('input', { type: 'checkbox', role: 'switch', checked: view.oled, 'data-fk': 's-oled', onchange: (e) => ctx.setView({ oled: e.target.checked }) }),
+        h('span', { class: 'switch', 'aria-hidden': 'true' })),
+      h('label', { class: 'setting switch-row' },
+        h('span', { class: 'text' }, 'Mode sans spoiler', h('span', { class: 'desc', text: 'Masque le résumé et l\'image de la fiche, et les titres d\'épisodes, tant que tu n\'as pas commencé le titre ou vu l\'épisode.' })),
+        h('input', { type: 'checkbox', role: 'switch', checked: view.spoilerFree, 'data-fk': 's-spoiler', onchange: (e) => ctx.setView({ spoilerFree: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       hasPosters
         ? h('label', { class: 'setting switch-row' },
@@ -102,11 +107,30 @@ export function renderReglages(ctx) {
         : null,
     ]),
     accordion('follow', 'check', 'Ce que je suis', follow.summary, follow.content),
+    accordion('goal', 'chart', 'Objectif', view.goalDate ? `Tout voir avant le ${formatShort(view.goalDate)}` : 'Aucun objectif', [
+      h('p', { class: 'muted t-body-sm', text: 'Choisis une date : l\'écran Progression calcule les heures à regarder par semaine pour tout voir à temps. Par défaut, la sortie annoncée d\'Avengers : Doomsday.' }),
+      h('label', { class: 'field' },
+        h('span', { class: 'field-label', text: 'Date cible' }),
+        h('input', { type: 'date', class: 'date-input', value: view.goalDate ?? '', 'data-fk': 's-goal', onchange: (e) => ctx.setView({ goalDate: e.target.value || null }) })),
+      h('div', { class: 'row-actions' },
+        view.goalDate !== DEFAULT_GOAL ? btn({ label: 'Doomsday (18/12/2026)', variant: 'tonal', key: 's-goal-default', onclick: () => ctx.setView({ goalDate: DEFAULT_GOAL }) }) : null,
+        view.goalDate ? btn({ label: 'Retirer l\'objectif', variant: 'text', key: 's-goal-clear', onclick: () => ctx.setView({ goalDate: null }) }) : null),
+    ]),
     accordion('data', 'backup', 'Données', backupShort, [
       h('button', { type: 'button', class: 'setting', 'aria-haspopup': 'dialog', 'data-fk': 's-backup', onclick: (e) => ctx.openBackup(e.currentTarget) },
         h('span', { class: 'text' }, 'Sauvegarde et restauration', h('span', { class: 'desc', text: backupDesc })),
         icon('chevron')),
+      h('fieldset', { class: 'theme-field' },
+        h('legend', { class: 'field-label', text: 'Rappel de sauvegarde' }),
+        h('div', { class: 'seg3' }, NUDGE_CHOICES.map((n) =>
+          h('label', { class: 'segopt' },
+            h('input', { type: 'radio', name: 'nudge', value: String(n), checked: view.nudgeDays === n, 'data-fk': `nudge:${n}`, onchange: () => ctx.setView({ nudgeDays: n }) }),
+            h('span', { class: 'face', text: n === 0 ? 'Jamais' : `${n} jours` })))),
+        h('p', { class: 'desc theme-desc', text: view.nudgeDays === 0 ? 'Aucun rappel : pense à exporter toi-même.' : `Rappel après ${view.nudgeDays} jours sans sauvegarde (ou 20 nouvelles coches).` })),
       persistNote ? h('p', { class: 'muted t-body-sm', text: persistNote }) : null,
+      h('div', { class: 'danger-zone' },
+        h('p', { class: 'muted t-body-sm', text: 'Zone de danger' }),
+        btn({ label: 'Effacer toute ma progression', variant: 'outlined', iconName: 'block', key: 's-erase', popup: true, onclick: (e) => ctx.openErase(e.currentTarget) })),
     ]),
     accordion('about', 'info', 'À propos', ctx.versionLabel, [
       h('p', { class: 'muted', text: 'Chrono-MCU suit ton visionnage du MCU (films et séries Disney+), sans compte : ta progression reste dans ce navigateur.' }),
@@ -143,4 +167,15 @@ export function renderBackupSheet(body, ctx) {
     h('ul', { class: 'sheet-actions' },
       action('download', 'Exporter ma progression', 'Télécharge un fichier JSON', () => ctx.exportProgress(), 'b-export'),
       action('upload', 'Importer une sauvegarde', 'Remplace la progression actuelle', () => ctx.chooseImportFile(), 'b-import')));
+}
+
+// Confirmation avant d'effacer : la sauvegarde est téléchargée d'abord, l'effacement reste annulable quelques secondes
+export function renderEraseSheet(body, ctx) {
+  const n = Object.keys(ctx.state.seen).length;
+  body.append(
+    h('p', { text: n ? `Tu vas effacer ${n === 1 ? 'ta coche' : `tes ${n} coches`} (films et épisodes), tes choix de version et ton historique de rattrapage.` : 'Tu n\'as encore rien coché : il n\'y a rien à effacer.' }),
+    h('p', { class: 'muted', text: 'Une sauvegarde est téléchargée d\'abord. Tes titres ignorés, tes catégories suivies et tes préférences d\'affichage ne changent pas. Tu pourras annuler pendant 10 secondes.' }),
+    h('div', { class: 'sheet-footer' },
+      btn({ label: 'Annuler', variant: 'text', key: 'e-cancel', onclick: () => ctx.closeSheet() }),
+      btn({ label: 'Sauvegarder et effacer', variant: 'filled', key: 'e-confirm', extra: n ? {} : { disabled: true }, onclick: () => ctx.eraseProgress() })));
 }

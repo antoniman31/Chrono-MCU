@@ -13,12 +13,13 @@ export function addDays(day, n) {
 }
 
 // lastBackup : { day, seenCount } ou null ; snoozeUntil : jour 'AAAA-MM-JJ' ou null ; seenCount : nombre de coches actuel.
-export function backupStatus({ lastBackup, snoozeUntil }, seenCount, today) {
+export function backupStatus({ lastBackup, snoozeUntil }, seenCount, today, afterDays = NUDGE_AFTER_DAYS) {
   const sinceChecks = seenCount - (lastBackup?.seenCount ?? 0);
   const days = lastBackup ? daysBetween(lastBackup.day, today) : null;
   const changed = lastBackup ? seenCount !== lastBackup.seenCount : seenCount > 0;
   const snoozed = Boolean(snoozeUntil) && snoozeUntil > today;
-  const due = !snoozed && changed && (sinceChecks >= NUDGE_AFTER_CHECKS || (days !== null && days >= NUDGE_AFTER_DAYS));
+  // afterDays = 0 : rappel désactivé par l'utilisateur
+  const due = afterDays > 0 && !snoozed && changed && (sinceChecks >= NUDGE_AFTER_CHECKS || (days !== null && days >= afterDays));
   return { due, days, sinceChecks: Math.max(0, sinceChecks), neverBackedUp: !lastBackup };
 }
 

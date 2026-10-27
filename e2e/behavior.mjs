@@ -351,6 +351,70 @@ await scenario('film à versions (Endgame Encore) : une seule case, durée et sc
   check(Object.keys(await total()).length === 0, 'revenir à l\'originale doit effacer le choix');
 });
 
+await scenario('mode sans spoiler : résumé, image et titres d\'épisodes cachés jusqu\'à ce que ce soit commencé ou vu', async (page) => {
+  await go(page, 'reglages');
+  await openSec(page, 'look');
+  await page.locator('[data-fk="s-spoiler"]').check({ force: true });
+  await go(page, 'voir');
+  await page.click('[data-fk="open:wandavision"]');
+  const sheet = page.locator('#sheet');
+  check(/Résumé masqué/.test(await sheet.innerText()), 'le résumé de WandaVision doit être masqué');
+  check((await page.locator('#sheet .overview').count()) === 0, 'aucun résumé ne doit s\'afficher');
+  const t = await sheet.innerText();
+  check(/Ép\. 1(?! —)/.test(t) && !/Ép\. 1 —/.test(t), `les titres d'épisodes doivent être cachés : ${t.slice(0, 400)}`);
+  check((await page.locator('#sheet-hero img').count()) === 0, 'l\'image paysage doit être cachée');
+  await page.click('[data-fk="reveal:wandavision"]');
+  check((await page.locator('#sheet .overview').count()) === 1, '« Afficher le résumé » doit révéler le résumé');
+  await page.locator('[data-fk="ep:wandavision/1"]').check({ force: true });
+  check(/Ép\. 1 —/.test(await sheet.innerText()), 'le titre d\'un épisode vu doit apparaître');
+  check(!/Ép\. 2 —/.test(await sheet.innerText()), 'l\'épisode suivant reste caché');
+});
+
+await scenario('objectif : carte sur Progression, date modifiable, retirable', async (page) => {
+  await go(page, 'progression');
+  check(/Objectif : avant le 18\/12\/2026/.test(await page.locator('#progress-screen').innerText()), 'Doomsday doit être l\'objectif par défaut');
+  check(/par semaine/.test(await page.locator('.goal').innerText()), 'la carte doit donner des heures par semaine');
+  await go(page, 'reglages');
+  await openSec(page, 'goal');
+  await page.fill('[data-fk="s-goal"]', '2027-03-01');
+  await go(page, 'progression');
+  check(/avant le 01\/03\/2027/.test(await page.locator('.goal').innerText()), 'la nouvelle date doit s\'appliquer');
+  await go(page, 'reglages');
+  await openSec(page, 'goal');
+  await page.click('[data-fk="s-goal-clear"]');
+  await go(page, 'progression');
+  check((await page.locator('.goal').count()) === 0, 'sans objectif, la carte disparaît');
+  await reload(page);
+  await go(page, 'progression');
+  check((await page.locator('.goal').count()) === 0, 'l\'objectif retiré ne doit pas revenir au rechargement');
+});
+
+await scenario('rappel de sauvegarde réglable : « Jamais » supprime le rappel', async (page) => {
+  check((await page.locator('#nudge .card-nudge').count()) === 1, 'avec beaucoup de coches et 30 jours par défaut, le rappel s\'affiche');
+  await go(page, 'reglages');
+  await openSec(page, 'data');
+  await page.locator('label.segopt', { has: page.locator('[data-fk="nudge:0"]') }).click();
+  await go(page, 'voir');
+  check((await page.locator('#nudge .card-nudge').count()) === 0, 'avec « Jamais », plus de rappel');
+  await reload(page);
+  check((await page.locator('#nudge .card-nudge').count()) === 0, 'le choix doit survivre au rechargement');
+}, { seed: { version: 2, order: 'chrono', seen: Object.fromEntries(Array.from({ length: 30 }, (_, i) => [`k${i}`, '2026-01-01'])), ignored: {}, lastSeenKey: null } });
+
+await scenario('effacer ma progression : sauvegarde téléchargée, coches effacées, annulable', async (page) => {
+  await page.click('[data-fk="cb:iron-man"]');
+  await go(page, 'reglages');
+  await openSec(page, 'data');
+  await page.click('[data-fk="s-erase"]');
+  check(/ta coche/.test(await page.locator('#sheet').innerText()), 'la feuille doit annoncer ce qui sera effacé');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-fk="e-confirm"]')]);
+  check(download.suggestedFilename().startsWith('chrono-mcu-'), 'une sauvegarde doit être téléchargée avant l\'effacement');
+  const seen = () => page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('chrono-mcu:v1')).seen).length);
+  check((await seen()) === 0, 'les coches doivent être effacées');
+  check(/Progression effacée/.test(await page.locator('#snackbar').innerText()), 'un message avec « Annuler » doit apparaître');
+  await page.click('#snackbar-action');
+  check((await seen()) === 1, 'Annuler doit rendre la coche');
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');

@@ -8,19 +8,19 @@ const memory = (initial = {}) => {
 };
 
 test('valeurs par défaut: groupé, affiches, aucune phase repliée, thème auto', () => {
-  assert.deepEqual(normalizeView(null), { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null });
+  assert.deepEqual(normalizeView(null), { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, goalDate: '2026-12-18' });
 });
 
 test('normalizeView: ignore les valeurs invalides', () => {
   const v = normalizeView({ groupByPhase: false, showPosters: false, collapsedPhases: [2, 'x', 3.5, 4], theme: 'rose' });
-  assert.deepEqual(v, { groupByPhase: false, showPosters: false, collapsedPhases: [2, 4], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null });
+  assert.deepEqual(v, { groupByPhase: false, showPosters: false, collapsedPhases: [2, 4], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, goalDate: '2026-12-18' });
   for (const theme of THEMES) assert.equal(normalizeView({ theme }).theme, theme);
 });
 
 test('loadView / saveView: aller-retour, storage absent, cassé ou corrompu', () => {
   const storage = memory();
   saveView(storage, { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true });
-  assert.deepEqual(loadView(storage), { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true, lastBackup: null, nudgeUntil: null });
+  assert.deepEqual(loadView(storage), { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, goalDate: '2026-12-18' });
   assert.equal(loadView(null).theme, 'auto');
   assert.equal(loadView(memory({ [VIEW_KEY]: '{pas du json' })).theme, 'auto');
   assert.doesNotThrow(() => saveView({ setItem() { throw new Error('QuotaExceeded'); } }, normalizeView(null)));
@@ -47,4 +47,17 @@ test('lastBackup et nudgeUntil: valeurs valides gardées, invalides écartées',
   assert.equal(bad.lastBackup, null);
   assert.equal(bad.nudgeUntil, null);
   assert.equal(normalizeView({ lastBackup: { day: '2026-10-01', seenCount: -1 } }).lastBackup, null);
+});
+
+test('rappel de sauvegarde, sans spoiler et objectif : valeurs par défaut et validation', () => {
+  assert.equal(normalizeView(null).nudgeDays, 30);
+  for (const n of [7, 14, 30, 0]) assert.equal(normalizeView({ nudgeDays: n }).nudgeDays, n);
+  assert.equal(normalizeView({ nudgeDays: 5 }).nudgeDays, 30);
+  assert.equal(normalizeView({ spoilerFree: true }).spoilerFree, true);
+  assert.equal(normalizeView({ spoilerFree: 'oui' }).spoilerFree, false);
+  assert.equal(normalizeView(null).goalDate, '2026-12-18', 'Doomsday par défaut');
+  assert.equal(normalizeView({ goalDate: '2027-03-01' }).goalDate, '2027-03-01');
+  assert.equal(normalizeView({ goalDate: null }).goalDate, null, 'objectif retiré : pas de retour automatique à Doomsday');
+  assert.equal(normalizeView({ goalDate: 'bientôt' }).goalDate, null);
+  assert.equal(normalizeView({ theme: 'dark' }).goalDate, '2026-12-18', 'ancienne préférence sans objectif : Doomsday');
 });

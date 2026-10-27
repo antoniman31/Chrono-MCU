@@ -108,13 +108,16 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   await page.click('.nav-item[data-route="reglages"]');
   await page.waitForSelector('#screen-reglages:not([hidden])');
   // Sections repliables : on audite chacune ouverte (la dernière, Données, reste ouverte pour la suite)
-  for (const sec of ['look', 'follow', 'about', 'data']) {
+  for (const sec of ['look', 'follow', 'goal', 'about', 'data']) {
     await openSection(page, sec);
     await audit(page, `${where} Réglages ${sec}`);
   }
 
   await page.click('[data-fk="s-backup"]');
   await audit(page, `${where} feuille Sauvegarde`);
+  await page.keyboard.press('Escape');
+  await page.click('[data-fk="s-erase"]');
+  await audit(page, `${where} feuille Effacer`);
   await context.close();
   if (process.env.E2E_VERBOSE) console.log(`${where}: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
 }
@@ -218,7 +221,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
     await page.waitForSelector(`#screen-${route}:not([hidden])`);
     if (route === 'progression') await inspect('Progression');
     else {
-      for (const sec of ['look', 'follow', 'about', 'data']) {
+      for (const sec of ['look', 'follow', 'goal', 'about', 'data']) {
         await openSection(page, sec);
         await inspect(`Réglages ${sec}`);
       }
