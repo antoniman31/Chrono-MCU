@@ -41,6 +41,8 @@ function paintPhaseBar(ctx, phase) {
 }
 
 function renderPhaseBar(ctx) {
+  // En ordre chronologique les phases se mélangent : la barre n'a de sens qu'en ordre de sortie
+  $('phasebar').hidden = ctx.state.order === 'chrono';
   const { byPhase } = progress(ctx.counted, ctx.state.seen);
   const phases = phaseList(ctx.allTitles);
   if (!phases.includes(currentPhase)) currentPhase = phases[0] ?? null;
@@ -67,6 +69,7 @@ function visiblePhase() {
 }
 
 function syncPhase(ctx) {
+  if (ctx.state.order === 'chrono') return;
   const phase = visiblePhase();
   if (phase === null || phase === currentPhase) return;
   currentPhase = phase;

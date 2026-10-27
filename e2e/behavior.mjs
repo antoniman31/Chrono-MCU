@@ -221,6 +221,8 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
 });
 
 await scenario('barre des phases : sous la barre d\'outils, appui = défilement, suivi du défilement, clavier, fixe en haut', async (page) => {
+  check(!(await page.locator('#phasebar').isVisible()), 'en ordre chronologique la barre des phases doit être cachée');
+  await page.click('[data-order="release"]');
   const after = await page.evaluate(() => Boolean(document.querySelector('.toolbar').compareDocumentPosition(document.querySelector('#phase-tabs')) & Node.DOCUMENT_POSITION_FOLLOWING));
   check(after, 'la barre des phases doit suivre la barre d\'outils');
   check((await page.locator('#phase-tabs [role=tab]').count()) === 6, 'six onglets de phase attendus (plus de « Toutes »)');
@@ -267,6 +269,7 @@ await scenario('barre des phases : sous la barre d\'outils, appui = défilement,
 });
 
 await scenario('barre des phases : sur un écran bas (paysage) elle défile avec la page', async (page) => {
+  await page.click('[data-order="release"]');
   await page.evaluate(() => window.scrollTo(0, 1200));
   await page.waitForTimeout(200);
   const top = await page.evaluate(() => document.querySelector('#phasebar').getBoundingClientRect().top);
