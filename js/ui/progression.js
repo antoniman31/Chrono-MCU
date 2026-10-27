@@ -3,9 +3,9 @@ import { $, formatDay, h, hours, today } from './dom.js?v=__BUILD__';
 import { checkbox, progressBar } from './parts.js?v=__BUILD__';
 
 export function renderProgression(ctx) {
-  const { state, titles } = ctx;
-  const p = progress(titles, state.seen);
-  const s = stats(titles, state.seen, today());
+  const { state } = ctx;
+  const p = progress(ctx.counted, state.seen);
+  const s = stats(ctx.counted, state.seen, today());
   const phases = Object.keys(p.byPhase).map(Number).sort((a, b) => a - b);
 
   const phaseRows = phases.map((phase) => {

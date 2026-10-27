@@ -1,5 +1,5 @@
 import { filterTitles, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
-import { isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
+import { isIgnored, isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
 import { $, formatShort, h, hours, icon, withFocusRestore } from './dom.js?v=__BUILD__';
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { btn, checkbox, chip, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
@@ -18,7 +18,7 @@ function activeFilterCount(ctx) {
 
 function renderResume(ctx) {
   const { state, titles, byId } = ctx;
-  const { unit, status } = suggestNext(titles, state.seen, state.order, state.lastSeenKey);
+  const { unit, status } = suggestNext(titles, state.seen, state.order, state.lastSeenKey, state.ignored);
   let content;
   if (unit) {
     content = h('div', { class: 'row' },
@@ -45,23 +45,23 @@ function itemFor(ctx, t) {
           h('span', { class: 'badges' }, titleBadges(t)))));
   }
   const seen = isTitleSeen(state, t);
+  const ignored = isIgnored(state, t.id);
   const done = t.type === 'serie' ? t.episodes.filter((e) => state.seen[`${t.id}/${e.n}`]).length : 0;
   const partial = t.type === 'serie' && done > 0 && !seen;
   const meta = t.type === 'serie'
     ? `Série · ${done}/${t.episodes.length} ép. · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
     : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
-  const note = state.notes[t.id];
-  return h('li', { class: `item${seen ? ' seen' : ''}${selected ? ' selected' : ''}` },
+  return h('li', { class: `item${seen ? ' seen' : ''}${ignored ? ' ignored' : ''}${selected ? ' selected' : ''}` },
     checkbox({
-      checked: seen, indeterminate: partial, label: t.type === 'serie' ? `Vu : ${t.title} (série entière)` : `Vu : ${t.title}`, key: `cb:${t.id}`,
+      checked: seen, indeterminate: partial, disabled: ignored, label: t.type === 'serie' ? `Vu : ${t.title} (série entière)` : `Vu : ${t.title}`, key: `cb:${t.id}`,
       onchange: () => ctx.toggleTitle(t),
     }),
     h('button', { type: 'button', class: 'item-main', 'aria-haspopup': 'dialog', 'data-fk': `open:${t.id}`, 'aria-current': selected ? 'true' : null, onclick: (e) => ctx.openDetail(t.id, e.currentTarget) },
       posterImg(t, view),
       h('span', { class: 'item-text' },
         h('span', { class: 'title', text: t.title }),
-        h('span', { class: 'meta', text: `${meta}${note?.rating ? ` · ★${note.rating}` : ''}` }),
-        h('span', { class: 'badges' }, titleBadges(t)))),
+        h('span', { class: 'meta', text: meta }),
+        h('span', { class: 'badges' }, titleBadges(t, ignored)))),
     iconBtn({ iconName: 'more', label: `Actions : ${t.title}`, popup: true, key: `menu:${t.id}`, cls: 'item-menu', onclick: (e) => ctx.openItemMenu(t.id, e.currentTarget) }));
 }
 
@@ -79,7 +79,7 @@ function renderList(ctx) {
     list.replaceChildren(h('ul', { class: 'items' }, shown.map((t) => itemFor(ctx, t))));
     return;
   }
-  const { byPhase } = progress(titles, state.seen);
+  const { byPhase } = progress(ctx.counted, state.seen);
   const phases = [...new Set(shown.map((t) => t.phase))].sort((a, b) => a - b);
   const searching = filters.query.trim() !== '';
   list.replaceChildren(...phases.map((phase) => {
@@ -178,11 +178,14 @@ export function renderItemMenu(body, ctx, id) {
   const seen = isTitleSeen(ctx.state, t);
   const action = (iconName, label, onclick, key) =>
     h('li', {}, h('button', { type: 'button', class: 'sheet-action', 'data-fk': key, onclick }, icon(iconName), label));
+  const ignored = isIgnored(ctx.state, id);
   const items = [];
   if (!t.upcoming) {
-    items.push(action('check', t.type === 'serie' ? (seen ? 'Marquer la série comme non vue' : 'Marquer la série comme vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
-      () => { ctx.closeSheet(); ctx.toggleTitle(t); }, 'm-seen'));
-    items.push(action('edit', 'Noter ou commenter', () => ctx.openDetail(id, null, { focus: 'notes' }), 'm-note'));
+    if (!ignored) {
+      items.push(action('check', t.type === 'serie' ? (seen ? 'Marquer la série comme non vue' : 'Marquer la série comme vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
+        () => { ctx.closeSheet(); ctx.toggleTitle(t); }, 'm-seen'));
+    }
+    items.push(action(ignored ? 'visibility' : 'block', ignored ? 'Ne plus ignorer' : 'Ignorer ce titre', () => { ctx.closeSheet(); ctx.toggleIgnore(t); }, 'm-ignore'));
   }
   items.push(action('info', 'Voir la fiche', () => ctx.openDetail(id), 'm-detail'));
   body.append(h('p', { class: 'sheet-sub', text: metaLine(t) }), h('ul', { class: 'sheet-actions' }, items));

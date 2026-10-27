@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { frenchRelease, pickResult, searchQuery, seasonNumber } from '../scripts/fetch-posters.mjs';
+import { frenchRelease, pickResult, shortOverview, searchQuery, seasonNumber } from '../scripts/fetch-posters.mjs';
 
 test('searchQuery retire la mention de saison, seasonNumber la lit', () => {
   assert.equal(searchQuery('Loki (saison 2)'), 'Loki');
@@ -46,4 +46,16 @@ test('frenchRelease: sortie salle France, à défaut cinéma limité, sinon null
   assert.equal(frenchRelease(fr([{ type: 2, release_date: '2008-04-20T00:00:00.000Z' }])), '2008-04-20');
   assert.equal(frenchRelease(fr([{ type: 4, release_date: '2008-09-01T00:00:00.000Z' }])), null);
   assert.equal(frenchRelease([{ iso_3166_1: 'US', release_dates: [] }]), null);
+});
+
+test('shortOverview: phrases entières sous 300 caractères, coupe propre sinon, vide = null', () => {
+  assert.equal(shortOverview('Une phrase. Deux phrases.'), 'Une phrase. Deux phrases.');
+  assert.equal(shortOverview('  '), null);
+  assert.equal(shortOverview(null), null);
+  const long = `${'Premier segment '.repeat(5)}fin. ${'Deuxième segment '.repeat(20)}fin.`;
+  assert.equal(shortOverview(long).endsWith('fin.'), true);
+  assert.ok(shortOverview(long).length <= 300);
+  const one = `Mot ${'long '.repeat(100)}fin.`;
+  const cut = shortOverview(one);
+  assert.ok(cut.length <= 300 && cut.endsWith('…'));
 });

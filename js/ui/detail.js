@@ -1,4 +1,4 @@
-import { isTitleSeen } from '../store.js?v=__BUILD__';
+import { isIgnored, isTitleSeen } from '../store.js?v=__BUILD__';
 import { formatShort, h, icon, hours } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
@@ -12,51 +12,12 @@ export function metaLine(t) {
   return `Série · ${year} · ${t.episodes.length} ép. · ${hours(total)} · phase ${t.phase}`;
 }
 
-function notesSection(ctx, t) {
-  const note = ctx.state.notes[t.id] ?? {};
-  const name = `rating-${t.id}`;
-  const stars = [];
-  const paint = (rating) => stars.forEach((s, i) => s.classList.toggle('on', i < rating));
-  for (let n = 1; n <= 5; n += 1) {
-    const input = h('input', {
-      type: 'radio', name, value: String(n), checked: note.rating === n, 'aria-label': `${n} sur 5`, 'data-fk': `star:${t.id}:${n}`,
-      onchange: () => {
-        ctx.setNote(t.id, { rating: n });
-        paint(n);
-        clear.hidden = false;
-      },
-    });
-    stars.push(h('label', { class: 'star' }, input, icon('star-o', 'off'), icon('star', 'on')));
-  }
-  paint(note.rating ?? 0);
-  const clear = btn({
-    label: 'Effacer la note', variant: 'text', key: `star-clear:${t.id}`,
-    onclick: () => {
-      ctx.setNote(t.id, { rating: null });
-      stars.forEach((s) => { s.querySelector('input').checked = false; });
-      paint(0);
-      clear.hidden = true;
-    },
-  });
-  clear.hidden = !note.rating;
-  const fieldId = `comment-${t.id}`;
-  return h('section', { id: `notes-${t.id}`, 'aria-labelledby': `notes-h-${t.id}` },
-    h('h3', { id: `notes-h-${t.id}`, text: 'Ma note' }),
-    h('div', { role: 'radiogroup', 'aria-label': 'Ma note sur 5', class: 'stars' }, stars, clear),
-    h('div', { class: 'field' },
-      h('label', { for: fieldId, text: 'Mon commentaire' }),
-      h('textarea', {
-        id: fieldId, value: note.text ?? '', rows: 3,
-        onchange: (e) => ctx.setNote(t.id, { text: e.target.value }),
-      })));
-}
-
-function episodesSection(ctx, t) {
+function episodesSection(ctx, t, ignored) {
   const rows = t.episodes.map((e) => {
     const key = `${t.id}/${e.n}`;
     const seen = Boolean(ctx.state.seen[key]);
     return h('li', { class: `item${seen ? ' seen' : ''}` },
-      checkbox({ checked: seen, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
+      checkbox({ checked: seen, disabled: ignored, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
         h('span', { class: 'title', text: `Ép. ${e.n} — ${e.title}` }),
         h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
@@ -66,30 +27,39 @@ function episodesSection(ctx, t) {
     h('ul', { class: 'items' }, rows));
 }
 
-export function renderDetail(container, ctx, id, { showTitle = true } = {}) {
+export function renderDetail(container, ctx, id, { showTitle = true, showPoster = showTitle } = {}) {
   const t = ctx.byId.get(id);
   if (!t) {
     container.replaceChildren(h('p', { class: 'detail-empty', text: 'Titre introuvable.' }));
     return;
   }
   const seen = isTitleSeen(ctx.state, t);
-  const poster = posterImg(t, ctx.view, 'w342', 96, 144);
+  const ignored = isIgnored(ctx.state, t.id);
+  const poster = showPoster ? posterImg(t, ctx.view, 'w342', 96, 144) : null;
   const children = [
     h('div', { class: 'detail-head' },
       poster,
       h('div', {},
         showTitle ? h('h2', { id: `detail-title-${t.id}`, text: t.title }) : null,
         h('p', { class: 'meta', text: metaLine(t) }),
-        h('div', { class: 'badges' }, titleBadges(t)))),
+        h('div', { class: 'badges' }, titleBadges(t, ignored)))),
   ];
+  if (t.overview) children.push(h('p', { class: 'overview', text: t.overview }));
   if (!t.upcoming) {
-    children.push(h('div', { class: 'actions' },
-      btn({
+    const actions = [];
+    if (ignored) children.push(h('p', { class: 'muted', text: 'Ignoré : ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».' }));
+    else {
+      actions.push(btn({
         label: t.type === 'serie' ? (seen ? 'Marquer la série non vue' : 'Marquer la série vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
         iconName: 'check', variant: seen ? 'outlined' : 'filled', key: `detail-seen:${t.id}`, onclick: () => ctx.toggleTitle(t),
-      })));
-    if (t.type === 'serie') children.push(episodesSection(ctx, t));
-    children.push(notesSection(ctx, t));
+      }));
+    }
+    actions.push(btn({
+      label: ignored ? 'Ne plus ignorer' : 'Ignorer', iconName: ignored ? 'visibility' : 'block', variant: ignored ? 'filled' : 'text',
+      key: `detail-ignore:${t.id}`, onclick: () => ctx.toggleIgnore(t),
+    }));
+    children.push(h('div', { class: 'actions' }, actions));
+    if (t.type === 'serie') children.push(episodesSection(ctx, t, ignored));
   } else {
     children.push(h('p', { class: 'muted', text: 'Ce titre n\'est pas encore sorti : il ne compte pas dans ta progression.' }));
   }

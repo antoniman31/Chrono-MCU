@@ -7,7 +7,7 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 L'interface suit Material 3 : une barre de navigation en bas sur téléphone (rail latéral dès 600 px), et dès 840 px un panneau de détail fixe à droite de la liste.
 
 - **À voir** : onglets Tout / Films / Séries, recherche (titre ou épisode, sans accents), bouton « Filtres » (phase, masquer les terminés, grouper par phase), ordre chronologique ou de sortie. En haut, « Prochain à voir » : le titre (ou l'épisode) qui suit **le dernier que tu as coché** dans l'ordre choisi. Ce que tu as sauté avant n'est jamais rappelé ; sans historique, il propose le tout premier titre.
-- **Fiche d'un titre** (bottom sheet sur téléphone, panneau à droite sur grand écran) : détails, scènes après le générique, note sur 5 et commentaire, et pour une série la liste des épisodes à cocher. Le bouton « ⋮ » d'une ligne ouvre un menu d'actions.
+- **Fiche d'un titre** (bottom sheet sur téléphone, panneau à droite sur grand écran) : détails, scènes après le générique, résumé, bouton « Ignorer », et pour une série la liste des épisodes à cocher. Le bouton « ⋮ » d'une ligne ouvre un menu d'actions.
 - Cocher un film, un épisode, une série entière ou une phase entière ; chaque coche propose « Annuler » pendant 10 secondes.
 - **Progression** : pourcentage global, barre par phase (avec case pour cocher la phase), heures vues et restantes, rythme et date de fin estimée (après 2 jours d'usage).
 - **Réglages** : thème Auto (suit le système), Clair ou Sombre, plus un interrupteur « Noir OLED » (noir pur) qui s'applique au mode sombre, y compris quand le thème est en Auto ; affiches, sauvegarde et restauration (export / import JSON), sources et version.

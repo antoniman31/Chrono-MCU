@@ -102,3 +102,9 @@ test('releaseDateFr, backdrop et airDate : valides acceptés, invalides rejetés
   assert.ok(validate([film({ backdrop: 'abc.jpg' })]).some((e) => e.includes('backdrop')));
   assert.ok(validate([serie({ episodes: [{ n: 1, title: 'E1', airDate: '15/01/2021', runtimeMin: 30 }] })]).some((e) => e.includes('airDate')));
 });
+
+test('overview: texte non vide de 400 caractères maximum', () => {
+  assert.deepEqual(validate([film({ overview: 'Un résumé.' })]), []);
+  assert.ok(validate([film({ overview: '' })]).some((e) => e.includes('overview')));
+  assert.ok(validate([film({ overview: 'x'.repeat(401) })]).some((e) => e.includes('overview')));
+});

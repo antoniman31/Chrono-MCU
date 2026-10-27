@@ -4,7 +4,7 @@ import { seasonNumber } from './fetch-posters.mjs';
 
 const KEY_ORDER = [
   'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'releaseDateFr', 'chronoOrder', 'runtimeMin', 'postCredits',
-  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'backdrop', 'verified', 'episodes',
+  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'backdrop', 'overview', 'verified', 'episodes',
 ];
 
 export function compareSeries(mine, tvEpisodes) {

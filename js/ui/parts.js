@@ -25,8 +25,9 @@ export function progressBar(percent, label) {
     h('span', { style: `width:${percent}%` }));
 }
 
-export function titleBadges(t) {
+export function titleBadges(t, ignored = false) {
   const out = [];
+  if (ignored) out.push(h('span', { class: 'badge', text: 'ignoré' }));
   if (!t.verified && !t.upcoming) out.push(h('span', { class: 'badge warn', text: 'à vérifier' }));
   if (t.upcoming) out.push(h('span', { class: 'badge soon', text: 'à venir' }));
   if (t.altUniverse) out.push(h('span', { class: 'badge alt', text: 'autre réalité' }));

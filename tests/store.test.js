@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
-  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState,
+  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen,
 } from '../js/store.js';
 
 const film = { id: 'f', type: 'film' };
@@ -95,7 +95,7 @@ test('film via setTitleSeen: idempotent', () => {
 
 test('export puis import: aller-retour à l\'identique', () => {
   let s = toggleUnit(defaultState(), 'f', D1);
-  s = { ...s, order: 'release', notes: { f: { rating: 4, text: 'top' } } };
+  s = setIgnored({ ...s, order: 'release' }, 'g', true);
   const r = importState(exportState(s));
   assert.equal(r.ok, true);
   assert.deepEqual(r.state, s);
@@ -105,11 +105,11 @@ test('import invalide: rejeté avec message, jamais d\'état retourné', () => {
   const cases = [
     'pas du json',
     '[]',
-    '{"version":2,"order":"chrono","seen":{},"notes":{},"lastSeenKey":null}',
-    '{"version":1,"order":"nope","seen":{},"notes":{},"lastSeenKey":null}',
-    '{"version":1,"order":"chrono","seen":{"f":"hier"},"notes":{},"lastSeenKey":null}',
-    '{"version":1,"order":"chrono","seen":{},"notes":{"f":{"rating":9}},"lastSeenKey":null}',
-    '{"version":1,"order":"chrono","seen":{},"notes":{},"lastSeenKey":5}',
+    '{"version":2,"order":"chrono","seen":{},"lastSeenKey":null}',
+    '{"version":1,"order":"nope","seen":{},"lastSeenKey":null}',
+    '{"version":1,"order":"chrono","seen":{"f":"hier"},"lastSeenKey":null}',
+    '{"version":1,"order":"chrono","seen":{},"ignored":{"f":false},"lastSeenKey":null}',
+    '{"version":1,"order":"chrono","seen":{},"lastSeenKey":5}',
   ];
   for (const text of cases) {
     const r = importState(text);
@@ -118,23 +118,6 @@ test('import invalide: rejeté avec message, jamais d\'état retourné', () => {
     assert.equal('state' in r, false);
   }
 });
-
-import { setNote } from '../js/store.js';
-
-test('setNote: crée, fusionne, supprime quand vide, valide la note', () => {
-  let s = setNote(defaultState(), 'f', { rating: 4 });
-  assert.deepEqual(s.notes.f, { rating: 4 });
-  s = setNote(s, 'f', { text: 'top' });
-  assert.deepEqual(s.notes.f, { rating: 4, text: 'top' });
-  s = setNote(s, 'f', { rating: null });
-  assert.deepEqual(s.notes.f, { text: 'top' });
-  s = setNote(s, 'f', { text: '' });
-  assert.equal('f' in s.notes, false);
-  assert.throws(() => setNote(s, 'f', { rating: 6 }));
-  assert.deepEqual(validateState(setNote(s, 'f', { rating: 5, text: 'x' })), []);
-});
-
-import { setPhaseSeen } from '../js/store.js';
 
 const p1a = { id: 'p1a', type: 'film', phase: 1 };
 const p1s = { id: 'p1s', type: 'serie', phase: 1, episodes: [{ n: 1 }, { n: 2 }] };
@@ -157,4 +140,28 @@ test('setPhaseSeen: conserve les dates existantes et ignore les titres à venir'
   assert.equal('soon' in s.seen, false);
   assert.equal(isTitleSeen(s, soon), false);
   assert.equal(setTitleSeen(defaultState(), soon, true, D1).seen.soon, undefined);
+});
+
+test('ignorer: bascule, garde de setTitleSeen, état déjà ignoré inchangé', () => {
+  const film = { id: 'f', title: 'F', type: 'film', phase: 1 };
+  let s = setIgnored(defaultState(), 'f', true);
+  assert.equal(isIgnored(s, 'f'), true);
+  assert.equal(setIgnored(s, 'f', true), s);
+  assert.equal(setTitleSeen(s, film, true, D1), s);
+  s = setIgnored(s, 'f', false);
+  assert.equal(isIgnored(s, 'f'), false);
+  assert.equal(isTitleSeen(setTitleSeen(s, film, true, D1), film), true);
+});
+
+test('anciens états: notes abandonnées au chargement et à l\'import, ignored absent = vide', () => {
+  const old = JSON.stringify({ version: 1, order: 'chrono', seen: { f: D1 }, notes: { f: { rating: 4, text: 'top' } }, lastSeenKey: 'f' });
+  const store = { getItem: () => old };
+  const loaded = loadState(store);
+  assert.equal('notes' in loaded, false);
+  assert.deepEqual(loaded.ignored, {});
+  assert.deepEqual(loaded.seen, { f: D1 });
+  const imported = importState(old);
+  assert.equal(imported.ok, true);
+  assert.equal('notes' in imported.state, false);
+  assert.equal('notes' in JSON.parse(exportState(imported.state)), false);
 });

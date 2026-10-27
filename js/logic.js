@@ -86,13 +86,17 @@ export function resumeFrom(titles, seen, order, lastSeenKey) {
   return units.slice(idx + 1).find((u) => !seen[u.key]) ?? null;
 }
 
-// « Prochain à voir » : le premier titre non vu APRÈS le dernier coché, dans l'ordre actif. Ce que tu as sauté avant
-// n'est jamais rappelé. Sans historique (rien coché), on propose le tout premier titre de la liste.
-export function suggestNext(titles, seen, order, lastSeenKey) {
-  if (!nextToWatch(titles, seen, order)) return { unit: null, status: 'done' };
-  const known = lastSeenKey && toUnits(sortTitles(titles, order)).some((u) => u.key === lastSeenKey);
-  if (!known) return { unit: nextToWatch(titles, seen, order), status: 'next' };
-  const unit = resumeFrom(titles, seen, order, lastSeenKey);
+// « Prochain à voir » : le premier titre non vu et non ignoré APRÈS le dernier coché, dans l'ordre actif. Ce que tu as sauté
+// avant n'est jamais rappelé. Sans historique (rien coché), on propose le tout premier titre de la liste.
+export const countedTitles = (titles, ignored = {}) => titles.filter((t) => !ignored[t.id]);
+
+export function suggestNext(titles, seen, order, lastSeenKey, ignored = {}) {
+  const units = toUnits(sortTitles(titles, order));
+  const open = (u) => !seen[u.key] && !ignored[u.titleId];
+  if (!units.some(open)) return { unit: null, status: 'done' };
+  const idx = lastSeenKey ? units.findIndex((u) => u.key === lastSeenKey) : -1;
+  if (idx === -1) return { unit: units.find(open), status: 'next' };
+  const unit = units.slice(idx + 1).find(open);
   return unit ? { unit, status: 'next' } : { unit: null, status: 'end' };
 }
 

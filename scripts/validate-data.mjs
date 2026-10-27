@@ -42,6 +42,7 @@ export function validate(data) {
     if ('backdrop' in t && !(typeof t.backdrop === 'string' && /^\/[A-Za-z0-9_-]+\.(jpg|png)$/.test(t.backdrop))) {
       errors.push(`${at}: backdrop doit être un chemin TMDB du type "/abc123.jpg"`);
     }
+    if ('overview' in t && !(isText(t.overview) && t.overview.length <= 400)) errors.push(`${at}: overview doit être un texte de 400 caractères maximum`);
     if ('releaseDateFr' in t && !(t.type === 'film' && isDate(t.releaseDateFr))) errors.push(`${at}: releaseDateFr réservé aux films (date valide)`);
     if ('tvmazeId' in t && !(t.type === 'serie' && isPosInt(t.tvmazeId))) errors.push(`${at}: tvmazeId réservé aux séries (entier positif)`);
     if ('tmdbId' in t && !isPosInt(t.tmdbId)) errors.push(`${at}: tmdbId doit être un entier positif`);
