@@ -4,16 +4,15 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 
 ## Fonctions
 
-- Cocher films et épisodes ; cocher une série coche tous ses épisodes ; cocher une phase coche tous ses titres (case dans la barre de progression et en-tête de groupe dans la liste, option « Grouper par phase »). Chaque phase se replie / se déplie avec un chevron, et l'état est conservé ; une recherche déplie tout ce qui correspond.
-- Deux ordres : chronologique (ordre Disney+) ou date de sortie. Changer d'ordre ne touche pas à la progression.
-- Progression globale et par phase, filtres par phase et type.
-- « Prochain à voir » et « Je reprends » (suite de ta dernière coche).
-- Notes (1 à 5 étoiles + commentaire) par titre.
-- Statistiques : heures vues et restantes, rythme, date de fin estimée (disponible après 2 jours d'usage).
-- Recherche par titre ou par épisode (insensible aux accents), case « Masquer les terminés », bouton « Annuler » (8 secondes) après chaque coche.
-- Badge « autre réalité » pour les titres hors de la timeline principale (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man).
-- Indicateur de scènes mi-générique / post-générique par film (sans description, donc sans spoiler), recoupé avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe).
-- Export / import JSON de la progression (sauvegarde, changement d'appareil).
+L'interface suit Material 3 : une barre de navigation en bas sur téléphone (rail latéral dès 600 px), et dès 840 px un panneau de détail fixe à droite de la liste.
+
+- **À voir** : onglets Tout / Films / Séries, recherche (titre ou épisode, sans accents), bouton « Filtres » (phase, masquer les terminés, grouper par phase), ordre chronologique ou de sortie. En haut, « Prochain à voir » : le titre (ou l'épisode) qui suit **le dernier que tu as coché** dans l'ordre choisi. Ce que tu as sauté avant n'est jamais rappelé ; sans historique, il propose le tout premier titre.
+- **Fiche d'un titre** (bottom sheet sur téléphone, panneau à droite sur grand écran) : détails, scènes après le générique, note sur 5 et commentaire, et pour une série la liste des épisodes à cocher. Le bouton « ⋮ » d'une ligne ouvre un menu d'actions.
+- Cocher un film, un épisode, une série entière ou une phase entière ; chaque coche propose « Annuler » pendant 10 secondes.
+- **Progression** : pourcentage global, barre par phase (avec case pour cocher la phase), heures vues et restantes, rythme et date de fin estimée (après 2 jours d'usage).
+- **Réglages** : thème Auto (suit le système), Clair ou Sombre, plus un interrupteur « Noir OLED » (noir pur) qui s'applique au mode sombre, y compris quand le thème est en Auto ; affiches, sauvegarde et restauration (export / import JSON), sources et version.
+- Badges : « à vérifier », « autre réalité » (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man), scènes mi-générique / post-générique par film (recoupées avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe)).
+- Accessibilité : cibles tactiles de 48 px, contrastes WCAG AA dans les trois thèmes, navigation au clavier, feuilles modales natives (focus piégé, Échap), texte qui suit la taille choisie dans le système, `prefers-reduced-motion` respecté.
 
 ## Lancer en local
 
@@ -21,7 +20,10 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 python3 -m http.server 8000   # puis http://localhost:8000
 npm test                      # tests unitaires (Node 22+)
 npm run validate              # vérifie data/mcu.json
+npm install && npx playwright install chromium && npm run e2e   # accessibilité (axe-core), cibles tactiles, clavier
 ```
+
+Le test `npm run e2e` (dépendances de développement seulement : `axe-core` et `playwright`) parcourt chaque écran et chaque feuille dans les 3 thèmes et 3 largeurs d'écran ; il tourne aussi dans la CI et bloque le déploiement en cas de régression.
 
 ## Corriger ou compléter les données
 

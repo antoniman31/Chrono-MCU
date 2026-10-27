@@ -86,6 +86,16 @@ export function resumeFrom(titles, seen, order, lastSeenKey) {
   return units.slice(idx + 1).find((u) => !seen[u.key]) ?? null;
 }
 
+// « Prochain à voir » : le premier titre non vu APRÈS le dernier coché, dans l'ordre actif. Ce que tu as sauté avant
+// n'est jamais rappelé. Sans historique (rien coché), on propose le tout premier titre de la liste.
+export function suggestNext(titles, seen, order, lastSeenKey) {
+  if (!nextToWatch(titles, seen, order)) return { unit: null, status: 'done' };
+  const known = lastSeenKey && toUnits(sortTitles(titles, order)).some((u) => u.key === lastSeenKey);
+  if (!known) return { unit: nextToWatch(titles, seen, order), status: 'next' };
+  const unit = resumeFrom(titles, seen, order, lastSeenKey);
+  return unit ? { unit, status: 'next' } : { unit: null, status: 'end' };
+}
+
 const DAY_MS = 86_400_000;
 const dayNumber = (s) => Math.floor(Date.parse(`${s}T00:00:00Z`) / DAY_MS);
 const fromDayNumber = (n) => new Date(n * DAY_MS).toISOString().slice(0, 10);

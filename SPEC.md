@@ -98,6 +98,14 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Scènes post-générique complétées et recoupées avec la liste Wikipedia (corrections : Thor n'a qu'une scène, L'Incroyable Hulk aucune). Champ `tvmazeId` + `scripts/check-data.mjs` + workflow hebdomadaire pour contrôler les durées de séries.
 
+- Thèmes : jetons de couleur CSS en clair / sombre / OLED, réglage `theme` (`auto`|`light`|`dark`|`oled`) stocké avec les préférences d'affichage (`chrono-mcu:view`), appliqué par un script en tête de page avant le premier rendu ; `meta theme-color` mis à jour. Les lignes « à venir » n'utilisent plus d'opacité (contraste).
+
+- Refonte Material 3 : navigation (barre du bas / rail), écrans À voir / Progression / Réglages, onglets Tout / Films / Séries, bottom sheets natives (`<dialog>`) pour les filtres, la fiche d'un titre, le menu d'une ligne et la sauvegarde ; panneau de détail fixe dès 840 px ; icônes Material en SVG intégré ; police Roboto avec repli sur la police système ; jetons de couleur en thèmes clair / sombre / OLED. Les contrôles ne sont jamais imbriqués (case, ouverture de la fiche et menu sont des boutons frères). Test de bout en bout `e2e/run.mjs` (axe-core + taille des cibles + clavier) dans la CI.
+
+- « Prochain à voir » = première unité non vue **après le dernier coché** (`suggestNext`), jamais ce qui a été sauté ; sans historique, le premier titre de la liste ; fin de liste atteinte ou tout vu = message sans rappel. Remplace l'ancien « Je reprends ».
+
+- Noir OLED indépendant du thème : `theme` ∈ `auto|light|dark` + `oled` (booléen) dans les préférences d'affichage. En Auto, `data-oled` sur `<html>` active le noir pur seulement quand le système est sombre (CSS `prefers-color-scheme`). L'ancien thème `oled` est migré en `dark` + `oled`.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

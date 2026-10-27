@@ -171,3 +171,36 @@ test('masquer les terminés: films vus, séries entièrement vues; série partie
   const all = { a: 1, b: 1, 's/1': 1, 's/2': 1 };
   assert.deepEqual(filterTitles([a, b, s], { hideSeen: true, seen: all }), []);
 });
+
+import { suggestNext } from '../js/logic.js';
+
+test('suggestNext: sans historique, le tout premier titre', () => {
+  assert.equal(suggestNext(titles, {}, 'chrono', null).unit.key, 'a');
+  assert.equal(suggestNext(titles, {}, 'chrono', null).status, 'next');
+});
+
+test('suggestNext: suit le dernier coché et ne rappelle jamais ce qui a été sauté', () => {
+  // chrono: a, b, s/1, s/2 ; l'utilisateur a seulement coché b (a sauté)
+  const r = suggestNext(titles, { b: '2026-01-01' }, 'chrono', 'b');
+  assert.equal(r.unit.key, 's/1');
+  // a (sauté) n'est pas proposé, même s'il reste non vu
+  assert.notEqual(r.unit.key, 'a');
+});
+
+test('suggestNext: passe les déjà vus après le dernier coché, épisode suivant dans une série', () => {
+  assert.equal(suggestNext(titles, { a: 1, b: 1, 's/2': 1 }, 'chrono', 'b').unit.key, 's/1');
+  assert.equal(suggestNext(titles, { a: 1, b: 1, 's/1': 1 }, 'chrono', 's/1').unit.key, 's/2');
+});
+
+test('suggestNext: fin de liste atteinte avec des titres sautés = pas de rappel; tout vu = done', () => {
+  const end = suggestNext(titles, { 's/2': 1 }, 'chrono', 's/2');
+  assert.deepEqual(end, { unit: null, status: 'end' });
+  assert.equal(suggestNext(titles, { a: 1, b: 1, 's/1': 1, 's/2': 1 }, 'chrono', 's/2').status, 'done');
+});
+
+test('suggestNext: clé inconnue = repli sur le premier non vu; l\'ordre actif change la suite', () => {
+  assert.equal(suggestNext(titles, {}, 'chrono', 'zzz').unit.key, 'a');
+  // release: b, s, a — dernier coché b -> suivante s/1 ; en chrono après b aussi s/1 ; après a (release) rien
+  assert.equal(suggestNext(titles, { a: 1 }, 'release', 'a').status, 'end');
+  assert.equal(suggestNext(titles, { a: 1 }, 'chrono', 'a').unit.key, 'b');
+});
