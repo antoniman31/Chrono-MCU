@@ -133,3 +133,28 @@ test('setNote: crée, fusionne, supprime quand vide, valide la note', () => {
   assert.throws(() => setNote(s, 'f', { rating: 6 }));
   assert.deepEqual(validateState(setNote(s, 'f', { rating: 5, text: 'x' })), []);
 });
+
+import { setPhaseSeen } from '../js/store.js';
+
+const p1a = { id: 'p1a', type: 'film', phase: 1 };
+const p1s = { id: 'p1s', type: 'serie', phase: 1, episodes: [{ n: 1 }, { n: 2 }] };
+const p2 = { id: 'p2', type: 'film', phase: 2 };
+const soon = { id: 'soon', type: 'film', phase: 1, upcoming: true };
+
+test('setPhaseSeen: coche et décoche tous les titres de la phase, pas les autres', () => {
+  const all = [p1a, p1s, p2, soon];
+  const s1 = setPhaseSeen(defaultState(), all, 1, true, D1);
+  assert.deepEqual(Object.keys(s1.seen).sort(), ['p1a', 'p1s/1', 'p1s/2']);
+  assert.equal(isTitleSeen(s1, p2), false);
+  const s2 = setPhaseSeen(s1, all, 1, false, D2);
+  assert.deepEqual(s2.seen, {});
+});
+
+test('setPhaseSeen: conserve les dates existantes et ignore les titres à venir', () => {
+  const start = toggleUnit(defaultState(), 'p1a', D1);
+  const s = setPhaseSeen(start, [p1a, soon], 1, true, D2);
+  assert.equal(s.seen.p1a, D1);
+  assert.equal('soon' in s.seen, false);
+  assert.equal(isTitleSeen(s, soon), false);
+  assert.equal(setTitleSeen(defaultState(), soon, true, D1).seen.soon, undefined);
+});

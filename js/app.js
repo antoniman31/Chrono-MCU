@@ -1,6 +1,6 @@
 import { filterTitles, nextToWatch, progress, resumeFrom, sortTitles, stats, toUnits } from './logic.js';
 import {
-  exportState, importState, isTitleSeen, loadState, saveState, setNote, setOrder, setTitleSeen, toggleUnit,
+  exportState, importState, isTitleSeen, loadState, saveState, setNote, setOrder, setPhaseSeen, setTitleSeen, toggleUnit,
 } from './store.js';
 
 const $ = (id) => document.getElementById(id);
@@ -19,6 +19,22 @@ const filters = { phase: null, type: null };
 const openSeries = new Set();
 const openNotes = new Set();
 let storageWarned = false;
+
+const VIEW_KEY = 'chrono-mcu:view';
+const view = (() => {
+  try {
+    return { groupByPhase: JSON.parse(storage?.getItem(VIEW_KEY))?.groupByPhase !== false };
+  } catch {
+    return { groupByPhase: true };
+  }
+})();
+const saveView = () => {
+  try {
+    storage?.setItem(VIEW_KEY, JSON.stringify(view));
+  } catch {
+    /* préférence d'affichage: sans importance si elle n'est pas conservée */
+  }
+};
 
 function h(tag, props = {}, ...children) {
   const el = document.createElement(tag);
@@ -57,11 +73,23 @@ function update(next) {
   render();
 }
 
-function bar(label, { seen, total, percent }) {
+function phaseBox(phase, { seen, total }) {
+  const all = total > 0 && seen === total;
+  const box = h('input', {
+    type: 'checkbox', checked: all, disabled: total === 0, 'aria-label': `Vu : phase ${phase} entière`,
+    onchange: () => update(setPhaseSeen(state, sortTitles(titles, state.order), phase, !all, today())),
+  });
+  box.indeterminate = seen > 0 && !all;
+  return box;
+}
+
+function bar(label, { seen, total, percent }, control = null, showPercent = true) {
   return h(
     'div',
     {},
-    h('div', { class: 'bar-row' }, h('span', { text: label }), h('span', { class: 'muted', text: `${seen}/${total} · ${percent} %` })),
+    h('div', { class: 'bar-row' },
+      h('span', { class: 'bar-label' }, control, label),
+      h('span', { class: 'muted', text: showPercent ? `${seen}/${total} · ${percent} %` : `${seen}/${total}` })),
     h('div', { class: 'bar', role: 'progressbar', 'aria-label': label, 'aria-valuenow': percent, 'aria-valuemin': 0, 'aria-valuemax': 100 },
       h('span', { style: `width:${percent}%` })),
   );
@@ -73,7 +101,7 @@ function renderProgress() {
   $('progress').replaceChildren(
     h('div', { class: 'card' },
       bar('Progression globale', p),
-      h('div', { class: 'phases' }, phases.map((n) => bar(`Phase ${n}`, p.byPhase[n])))),
+      h('div', { class: 'phases' }, phases.map((n) => bar(`Phase ${n}`, p.byPhase[n], phaseBox(Number(n), p.byPhase[n]), false)))),
   );
 }
 
@@ -146,6 +174,12 @@ function noteButton(title) {
   });
 }
 
+function upcomingRow(t) {
+  return h('li', { class: 'row upcoming' },
+    h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', h('span', { class: 'badge soon', text: 'à venir' }),
+      h('div', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatDay(t.releaseDate)} · phase ${t.phase}` })));
+}
+
 const unverifiedBadge = (t) => (t.verified ? null : h('span', { class: 'badge', text: 'à vérifier' }));
 
 function filmRow(t) {
@@ -190,12 +224,35 @@ function serieRow(t) {
         }))));
 }
 
+function titleRow(t) {
+  if (t.upcoming) return upcomingRow(t);
+  return t.type === 'serie' ? serieRow(t) : filmRow(t);
+}
+
+function phaseHeader(phase, ratio) {
+  return h('li', { class: 'phase-head' },
+    phaseBox(phase, ratio),
+    h('h2', { text: `Phase ${phase}` }),
+    h('span', { class: 'muted', text: `${ratio.seen}/${ratio.total} · ${ratio.percent} %` }));
+}
+
 function renderList() {
   const shown = filterTitles(sortTitles(titles, state.order), filters);
+  if (!shown.length) {
+    $('list').replaceChildren(h('li', { class: 'empty', text: 'Aucun titre pour ces filtres.' }));
+    return;
+  }
+  if (!view.groupByPhase) {
+    $('list').replaceChildren(...shown.map(titleRow));
+    return;
+  }
+  const { byPhase } = progress(titles, state.seen);
+  const phases = [...new Set(shown.map((t) => t.phase))].sort((a, b) => a - b);
   $('list').replaceChildren(
-    ...(shown.length
-      ? shown.map((t) => (t.type === 'serie' ? serieRow(t) : filmRow(t)))
-      : [h('li', { class: 'empty', text: 'Aucun titre pour ces filtres.' })]),
+    ...phases.flatMap((phase) => [
+      phaseHeader(phase, byPhase[phase] ?? { seen: 0, total: 0, percent: 0 }),
+      ...shown.filter((t) => t.phase === phase).map(titleRow),
+    ]),
   );
 }
 
@@ -211,6 +268,8 @@ function setupControls() {
   const phases = [...new Set(titles.map((t) => t.phase))].sort((a, b) => a - b);
   $('filter-phase').append(...phases.map((p) => h('option', { value: String(p), text: `Phase ${p}` })));
   $('filter-phase').addEventListener('change', (e) => { filters.phase = e.target.value ? Number(e.target.value) : null; render(); });
+  $('group-phase').checked = view.groupByPhase;
+  $('group-phase').addEventListener('change', (e) => { view.groupByPhase = e.target.checked; saveView(); render(); });
   $('filter-type').addEventListener('change', (e) => { filters.type = e.target.value || null; render(); });
   document.querySelectorAll('[data-order]').forEach((b) => b.addEventListener('click', () => update(setOrder(state, b.dataset.order))));
 

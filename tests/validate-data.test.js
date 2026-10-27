@@ -51,3 +51,15 @@ test('série sans épisodes, épisodes non continus, runtimeMin interdit', () =>
 test('rejette verified non booléen', () => {
   assert.ok(validate([film({ verified: 'oui' })]).some((e) => e.includes('verified')));
 });
+
+test('titre à venir: sans durée ni épisodes, upcoming strictement true', () => {
+  const up = film({ id: 'u', chronoOrder: 9, runtimeMin: undefined, upcoming: true });
+  delete up.runtimeMin;
+  assert.deepEqual(validate([up]), []);
+  assert.ok(validate([{ ...up, runtimeMin: 100 }]).some((e) => e.includes('à venir')));
+  assert.ok(validate([{ ...up, upcoming: false }]).some((e) => e.includes('upcoming')));
+  const upSerie = serie({ id: 'us', chronoOrder: 10, upcoming: true });
+  assert.ok(validate([upSerie]).some((e) => e.includes('à venir')));
+  delete upSerie.episodes;
+  assert.deepEqual(validate([upSerie]), []);
+});

@@ -4,7 +4,7 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 
 ## Fonctions
 
-- Cocher films et épisodes ; cocher une série coche tous ses épisodes.
+- Cocher films et épisodes ; cocher une série coche tous ses épisodes ; cocher une phase coche tous ses titres (case dans la barre de progression et en-tête de groupe dans la liste, option « Grouper par phase »).
 - Deux ordres : chronologique (ordre Disney+) ou date de sortie. Changer d'ordre ne touche pas à la progression.
 - Progression globale et par phase, filtres par phase et type.
 - « Prochain à voir » et « Je reprends » (suite de ta dernière coche).
@@ -22,7 +22,11 @@ npm run validate              # vérifie data/mcu.json
 
 ## Corriger ou compléter les données
 
-Tout le catalogue est dans `data/mcu.json`. Chaque entrée a un champ `verified` : `false` signifie que je n'ai pas pu garantir la donnée (ordre chronologique après Endgame, titres et durées d'épisodes, séries récentes). Un badge « à vérifier » s'affiche dans l'app.
+Tout le catalogue est dans `data/mcu.json` (phases 1 à 6, jusqu'à Avengers : Secret Wars). Chaque entrée a un champ `verified` : `true` quand dates, titres et durées sont recoupés avec des sources (TheTVDB, Apple TV, presse), `false` quand une partie reste estimée (durées d'épisodes approximatives, titres d'épisodes génériques « Épisode n », séries en cours). Un badge « à vérifier » s'affiche dans l'app.
+
+L'ordre chronologique suit l'ordre Disney+ tel que je l'ai reconstitué : fiable jusqu'à Endgame, une approximation ensuite (les sources divergent, notamment sur la place de Loki). Corrige `chronoOrder` si ton Disney+ diffère.
+
+Les titres pas encore sortis portent `"upcoming": true` (sans `runtimeMin` ni `episodes`). Ils s'affichent « à venir » et ne comptent pas dans la progression. À leur sortie : retirer `upcoming`, ajouter durée ou épisodes.
 
 Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm run validate`. Règles :
 
@@ -30,7 +34,7 @@ Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm
 - `chronoOrder` unique par titre ;
 - film : `runtimeMin` obligatoire ; série : `episodes` (`n` de 1 à N, `title`, `runtimeMin`).
 
-Les sorties postérieures à ma dernière connaissance ne sont pas toutes listées : à ajouter à la main.
+Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à la main.
 
 ## Déploiement
 

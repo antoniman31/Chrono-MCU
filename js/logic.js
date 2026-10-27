@@ -10,7 +10,7 @@ export function sortTitles(titles, order) {
 }
 
 export function toUnits(titles) {
-  return titles.flatMap((t) => {
+  return titles.filter((t) => !t.upcoming).flatMap((t) => {
     const base = { titleId: t.id, phase: t.phase, type: t.type };
     if (t.type === 'serie') {
       return t.episodes.map((e) => ({
