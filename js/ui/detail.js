@@ -1,11 +1,13 @@
 import { isTitleSeen } from '../store.js?v=__BUILD__';
-import { h, icon, hours } from './dom.js?v=__BUILD__';
+import { formatShort, h, icon, hours } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
-function metaLine(t) {
+export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
+
+export function metaLine(t) {
   const year = t.releaseDate.slice(0, 4);
-  if (t.upcoming) return `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue ${year} · phase ${t.phase}`;
-  if (t.type === 'film') return `Film · ${year} · ${t.runtimeMin} min · phase ${t.phase}`;
+  if (t.upcoming) return `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatShort(t.releaseDate)} · phase ${t.phase}`;
+  if (t.type === 'film') return `Film · ${formatShort(filmDate(t))} · ${t.runtimeMin} min · phase ${t.phase}`;
   const total = t.episodes.reduce((sum, e) => sum + e.runtimeMin, 0);
   return `Série · ${year} · ${t.episodes.length} ép. · ${hours(total)} · phase ${t.phase}`;
 }
@@ -57,7 +59,7 @@ function episodesSection(ctx, t) {
       checkbox({ checked: seen, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
         h('span', { class: 'title', text: `Ép. ${e.n} — ${e.title}` }),
-        h('span', { class: 'meta', text: `${e.runtimeMin} min` })));
+        h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
   });
   return h('section', { class: 'episodes', 'aria-labelledby': `eps-h-${t.id}` },
     h('h3', { id: `eps-h-${t.id}`, text: `Épisodes (${t.episodes.filter((e) => ctx.state.seen[`${t.id}/${e.n}`]).length}/${t.episodes.length} vus)` }),

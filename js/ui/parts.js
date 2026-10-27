@@ -40,10 +40,18 @@ export function titleBadges(t) {
 
 const POSTER_BASE = 'https://image.tmdb.org/t/p/';
 
-export function posterImg(t, view, size = 'w154', width = 48, height = 72) {
+export function posterImg(t, view, size = 'w185', width = 72, height = 108) {
   if (!view.showPosters || !t.poster) return null;
   return h('img', {
     class: 'poster', src: `${POSTER_BASE}${size}${t.poster}`, alt: '', width, height, loading: 'lazy', decoding: 'async',
     onerror: (e) => e.target.remove(),
+  });
+}
+
+export function backdropImg(t, view) {
+  if (!view.showPosters || !t.backdrop) return null;
+  return h('img', {
+    class: 'hero-img', src: `${POSTER_BASE}w780${t.backdrop}`, alt: '', width: 780, height: 439, decoding: 'async',
+    onerror: (e) => e.target.closest('.sheet-hero')?.setAttribute('hidden', ''),
   });
 }

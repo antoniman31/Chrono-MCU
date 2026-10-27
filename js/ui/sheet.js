@@ -53,11 +53,14 @@ export function setupSheet() {
   }
 }
 
-export function openSheet({ title, render, onClose, kind = 'sheet', opener = document.activeElement }) {
+export function openSheet({ title, render, onClose, kind = 'sheet', opener = document.activeElement, hero = null }) {
   const keepOpener = dialog.open && current ? current.opener : opener;
   const openerKey = dialog.open && current ? current.openerKey : opener?.dataset?.fk;
   current = { title, render, onClose, kind, opener: keepOpener, openerKey };
   $('sheet-title').textContent = title;
+  const heroEl = $('sheet-hero');
+  heroEl.replaceChildren(...(hero ? [hero] : []));
+  heroEl.hidden = !hero;
   body.replaceChildren();
   render(body);
   body.scrollTop = 0;

@@ -39,6 +39,10 @@ export function validate(data) {
     if ('poster' in t && !(typeof t.poster === 'string' && /^\/[A-Za-z0-9_-]+\.(jpg|png)$/.test(t.poster))) {
       errors.push(`${at}: poster doit être un chemin TMDB du type "/abc123.jpg"`);
     }
+    if ('backdrop' in t && !(typeof t.backdrop === 'string' && /^\/[A-Za-z0-9_-]+\.(jpg|png)$/.test(t.backdrop))) {
+      errors.push(`${at}: backdrop doit être un chemin TMDB du type "/abc123.jpg"`);
+    }
+    if ('releaseDateFr' in t && !(t.type === 'film' && isDate(t.releaseDateFr))) errors.push(`${at}: releaseDateFr réservé aux films (date valide)`);
     if ('tvmazeId' in t && !(t.type === 'serie' && isPosInt(t.tvmazeId))) errors.push(`${at}: tvmazeId réservé aux séries (entier positif)`);
     if ('tmdbId' in t && !isPosInt(t.tmdbId)) errors.push(`${at}: tmdbId doit être un entier positif`);
 
@@ -62,6 +66,7 @@ export function validate(data) {
           if (e?.n !== j + 1) errors.push(`${at}: épisode ${j + 1} doit avoir n=${j + 1}`);
           if (!isText(e?.title)) errors.push(`${at}: épisode ${j + 1} sans title`);
           if (!isPosInt(e?.runtimeMin)) errors.push(`${at}: épisode ${j + 1} sans runtimeMin`);
+          if (e && 'airDate' in e && !isDate(e.airDate)) errors.push(`${at}: épisode ${j + 1} avec airDate invalide`);
         });
       }
     }

@@ -29,6 +29,7 @@ export function icon(name, cls = '') {
 
 export const today = () => new Date().toLocaleDateString('en-CA');
 export const hours = (min) => `${(min / 60).toFixed(1).replace('.', ',')} h`;
+export const formatShort = (day) => day.split('-').reverse().join('/');
 export const formatDay = (day) =>
   new Date(`${day}T00:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 

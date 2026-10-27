@@ -106,6 +106,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Noir OLED indépendant du thème : `theme` ∈ `auto|light|dark` + `oled` (booléen) dans les préférences d'affichage. En Auto, `data-oled` sur `<html>` active le noir pur seulement quand le système est sombre (CSS `prefers-color-scheme`). L'ancien thème `oled` est migré en `dark` + `oled`.
 
+- Affiches agrandies (liste 72x108, panneau latéral 160x240, carte « Prochain à voir » 64x96) ; en-tête image paysage (`backdrop`, 16:9, fixe en haut) dans la feuille de fiche d'un titre ; dates au format JJ/MM/AAAA : `releaseDateFr` pour les films (sortie salle France, repli sur `releaseDate`), `airDate` par épisode (TVmaze, diffusion d'origine), affichées dans la liste, la fiche et le menu d'une ligne.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

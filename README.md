@@ -60,11 +60,12 @@ Pour remplir les affiches (clé API v3 gratuite sur themoviedb.org, réseau ouve
 TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs          # ajoute les affiches manquantes
 TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs --dry    # essai à blanc
 TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs --force  # refait toutes les affiches
+TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs --details # ajoute images paysage (backdrop) et dates de sortie France des films
 ```
 
 Derrière un proxy d'entreprise ou de session cloud, ajoute `NODE_USE_ENV_PROXY=1` (Node 22.21+) devant la commande.
 
-Les saisons (« Loki (saison 2) ») prennent l'affiche de la saison quand TMDB en a une. Le script préfère le titre exact et écarte les making-of et podcasts, mais relis le résultat : une recherche par titre peut encore se tromper, corrige `poster` et `tmdbId` à la main si besoin. Les affiches restent la propriété de leurs ayants droit ; elles sont chargées depuis TMDB, jamais copiées dans le dépôt.
+`backdrop` (image paysage TMDB) alimente l'en-tête des fiches en feuille ; `releaseDateFr` (films) est la sortie salle en France, affichée à la place de `releaseDate` (sortie d'origine, qui sert au tri « Sortie ») ; chaque épisode porte un `airDate` (date de diffusion d'origine, TVmaze), rempli et contrôlé par `node scripts/check-data.mjs --write`. Les saisons (« Loki (saison 2) ») prennent l'affiche de la saison quand TMDB en a une. Le script préfère le titre exact et écarte les making-of et podcasts, mais relis le résultat : une recherche par titre peut encore se tromper, corrige `poster` et `tmdbId` à la main si besoin. Les affiches restent la propriété de leurs ayants droit ; elles sont chargées depuis TMDB, jamais copiées dans le dépôt.
 
 ## Déploiement
 

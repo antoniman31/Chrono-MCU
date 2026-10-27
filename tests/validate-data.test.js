@@ -92,3 +92,13 @@ test('tvmazeId: séries seulement, entier positif', () => {
   assert.ok(validate([film({ tvmazeId: 1 })]).some((e) => e.includes('tvmazeId')));
   assert.ok(validate([serie({ tvmazeId: 0 })]).some((e) => e.includes('tvmazeId')));
 });
+
+test('releaseDateFr, backdrop et airDate : valides acceptés, invalides rejetés', () => {
+  assert.deepEqual(validate([film({ releaseDateFr: '2008-04-30', backdrop: '/abc_123.jpg' }), serie({
+    episodes: [{ n: 1, title: 'E1', airDate: '2021-01-15', runtimeMin: 30 }, { n: 2, title: 'E2', runtimeMin: 30 }],
+  })]), []);
+  assert.ok(validate([film({ releaseDateFr: '2008-02-31' })]).some((e) => e.includes('releaseDateFr')));
+  assert.ok(validate([serie({ releaseDateFr: '2021-01-15' })]).some((e) => e.includes('releaseDateFr')));
+  assert.ok(validate([film({ backdrop: 'abc.jpg' })]).some((e) => e.includes('backdrop')));
+  assert.ok(validate([serie({ episodes: [{ n: 1, title: 'E1', airDate: '15/01/2021', runtimeMin: 30 }] })]).some((e) => e.includes('airDate')));
+});

@@ -1,6 +1,7 @@
 import { filterTitles, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
 import { isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
-import { $, formatDay, h, hours, icon, withFocusRestore } from './dom.js?v=__BUILD__';
+import { $, formatShort, h, hours, icon, withFocusRestore } from './dom.js?v=__BUILD__';
+import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { btn, checkbox, chip, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
 const TABS = ['all', 'film', 'serie'];
@@ -21,6 +22,7 @@ function renderResume(ctx) {
   let content;
   if (unit) {
     content = h('div', { class: 'row' },
+      posterImg(byId.get(unit.titleId), ctx.view, 'w185', 64, 96),
       h('div', { class: 'text' }, h('div', { class: 'label', text: 'Prochain à voir' }), h('div', { class: 'name', text: unitLabel(unit, byId) })),
       btn({ label: 'Marquer comme vu', variant: 'filled', iconName: 'check', onclick: () => ctx.toggleUnit(unit, unitLabel(unit, byId)) }));
   } else {
@@ -39,7 +41,7 @@ function itemFor(ctx, t) {
         posterImg(t, view),
         h('span', { class: 'item-text' },
           h('span', { class: 'title', text: t.title }),
-          h('span', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatDay(t.releaseDate)} · phase ${t.phase}` }),
+          h('span', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatShort(t.releaseDate)} · phase ${t.phase}` }),
           h('span', { class: 'badges' }, titleBadges(t)))));
   }
   const seen = isTitleSeen(state, t);
@@ -47,7 +49,7 @@ function itemFor(ctx, t) {
   const partial = t.type === 'serie' && done > 0 && !seen;
   const meta = t.type === 'serie'
     ? `Série · ${done}/${t.episodes.length} ép. · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
-    : `${t.releaseDate.slice(0, 4)} · ${t.runtimeMin} min`;
+    : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
   const note = state.notes[t.id];
   return h('li', { class: `item${seen ? ' seen' : ''}${selected ? ' selected' : ''}` },
     checkbox({
@@ -183,6 +185,6 @@ export function renderItemMenu(body, ctx, id) {
     items.push(action('edit', 'Noter ou commenter', () => ctx.openDetail(id, null, { focus: 'notes' }), 'm-note'));
   }
   items.push(action('info', 'Voir la fiche', () => ctx.openDetail(id), 'm-detail'));
-  body.append(h('ul', { class: 'sheet-actions' }, items));
+  body.append(h('p', { class: 'sheet-sub', text: metaLine(t) }), h('ul', { class: 'sheet-actions' }, items));
 }
 

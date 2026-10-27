@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { seasonNumber } from './fetch-posters.mjs';
 
 const KEY_ORDER = [
-  'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'chronoOrder', 'runtimeMin', 'postCredits',
-  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'verified', 'episodes',
+  'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'releaseDateFr', 'chronoOrder', 'runtimeMin', 'postCredits',
+  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'backdrop', 'verified', 'episodes',
 ];
 
 export function compareSeries(mine, tvEpisodes) {
@@ -16,6 +16,10 @@ export function compareSeries(mine, tvEpisodes) {
     const tv = tvEpisodes.find((e) => e.number === m.n);
     if (!tv || tv.runtime == null) continue;
     if (tv.runtime !== m.runtimeMin) diffs.push(`ép. ${m.n} « ${m.title} »: ${m.runtimeMin} min dans mcu.json, ${tv.runtime} min sur TVmaze`);
+  }
+  for (const m of mine) {
+    const tv = tvEpisodes.find((e) => e.number === m.n);
+    if (tv?.airdate && m.airDate && tv.airdate !== m.airDate) diffs.push(`ép. ${m.n} « ${m.title} »: diffusé le ${m.airDate} dans mcu.json, ${tv.airdate} sur TVmaze`);
   }
   return diffs;
 }
@@ -58,6 +62,10 @@ async function main() {
       if (t.episodes.length === tv.length) {
         for (const m of t.episodes) {
           const e = tv.find((x) => x.number === m.n);
+          if (e?.airdate && e.airdate !== m.airDate) {
+            m.airDate = e.airdate;
+            changed += 1;
+          }
           if (e?.runtime != null && e.runtime !== m.runtimeMin) {
             m.runtimeMin = e.runtime;
             changed += 1;
@@ -73,7 +81,11 @@ async function main() {
   }
 
   if (write) {
-    const out = data.map((t) => Object.fromEntries(KEY_ORDER.filter((k) => k in t).map((k) => [k, t[k]])));
+    const out = data.map((t) => {
+      const ordered = Object.fromEntries(KEY_ORDER.filter((k) => k in t).map((k) => [k, t[k]]));
+      if (t.episodes) ordered.episodes = t.episodes.map((e) => Object.fromEntries(['n', 'title', 'airDate', 'runtimeMin'].filter((k) => k in e).map((k) => [k, e[k]])));
+      return ordered;
+    });
     writeFileSync(path, `${JSON.stringify(out, null, 2)}\n`);
     console.log(`${changed} valeur(s) mise(s) à jour dans data/mcu.json.`);
   }

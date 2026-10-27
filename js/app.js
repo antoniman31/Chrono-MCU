@@ -3,6 +3,7 @@ import { exportState, importState, isTitleSeen, loadState, saveState, setNote, s
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { $, h, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
+import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
 import { renderProgression } from './ui/progression.js?v=__BUILD__';
 import { renderBackupSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
@@ -176,6 +177,7 @@ ctx.openDetail = (id, opener = null, { focus = null } = {}) => {
   ctx.sheetDetailId = id;
   openSheet({
     title: t.title, kind: 'detail', opener: opener ?? document.activeElement,
+    hero: backdropImg(t, ctx.view),
     render: (body) => renderDetail(body, ctx, id, { showTitle: false }),
     onClose: () => { ctx.sheetDetailId = null; },
   });
