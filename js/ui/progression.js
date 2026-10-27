@@ -37,6 +37,9 @@ export function renderProgression(ctx) {
       stat('Rythme', s.paceMinPerDay == null ? 'n/a' : `${hours(s.paceMinPerDay)} / jour`),
       stat('Fin estimée', s.etaDate == null ? 'n/a' : formatDay(s.etaDate))),
     h('p', { class: 'muted t-body-sm', style: 'margin-top:12px', text: 'Le rythme et la fin estimée apparaissent après deux jours d\'utilisation.' }),
+    Object.keys(ctx.ignoredMap).length
+      ? h('p', { class: 'muted t-body-sm', text: `${Object.keys(ctx.ignoredMap).length} titre${Object.keys(ctx.ignoredMap).length > 1 ? 's' : ''} ignoré${Object.keys(ctx.ignoredMap).length > 1 ? 's' : ''} (un par un ou par catégorie) : ils ne comptent pas ici.` })
+      : null,
     Object.keys(state.catchUp ?? {}).some((key) => state.seen[key])
       ? h('p', { class: 'muted t-body-sm', text: 'Ce que tu as marqué d\'un coup (rattrapage) compte dans les heures vues, mais pas dans le rythme.' })
       : null);

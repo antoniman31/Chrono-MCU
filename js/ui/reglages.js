@@ -1,5 +1,7 @@
 import { $, formatShort, h, icon, today } from './dom.js?v=__BUILD__';
 import { daysAgoLabel, daysBetween } from '../backup.js?v=__BUILD__';
+import { CATEGORIES, matchesCategory } from '../categories.js?v=__BUILD__';
+import { stats } from '../logic.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
 
 const THEME_LABELS = [
@@ -10,6 +12,32 @@ const THEME_LABELS = [
 
 const link = (href, name, desc) =>
   h('li', {}, h('a', { class: 'ext-link', href, target: '_blank', rel: 'noopener' }, h('span', { text: name }), h('span', { class: 'desc', text: desc })));
+
+const titleMinutes = (t) => (t.type === 'film' ? t.runtimeMin : t.episodes.reduce((sum, e) => sum + e.runtimeMin, 0));
+
+// Section « Ce que je suis » : une case par catégorie, avec son poids, et le total réellement suivi
+function followSection(ctx) {
+  const released = ctx.allTitles.filter((t) => !t.upcoming);
+  const skip = ctx.state.skip ?? [];
+  const rows = CATEGORIES.map((c) => {
+    const inCategory = released.filter((t) => matchesCategory(c.id, t));
+    const minutes = inCategory.reduce((sum, t) => sum + titleMinutes(t), 0);
+    return h('label', { class: 'setting switch-row' },
+      h('span', { class: 'text' }, c.label, h('span', { class: 'desc', text: `${c.desc} · ${inCategory.length} titre${inCategory.length > 1 ? 's' : ''}, ${hoursText(minutes)}` })),
+      h('input', { type: 'checkbox', role: 'switch', checked: !skip.includes(c.id), 'data-fk': `follow:${c.id}`, onchange: (e) => ctx.setSkip(c.id, !e.target.checked) }),
+      h('span', { class: 'switch', 'aria-hidden': 'true' }));
+  });
+  const followed = ctx.counted.filter((t) => !t.upcoming);
+  const s = stats(ctx.counted, ctx.state.seen, today(), ctx.state.catchUp);
+  const total = `${followed.length} titre${followed.length > 1 ? 's' : ''} suivi${followed.length > 1 ? 's' : ''}, ${hoursText(s.seenMin + s.remainingMin)} au total`;
+  return h('section', { class: 'settings-section card', 'aria-labelledby': 's-follow' },
+    h('h3', { id: 's-follow', text: 'Ce que je suis' }),
+    h('p', { class: 'muted t-body-sm', text: 'Décoche une catégorie pour l\'exclure de ta progression, de tes statistiques et du « Prochain à voir ». Tu peux réintégrer un titre précis depuis son menu.' }),
+    rows,
+    h('p', { class: 'follow-total', role: 'status', text: total }));
+}
+
+const hoursText = (min) => `${(min / 60).toFixed(1).replace('.', ',')} h`;
 
 export function renderReglages(ctx) {
   const { view } = ctx;
@@ -46,6 +74,7 @@ export function renderReglages(ctx) {
           h('input', { type: 'checkbox', role: 'switch', checked: view.showPosters, 'data-fk': 's-posters', onchange: (e) => ctx.setView({ showPosters: e.target.checked }) }),
           h('span', { class: 'switch', 'aria-hidden': 'true' }))
         : null),
+    followSection(ctx),
     h('section', { class: 'settings-section card', 'aria-labelledby': 's-data' },
       h('h3', { id: 's-data', text: 'Données' }),
       h('button', { type: 'button', class: 'setting', 'aria-haspopup': 'dialog', 'data-fk': 's-backup', onclick: (e) => ctx.openBackup(e.currentTarget) },

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BACKUP_KEY, STATE_VERSION, migrate, STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
-  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil,
+  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil, setTitleIgnored, setSkip,
 } from '../js/store.js';
 
 const film = { id: 'f', type: 'film' };
@@ -147,11 +147,11 @@ test('setPhaseSeen: conserve les dates existantes et ignore les titres à venir'
 test('ignorer: bascule, garde de setTitleSeen, état déjà ignoré inchangé', () => {
   const film = { id: 'f', title: 'F', type: 'film', phase: 1 };
   let s = setIgnored(defaultState(), 'f', true);
-  assert.equal(isIgnored(s, 'f'), true);
+  assert.equal(isIgnored(s, film), true);
   assert.equal(setIgnored(s, 'f', true), s);
   assert.equal(setTitleSeen(s, film, true, D1), s);
   s = setIgnored(s, 'f', false);
-  assert.equal(isIgnored(s, 'f'), false);
+  assert.equal(isIgnored(s, film), false);
   assert.equal(isTitleSeen(setTitleSeen(s, film, true, D1), film), true);
 });
 
@@ -171,8 +171,8 @@ test('anciens états: notes abandonnées au chargement et à l\'import, ignored 
 test('migrate: v1 devient v2 (notes abandonnées, ignored ajouté), v2 inchangé, futur refusé', () => {
   assert.equal(STATE_VERSION, 2);
   const v1 = { version: 1, order: 'release', seen: { f: D1 }, notes: { f: { rating: 3 } }, lastSeenKey: 'f' };
-  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, catchUp: {}, lastSeenKey: 'f' } });
-  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, catchUp: {}, lastSeenKey: null };
+  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, catchUp: {}, skip: [], included: {}, lastSeenKey: 'f' } });
+  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, catchUp: {}, skip: [], included: {}, lastSeenKey: null };
   assert.deepEqual(migrate(v2), { ok: true, state: v2 });
   const future = migrate({ version: 9, order: 'chrono', seen: {}, lastSeenKey: null });
   assert.equal(future.ok, false);
@@ -238,4 +238,57 @@ test('décocher une unité de rattrapage la sort du rattrapage ; l\'état v2 ave
   assert.equal('t3' in s.catchUp, true);
   assert.deepEqual(importState(exportState(s)).state, s);
   assert.ok(validateState({ ...s, catchUp: { x: false } }).length > 0);
+});
+
+const serie1 = { id: 's1', type: 'serie', saga: 'infinity', phase: 1, episodes: [{ n: 1, runtimeMin: 40 }] };
+const short1 = { id: 'c1', type: 'film', saga: 'infinity', phase: 1, runtimeMin: 40 };
+const multi1 = { id: 'm1', type: 'film', saga: 'multiverse', phase: 4, runtimeMin: 120 };
+const all3 = [serie1, short1, multi1];
+
+test('catégories coupées : les titres concernés sont ignorés, pas les autres', () => {
+  const s = setSkip(defaultState(), 'series', true, all3);
+  assert.equal(isIgnored(s, serie1), true);
+  assert.equal(isIgnored(s, multi1), false);
+  assert.equal(setTitleSeen(s, serie1, true, D1), s, 'un titre ignoré par catégorie ne se coche pas');
+  assert.equal(setSkip(s, 'series', true, all3), s, 'couper une catégorie déjà coupée ne change rien');
+  assert.throws(() => setSkip(s, 'nimporte', true, all3));
+  const two = setSkip(s, 'shorts', true, all3);
+  assert.equal(isIgnored(two, short1), true);
+  assert.equal(isIgnored(setSkip(two, 'series', false, all3), serie1), false);
+});
+
+test('réintégrer un titre d\'une catégorie coupée, puis l\'ignorer à nouveau', () => {
+  let s = setSkip(defaultState(), 'series', true, all3);
+  s = setTitleIgnored(s, serie1, false);
+  assert.equal(isIgnored(s, serie1), false);
+  assert.deepEqual(s.included, { s1: true });
+  assert.equal(setTitleIgnored(s, serie1, false), s);
+  s = setTitleIgnored(s, serie1, true);
+  assert.equal(isIgnored(s, serie1), true);
+  assert.equal(s.ignored.s1, true);
+  assert.deepEqual(s.included, {});
+  // Ignorer explicitement un titre hors catégorie, puis le réactiver : aucune trace de « réintégration »
+  let t = setTitleIgnored(defaultState(), multi1, true);
+  t = setTitleIgnored(t, multi1, false);
+  assert.deepEqual([t.ignored, t.included], [{}, {}]);
+});
+
+test('suivre à nouveau une catégorie efface les réintégrations, sauf celles encore utiles à une autre catégorie coupée', () => {
+  let s = setSkip(setSkip(defaultState(), 'series', true, all3), 'shorts', true, all3);
+  s = setTitleIgnored(s, serie1, false);
+  s = setTitleIgnored(s, short1, false);
+  assert.deepEqual(Object.keys(s.included).sort(), ['c1', 's1']);
+  s = setSkip(s, 'series', false, all3);
+  assert.deepEqual(Object.keys(s.included), ['c1']);
+});
+
+test('skip et included : validés, exportés, importés', () => {
+  let s = setSkip(defaultState(), 'series', true, all3);
+  s = setTitleIgnored(s, serie1, false);
+  assert.deepEqual(validateState(s), []);
+  assert.deepEqual(importState(exportState(s)).state, s);
+  assert.ok(validateState({ ...s, skip: ['inconnue'] }).length > 0);
+  assert.ok(validateState({ ...s, skip: 'series' }).length > 0);
+  assert.ok(validateState({ ...s, included: { x: false } }).length > 0);
+  assert.equal(migrate({ version: 2, order: 'chrono', seen: {}, lastSeenKey: null }).state.skip.length, 0);
 });

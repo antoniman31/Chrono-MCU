@@ -1,5 +1,6 @@
-import { filterTitles, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
-import { isIgnored, isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
+import { filterTitles, isReleased, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
+import { isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
+import { ignoreInfo } from '../categories.js?v=__BUILD__';
 import { $, formatShort, h, hours, icon, today, withFocusRestore } from './dom.js?v=__BUILD__';
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
@@ -40,7 +41,7 @@ function renderNudge(ctx) {
 
 function renderResume(ctx) {
   const { state, titles, byId } = ctx;
-  const { unit, status } = suggestNext(titles, state.seen, state.order, state.lastSeenKey, state.ignored);
+  const { unit, status } = suggestNext(titles, state.seen, state.order, state.lastSeenKey, ctx.ignoredMap);
   let content;
   if (unit) {
     content = h('div', { class: 'row' },
@@ -50,7 +51,19 @@ function renderResume(ctx) {
   } else {
     content = h('div', { class: 'row' }, h('div', { class: 'name', text: status === 'done' ? 'Tout est vu. Bravo.' : 'Tu es arrivé à la fin de la liste.' }));
   }
-  $('resume').replaceChildren(h('section', { class: 'card card-tonal resume', 'aria-label': 'Suite du visionnage' }, content));
+  // Séries commencées dont un épisode sort bientôt : on sait quand reprendre
+  const day = today();
+  const coming = ctx.allTitles
+    .filter((t) => t.type === 'serie' && !t.upcoming && !ctx.ignoredMap[t.id] && t.episodes.some((e) => state.seen[`${t.id}/${e.n}`]))
+    .map((t) => ({ t, next: t.episodes.find((e) => !isReleased(e, day)) }))
+    .filter((x) => x.next)
+    .sort((a, b) => a.next.airDate.localeCompare(b.next.airDate))
+    .slice(0, 2);
+  const comingRows = coming.map(({ t, next }) =>
+    h('div', { class: 'row' }, h('div', { class: 'text' },
+      h('div', { class: 'label', text: 'Prochainement' }),
+      h('div', { class: 'name', text: `${t.title} : épisode ${next.n} le ${formatShort(next.airDate)}` }))));
+  $('resume').replaceChildren(h('section', { class: 'card card-tonal resume', 'aria-label': 'Suite du visionnage' }, content, comingRows));
 }
 
 function itemFor(ctx, t) {
@@ -67,14 +80,17 @@ function itemFor(ctx, t) {
           h('span', { class: 'badges' }, titleBadges(t)))));
   }
   const seen = isTitleSeen(state, t);
-  const ignored = isIgnored(state, t.id);
+  const info = ignoreInfo(state, t);
+  const ignored = info.ignored;
   const done = t.type === 'serie' ? t.episodes.filter((e) => state.seen[`${t.id}/${e.n}`]).length : 0;
   const partial = t.type === 'serie' && done > 0 && !seen;
+  const total = t.type === 'serie' ? ctx.byId.get(t.id).episodes.length : 0;
+  const pending = t.type === 'serie' ? total - t.episodes.length : 0;
   const meta = t.type === 'serie'
-    ? `Série · ${done}/${t.episodes.length} ép. · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
+    ? `Série · ${done}/${total} ép.${pending ? ` (${pending} à venir)` : ''} · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
     : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
   const seenSpec = { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleTitle(t) };
-  const ignoreSpec = { icon: ignored ? 'visibility' : 'block', label: ignored ? 'Ne plus ignorer' : 'Ignorer', run: () => ctx.toggleIgnore(t) };
+  const ignoreSpec = { icon: ignored ? 'visibility' : 'block', label: ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer') : 'Ignorer', run: () => ctx.toggleIgnore(t) };
   const swipe = ignored ? { right: ignoreSpec, left: ignoreSpec } : { right: seenSpec, left: ignoreSpec };
   const bg = swipeBackground(swipe);
   const fg = h('div', { class: 'item-fg' },
@@ -204,11 +220,12 @@ export function renderFiltersSheet(body, ctx) {
 }
 
 export function renderItemMenu(body, ctx, id) {
-  const t = ctx.byId.get(id);
+  const t = ctx.availById.get(id) ?? ctx.byId.get(id);
   const seen = isTitleSeen(ctx.state, t);
   const action = (iconName, label, onclick, key) =>
     h('li', {}, h('button', { type: 'button', class: 'sheet-action', 'data-fk': key, onclick }, icon(iconName), label));
-  const ignored = isIgnored(ctx.state, id);
+  const info = ignoreInfo(ctx.state, t);
+  const ignored = info.ignored;
   const items = [];
   if (!t.upcoming) {
     if (!ignored) {
@@ -217,7 +234,7 @@ export function renderItemMenu(body, ctx, id) {
     }
     const pending = ignored ? 0 : ctx.pendingUntilCount(t);
     if (pending >= 2) items.push(action('check', `Tout marquer vu jusqu'ici (${pending} titres)`, () => { ctx.closeSheet(); ctx.markUntil(t); }, 'm-until'));
-    items.push(action(ignored ? 'visibility' : 'block', ignored ? 'Ne plus ignorer' : 'Ignorer ce titre', () => { ctx.closeSheet(); ctx.toggleIgnore(t); }, 'm-ignore'));
+    items.push(action(ignored ? 'visibility' : 'block', ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer ce titre') : 'Ignorer ce titre', () => { ctx.closeSheet(); ctx.toggleIgnore(t); }, 'm-ignore'));
   }
   items.push(action('info', 'Voir la fiche', () => ctx.openDetail(id), 'm-detail'));
   body.append(h('p', { class: 'sheet-sub', text: metaLine(t) }), h('ul', { class: 'sheet-actions' }, items));

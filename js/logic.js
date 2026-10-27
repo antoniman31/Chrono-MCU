@@ -88,6 +88,20 @@ export function resumeFrom(titles, seen, order, lastSeenKey) {
 
 // « Prochain à voir » : le premier titre non vu et non ignoré APRÈS le dernier coché, dans l'ordre actif. Ce que tu as sauté
 // avant n'est jamais rappelé. Sans historique (rien coché), on propose le tout premier titre de la liste.
+// Un épisode est sorti le jour de sa date de diffusion d'origine (date américaine) ; sans date, on le considère sorti.
+export const isReleased = (episode, today) => !episode.airDate || episode.airDate <= today;
+
+// Catalogue tel qu'on peut le regarder aujourd'hui : les épisodes pas encore sortis sont retirés (progression, statistiques,
+// « Prochain à voir » les ignorent d'office) ; une série dont aucun épisode n'est sorti devient « à venir ».
+export function releasedView(titles, today) {
+  return titles.map((t) => {
+    if (t.type !== 'serie' || t.upcoming) return t;
+    const episodes = t.episodes.filter((e) => isReleased(e, today));
+    if (episodes.length === t.episodes.length) return t;
+    return episodes.length ? { ...t, episodes } : { ...t, upcoming: true };
+  });
+}
+
 export const countedTitles = (titles, ignored = {}) => titles.filter((t) => !ignored[t.id]);
 
 export function suggestNext(titles, seen, order, lastSeenKey, ignored = {}) {

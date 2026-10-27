@@ -1,7 +1,9 @@
-import { isIgnored, isTitleSeen } from '../store.js?v=__BUILD__';
-import { formatShort, h, icon, hours } from './dom.js?v=__BUILD__';
+import { isTitleSeen } from '../store.js?v=__BUILD__';
+import { categoryLabel, ignoreInfo } from '../categories.js?v=__BUILD__';
+import { formatShort, h, icon, hours, today } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
+import { isReleased } from '../logic.js?v=__BUILD__';
 
 export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
 
@@ -14,7 +16,18 @@ export function metaLine(t) {
 }
 
 function episodesSection(ctx, t, ignored) {
+  const day = today();
+  const released = t.episodes.filter((e) => isReleased(e, day));
   const rows = t.episodes.map((e) => {
+    if (!isReleased(e, day)) {
+      // Pas encore sorti : visible, mais sans case et hors de tous les comptes
+      return h('li', { class: 'item upcoming-ep' },
+        h('div', { class: 'item-fg' },
+          h('span', { class: 'cb', 'aria-hidden': 'true' }),
+          h('div', { class: 'ep-text' },
+            h('span', { class: 'title', text: `Ép. ${e.n} — ${e.titleFr ?? e.title}` }),
+            h('span', { class: 'meta', text: `Sort le ${formatShort(e.airDate)}` }))));
+    }
     const key = `${t.id}/${e.n}`;
     const seen = Boolean(ctx.state.seen[key]);
     const swipe = ignored ? { right: null, left: null } : { right: { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleEpisode(t, e, seen) }, left: null };
@@ -28,8 +41,10 @@ function episodesSection(ctx, t, ignored) {
     attachSwipe(row, fg, bg, swipe);
     return row;
   });
+  const seenCount = released.filter((e) => ctx.state.seen[`${t.id}/${e.n}`]).length;
+  const pending = t.episodes.length - released.length;
   return h('section', { class: 'episodes', 'aria-labelledby': `eps-h-${t.id}` },
-    h('h3', { id: `eps-h-${t.id}`, text: `Épisodes (${t.episodes.filter((e) => ctx.state.seen[`${t.id}/${e.n}`]).length}/${t.episodes.length} vus)` }),
+    h('h3', { id: `eps-h-${t.id}`, text: `Épisodes (${seenCount}/${released.length} vus${pending ? `, ${pending} à venir` : ''})` }),
     h('ul', { class: 'items' }, rows));
 }
 
@@ -39,8 +54,9 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
     container.replaceChildren(h('p', { class: 'detail-empty', text: 'Titre introuvable.' }));
     return;
   }
-  const seen = isTitleSeen(ctx.state, t);
-  const ignored = isIgnored(ctx.state, t.id);
+  const seen = isTitleSeen(ctx.state, ctx.availById.get(t.id) ?? t);
+  const info = ignoreInfo(ctx.state, t);
+  const ignored = info.ignored;
   const poster = showPoster ? posterImg(t, ctx.view, 'w342', 96, 144) : null;
   const children = [
     h('div', { class: 'detail-head' },
@@ -53,7 +69,9 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
   if (t.overview) children.push(h('p', { class: 'overview', text: t.overview }));
   if (!t.upcoming) {
     const actions = [];
-    if (ignored) children.push(h('p', { class: 'muted', text: 'Ignoré : ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».' }));
+    if (ignored) children.push(h('p', { class: 'muted', text: info.category && !info.explicit
+      ? `Ignoré : la catégorie « ${categoryLabel(info.category)} » n'est pas suivie (Réglages > Ce que je suis). Ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».`
+      : 'Ignoré : ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».' }));
     else {
       actions.push(btn({
         label: t.type === 'serie' ? (seen ? 'Marquer la série non vue' : 'Marquer la série vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
@@ -61,7 +79,7 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
       }));
     }
     actions.push(btn({
-      label: ignored ? 'Ne plus ignorer' : 'Ignorer', iconName: ignored ? 'visibility' : 'block', variant: ignored ? 'filled' : 'text',
+      label: ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer ce titre') : 'Ignorer', iconName: ignored ? 'visibility' : 'block', variant: ignored ? 'filled' : 'text',
       key: `detail-ignore:${t.id}`, onclick: () => ctx.toggleIgnore(t),
     }));
     children.push(h('div', { class: 'actions' }, actions));

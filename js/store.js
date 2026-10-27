@@ -1,4 +1,5 @@
 import { ORDERS, sortTitles, toUnits } from './logic.js?v=__BUILD__';
+import { CATEGORY_IDS, ignoreInfo, matchesCategory, titleIgnored } from './categories.js?v=__BUILD__';
 
 // Le nom de la clé reste « v1 » pour ne pas déplacer les données ; la version du contenu, elle, est dans `state.version`.
 export const STORAGE_KEY = 'chrono-mcu:v1';
@@ -6,7 +7,7 @@ export const BACKUP_KEY = 'chrono-mcu:v1:pre-v2';
 export const STATE_VERSION = 2;
 
 export function defaultState() {
-  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, catchUp: {}, lastSeenKey: null };
+  return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, catchUp: {}, skip: [], included: {}, lastSeenKey: null };
 }
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -29,6 +30,13 @@ export function validateState(s) {
   if ('ignored' in s) {
     if (!isObject(s.ignored)) errors.push('ignored invalide');
     else if (!Object.values(s.ignored).every((v) => v === true)) errors.push('ignored: valeurs true attendues');
+  }
+  if ('skip' in s) {
+    if (!Array.isArray(s.skip) || !s.skip.every((id) => CATEGORY_IDS.includes(id))) errors.push('skip invalide');
+  }
+  if ('included' in s) {
+    if (!isObject(s.included)) errors.push('included invalide');
+    else if (!Object.values(s.included).every((v) => v === true)) errors.push('included: valeurs true attendues');
   }
   if ('catchUp' in s) {
     if (!isObject(s.catchUp)) errors.push('catchUp invalide');
@@ -58,8 +66,8 @@ export function migrate(raw) {
     state = step(state);
   }
   // Ne garde que les champs connus
-  const { version, order, seen, ignored, catchUp, lastSeenKey } = state;
-  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, catchUp: catchUp ?? {}, lastSeenKey } };
+  const { version, order, seen, ignored, catchUp, skip, included, lastSeenKey } = state;
+  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, catchUp: catchUp ?? {}, skip: skip ?? [], included: included ?? {}, lastSeenKey } };
 }
 
 export function loadState(storage) {
@@ -113,7 +121,7 @@ export function toggleUnit(state, key, today) {
 }
 
 export function setTitleSeen(state, title, value, today) {
-  if (title.upcoming || state.ignored[title.id]) return state;
+  if (title.upcoming || titleIgnored(state, title)) return state;
   if (title.type === 'film') {
     if (Boolean(state.seen[title.id]) === value) return state;
     return toggleUnit(state, title.id, today);
@@ -129,10 +137,10 @@ export function setTitleSeen(state, title, value, today) {
   return withSeen(state, seen, lastSeenKey);
 }
 
-export const isIgnored = (state, id) => Boolean(state.ignored[id]);
+export const isIgnored = (state, title) => titleIgnored(state, title);
 
 export function setIgnored(state, id, value) {
-  if (isIgnored(state, id) === value) return state;
+  if (Boolean(state.ignored[id]) === value) return state;
   const ignored = { ...state.ignored };
   if (value) ignored[id] = true;
   else delete ignored[id];
@@ -171,7 +179,7 @@ export function importState(text) {
 
 // Rattrapage : unités non vues, non ignorées et sorties, de la première jusqu'à la fin du titre `id` (incluse), dans l'ordre actif.
 export function pendingUntil(state, titles, id) {
-  const units = toUnits(sortTitles(titles.filter((t) => !state.ignored[t.id]), state.order));
+  const units = toUnits(sortTitles(titles.filter((t) => !titleIgnored(state, t)), state.order));
   let end = -1;
   units.forEach((u, i) => { if (u.titleId === id) end = i; });
   return end === -1 ? [] : units.slice(0, end + 1).filter((u) => !state.seen[u.key]);
@@ -187,4 +195,32 @@ export function markUntil(state, titles, id, today) {
     catchUp[u.key] = true;
   }
   return { ...state, seen, catchUp, lastSeenKey: pending[pending.length - 1].key };
+}
+
+// Ignorer / réintégrer un titre en tenant compte des catégories coupées : « ignorer » est explicite et l'emporte toujours ;
+// « ne plus ignorer » retire l'ignorance explicite, et réintègre le titre s'il n'était ignoré que par sa catégorie.
+export function setTitleIgnored(state, title, value) {
+  const info = ignoreInfo(state, title);
+  if (info.ignored === value) return state;
+  const ignored = { ...state.ignored };
+  const included = { ...state.included };
+  if (value) {
+    ignored[title.id] = true;
+    delete included[title.id];
+  } else {
+    delete ignored[title.id];
+    if ((state.skip ?? []).some((id) => matchesCategory(id, title))) included[title.id] = true;
+  }
+  return { ...state, ignored, included };
+}
+
+// Couper ou suivre à nouveau une catégorie ; la suivre à nouveau efface les réintégrations devenues sans objet.
+export function setSkip(state, categoryId, skipped, titles) {
+  if (!CATEGORY_IDS.includes(categoryId)) throw new Error(`catégorie inconnue: ${categoryId}`);
+  const current = state.skip ?? [];
+  if (current.includes(categoryId) === skipped) return state;
+  const skip = skipped ? [...current, categoryId] : current.filter((id) => id !== categoryId);
+  const included = { ...state.included };
+  if (!skipped) for (const t of titles) if (matchesCategory(categoryId, t) && !skip.some((id) => matchesCategory(id, t))) delete included[t.id];
+  return { ...state, skip, included };
 }
