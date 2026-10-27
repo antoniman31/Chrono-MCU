@@ -1,8 +1,9 @@
 import { filterTitles, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
 import { isIgnored, isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
-import { $, formatShort, h, hours, icon, withFocusRestore } from './dom.js?v=__BUILD__';
+import { $, formatShort, h, hours, icon, today, withFocusRestore } from './dom.js?v=__BUILD__';
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
+import { backupStatus, NUDGE_AFTER_CHECKS } from '../backup.js?v=__BUILD__';
 import { btn, checkbox, chip, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
 const TABS = ['all', 'film', 'serie'];
@@ -15,6 +16,26 @@ function unitLabel(unit, byId) {
 function activeFilterCount(ctx) {
   const f = ctx.filters;
   return (f.phase !== null ? 1 : 0) + (f.hideSeen ? 1 : 0);
+}
+
+function renderNudge(ctx) {
+  const el = $('nudge');
+  const st = backupStatus({ lastBackup: ctx.view.lastBackup, snoozeUntil: ctx.view.nudgeUntil }, Object.keys(ctx.state.seen).length, today());
+  if (!st.due) {
+    el.replaceChildren();
+    return;
+  }
+  const message = st.neverBackedUp
+    ? `Tu as ${st.sinceChecks} éléments vus (films et épisodes) et aucune sauvegarde.`
+    : st.sinceChecks >= NUDGE_AFTER_CHECKS
+      ? `${st.sinceChecks} nouveaux éléments vus depuis ta dernière sauvegarde.`
+      : `Ta dernière sauvegarde remonte à ${st.days} jours.`;
+  el.replaceChildren(h('section', { class: 'card card-nudge', 'aria-label': 'Rappel de sauvegarde' },
+    h('p', { class: 'nudge-title', text: message }),
+    h('p', { class: 'muted', text: 'Ta progression n\'est stockée que dans ce navigateur : si les données du site sont effacées, elle est perdue.' }),
+    h('div', { class: 'row-actions' },
+      btn({ label: 'Exporter maintenant', variant: 'filled', iconName: 'download', key: 'nudge-export', onclick: () => ctx.exportProgress() }),
+      btn({ label: 'Plus tard', variant: 'text', key: 'nudge-later', onclick: () => ctx.snoozeNudge() }))));
 }
 
 function renderResume(ctx) {
@@ -110,6 +131,7 @@ function renderList(ctx) {
 
 export function renderVoir(ctx) {
   const { state, filters } = ctx;
+  renderNudge(ctx);
   renderResume(ctx);
   document.querySelectorAll('[data-tab]').forEach((tab) => {
     const sel = tab.dataset.tab === filters.tab;

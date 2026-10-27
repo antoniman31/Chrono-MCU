@@ -6,7 +6,8 @@
     "test": "node --test",
     "validate": "node scripts/validate-data.mjs",
     "check-data": "node scripts/check-data.mjs",
-    "e2e": "node e2e/run.mjs"
+    "e2e": "node e2e/run.mjs && node e2e/behavior.mjs",
+    "icons": "node scripts/make-icons.mjs"
   },
   "devDependencies": {
     "axe-core": "4.10.2",

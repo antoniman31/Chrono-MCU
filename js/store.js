@@ -1,7 +1,9 @@
 import { ORDERS } from './logic.js?v=__BUILD__';
 
+// Le nom de la clé reste « v1 » pour ne pas déplacer les données ; la version du contenu, elle, est dans `state.version`.
 export const STORAGE_KEY = 'chrono-mcu:v1';
-export const STATE_VERSION = 1;
+export const BACKUP_KEY = 'chrono-mcu:v1:pre-v2';
+export const STATE_VERSION = 2;
 
 export function defaultState() {
   return { version: STATE_VERSION, order: 'chrono', seen: {}, ignored: {}, lastSeenKey: null };
@@ -32,9 +34,28 @@ export function validateState(s) {
   return errors;
 }
 
-// Ne garde que les champs connus: les anciennes notes et commentaires sont abandonnés ici
-function clean(s) {
-  return { version: s.version, order: s.order, seen: s.seen, ignored: s.ignored ?? {}, lastSeenKey: s.lastSeenKey };
+// Une entrée par version de départ: transforme un état de la version N en version N+1.
+// v1 -> v2: les notes et commentaires sont abandonnés, `ignored` apparaît.
+const MIGRATIONS = {
+  1: (s) => ({ version: 2, order: s.order, seen: s.seen, ignored: isObject(s.ignored) ? s.ignored : {}, lastSeenKey: s.lastSeenKey }),
+};
+
+// Amène un état lu (stockage ou fichier importé) à la version courante, sans le valider.
+export function migrate(raw) {
+  if (!isObject(raw)) return { ok: false, error: 'état invalide' };
+  let state = raw;
+  if (Number.isInteger(state.version) && state.version > STATE_VERSION) {
+    return { ok: false, error: `fichier plus récent que l'application (version ${state.version}) : mets l'application à jour` };
+  }
+  if (!Number.isInteger(state.version) || state.version < 1) return { ok: false, error: `version non supportée: ${state.version}` };
+  while (state.version < STATE_VERSION) {
+    const step = MIGRATIONS[state.version];
+    if (!step) return { ok: false, error: `version non supportée: ${state.version}` };
+    state = step(state);
+  }
+  // Ne garde que les champs connus
+  const { version, order, seen, ignored, lastSeenKey } = state;
+  return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, lastSeenKey } };
 }
 
 export function loadState(storage) {
@@ -42,7 +63,16 @@ export function loadState(storage) {
     const raw = storage?.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
-    return validateState(parsed).length === 0 ? clean(parsed) : defaultState();
+    const result = migrate(parsed);
+    if (!result.ok || validateState(result.state).length) return defaultState();
+    if (parsed.version !== STATE_VERSION) {
+      // Migration: on garde l'ancien contenu tel quel (une seule fois) avant de réécrire
+      try {
+        if (!storage.getItem(BACKUP_KEY)) storage.setItem(BACKUP_KEY, raw);
+        storage.setItem(STORAGE_KEY, JSON.stringify(result.state));
+      } catch { /* stockage plein ou indisponible: l'état migré reste en mémoire */ }
+    }
+    return result.state;
   } catch {
     return defaultState();
   }
@@ -126,7 +156,9 @@ export function importState(text) {
   } catch {
     return { ok: false, error: "Fichier illisible: ce n'est pas du JSON valide." };
   }
-  const errors = validateState(parsed);
+  const migrated = migrate(parsed);
+  if (!migrated.ok) return { ok: false, error: `Fichier invalide: ${migrated.error}` };
+  const errors = validateState(migrated.state);
   if (errors.length) return { ok: false, error: `Fichier invalide: ${errors[0]}` };
-  return { ok: true, state: clean(parsed) };
+  return { ok: true, state: migrated.state };
 }

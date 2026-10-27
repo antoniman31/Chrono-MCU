@@ -1,6 +1,7 @@
 import { countedTitles, sortTitles } from './logic.js?v=__BUILD__';
 import { exportState, importState, isTitleSeen, loadState, saveState, setIgnored, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
+import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
 import { $, h, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
@@ -37,10 +38,12 @@ const ctx = {
   route: 'voir',
   pendingImport: null,
   backupError: '',
+  persisted: null,
   versionLabel: BUILD.startsWith('__') ? 'Version locale' : `Version ${BUILD}`,
 };
 
 let storageWarned = false;
+let persistAsked = false;
 let undoSnapshot = null;
 let snackTimer = null;
 let snackPaused = false;
@@ -56,6 +59,17 @@ function applyTheme() {
   else if (oled) root.dataset.oled = ''; // Auto : le CSS applique le noir OLED seulement quand le système est sombre
   const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
   if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+}
+
+/* ---------- Stockage durable ---------- */
+// Demande au navigateur de ne pas effacer les données du site (une fois par session, dès la première coche)
+function requestPersistence() {
+  if (persistAsked || !navigator.storage?.persist || !Object.keys(ctx.state.seen).length) return;
+  persistAsked = true;
+  navigator.storage.persist().then((ok) => {
+    ctx.persisted = ok;
+    if (ctx.route === 'reglages') render({ detail: false });
+  }).catch(() => {});
 }
 
 /* ---------- Message d'erreur global et snackbar ---------- */
@@ -127,6 +141,7 @@ function update(next, label = null, { detail = true } = {}) {
   } else if (!label) hideSnackbar();
   render({ detail });
   if (detail) refreshSheet();
+  requestPersistence();
 }
 ctx.update = update;
 
@@ -154,6 +169,8 @@ ctx.setView = (patch) => {
   render();
   refreshSheet();
 };
+ctx.markBackedUp = () => ctx.setView({ lastBackup: { day: today(), seenCount: Object.keys(ctx.state.seen).length }, nudgeUntil: null });
+ctx.snoozeNudge = () => ctx.setView({ nudgeUntil: addDays(today(), SNOOZE_DAYS) });
 ctx.toggleCollapse = (phase) => {
   const set = new Set(ctx.view.collapsedPhases);
   if (!set.delete(phase)) set.add(phase);
@@ -197,6 +214,7 @@ ctx.exportProgress = () => {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+  ctx.markBackedUp();
   closeSheet();
   showSnackbar('Progression exportée', false);
 };
@@ -210,6 +228,7 @@ ctx.confirmImport = () => {
   ctx.pendingImport = null;
   closeSheet();
   update(next, 'Progression importée');
+  ctx.markBackedUp();
 };
 
 /* ---------- Navigation ---------- */
@@ -274,6 +293,7 @@ async function main() {
   });
   window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => ctx.view.theme === 'auto' && applyTheme());
 
+  navigator.storage?.persisted?.().then((ok) => { ctx.persisted = ok; }).catch(() => {});
   applyTheme();
   render();
   document.getElementById('app')?.setAttribute('data-ready', 'true');
