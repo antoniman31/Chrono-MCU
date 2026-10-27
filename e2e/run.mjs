@@ -20,7 +20,6 @@ async function audit(page, where) {
   checks += 1;
   // On attend la fin des animations d'entrée (feuille, snackbar) pour mesurer les couleurs finales
   await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
-  await page.addScriptTag({ content: axeSource }).catch(() => {});
   // La règle `target-size` d'axe compare chaque paire de cibles (quadratique) : ~18 s sur la liste, contre 0,3 s pour tout le reste.
   // Elle est remplacée par le contrôle maison plus bas, plus strict (44 px au lieu des 24 px de WCAG 2.2).
   const violations = await page.evaluate(async () => {
@@ -53,6 +52,8 @@ const variants = {
   'auto-oled': [{ theme: 'auto', oled: true }, 'dark'],
 };
 // Les images TMDB sont décoratives (alt vide, aucun texte posé dessus) : on les bloque pour des tests rapides et indépendants du réseau
+// axe est injecté par le mécanisme d'initialisation de Playwright (hors CSP) : la CSP du site reste active pendant les audits
+const withAxe = (context) => context.addInitScript({ content: axeSource });
 const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => route.abort());
 
 async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
@@ -60,9 +61,11 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   const t0 = Date.now();
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme, reducedMotion: 'reduce' });
   await blockImages(context);
+  await withAxe(context);
   await context.addInitScript(([v]) => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify(v)); } catch { /* ignore */ } }, [prefs]);
   const page = await context.newPage();
   page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
+  page.on('console', (m) => { if (/Content Security Policy/i.test(m.text())) fail(where, `violation CSP : ${m.text().slice(0, 140)}`); });
   await page.goto(base);
   await page.waitForSelector('body[data-ready]', { state: 'attached' });
 
@@ -130,15 +133,66 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 for (const scheme of ['light', 'dark']) {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
   await blockImages(context);
+  await withAxe(context);
   const seen = Object.fromEntries(Array.from({ length: 25 }, (_, i) => [`seed${i}`, '2026-10-01']));
   await context.addInitScript(([state]) => { try { localStorage.setItem('chrono-mcu:v1', JSON.stringify(state)); } catch { /* ignore */ } },
     [{ version: 2, order: 'chrono', seen, ignored: {}, lastSeenKey: null }]);
   const page = await context.newPage();
   page.on('pageerror', (e) => fail(`rappel/${scheme}`, `erreur JS : ${e.message}`));
+  page.on('console', (m) => { if (/Content Security Policy/i.test(m.text())) fail(`rappel/${scheme}`, `violation CSP : ${m.text().slice(0, 140)}`); });
   await page.goto(base);
   await page.waitForSelector('body[data-ready]', { state: 'attached' });
   if (!(await page.locator('#nudge .card-nudge').count())) fail(`rappel/${scheme}`, 'le rappel de sauvegarde devrait s\'afficher');
   await audit(page, `rappel/${scheme} À voir`);
+  await context.close();
+}
+
+// Reflow (WCAG 1.4.10) à 320 px et texte agrandi à 200 % (WCAG 1.4.4) : pas de défilement horizontal, aucune commande hors écran ni texte coupé
+for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %', '200%']]) {
+  const context = await browser.newContext({ viewport: { width: 320, height: 640 }, reducedMotion: 'reduce' });
+  await blockImages(context);
+  const page = await context.newPage();
+  const where = `reflow ${label}`;
+  page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
+  await page.goto(base);
+  await page.waitForSelector('body[data-ready]', { state: 'attached' });
+  if (fontScale) await page.evaluate((size) => { document.documentElement.style.fontSize = size; }, fontScale);
+  const inspect = async (screen) => {
+    const problems = await page.evaluate(() => {
+      const out = [];
+      const width = document.documentElement.clientWidth;
+      if (document.documentElement.scrollWidth > width + 1) out.push(`la page défile horizontalement (${document.documentElement.scrollWidth} px pour ${width} px)`);
+      const visible = (el) => !el.closest('[hidden]') && !el.closest('dialog:not([open])') && el.getClientRects().length > 0;
+      const name = (el) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''} « ${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 24)} »`;
+      document.querySelectorAll('button, a[href], input:not([type=hidden]), [role=tab]').forEach((el) => {
+        if (!visible(el)) return;
+        const r = el.getBoundingClientRect();
+        if (r.right > width + 1 || r.left < -1) out.push(`commande hors écran : ${name(el)} (${Math.round(r.left)} à ${Math.round(r.right)} px)`);
+      });
+      document.querySelectorAll('*').forEach((el) => {
+        if (!visible(el) || el.closest('svg') || el.closest('.sr-only') || el.classList.contains('skip-link')) return;
+        const style = getComputedStyle(el);
+        if ((style.overflowX === 'hidden' || style.overflowX === 'clip') && el.scrollWidth > el.clientWidth + 1 && el.textContent.trim()) out.push(`texte coupé dans ${name(el)} (${el.scrollWidth} px pour ${el.clientWidth} px)`);
+      });
+      return out.slice(0, 4);
+    });
+    problems.forEach((p) => fail(where, `${screen} : ${p}`));
+  };
+  await inspect('À voir');
+  await page.click('#open-filters');
+  await inspect('feuille Filtres');
+  await page.keyboard.press('Escape');
+  await page.click('[data-fk="open:wandavision"]');
+  await inspect('fiche série');
+  await page.keyboard.press('Escape');
+  await page.click('[data-fk="menu:iron-man"]');
+  await inspect('feuille Menu');
+  await page.keyboard.press('Escape');
+  for (const route of ['progression', 'reglages']) {
+    await page.click(`.nav-item[data-route="${route}"]`);
+    await page.waitForSelector(`#screen-${route}:not([hidden])`);
+    await inspect(route === 'progression' ? 'Progression' : 'Réglages');
+  }
   await context.close();
 }
 
@@ -148,6 +202,7 @@ for (const scheme of ['light', 'dark']) {
   await blockImages(context);
   const page = await context.newPage();
   page.on('pageerror', (e) => fail('swipe', `erreur JS : ${e.message}`));
+  page.on('console', (m) => { if (/Content Security Policy/i.test(m.text())) fail('swipe', `violation CSP : ${m.text().slice(0, 140)}`); });
   await page.goto(base);
   await page.waitForSelector('body[data-ready]', { state: 'attached' });
   const cdp = await context.newCDPSession(page);

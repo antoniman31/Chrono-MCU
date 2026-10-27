@@ -209,9 +209,10 @@ main:focus { outline: none; }
   background: var(--nav-bg); border-top: 1px solid var(--border);
 }
 .nav-item {
-  flex: 1; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  flex: 1 1 0; min-width: 0; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   color: var(--muted); text-decoration: none; font-size: .75rem; line-height: 1rem; font-weight: 500; letter-spacing: .03em;
 }
+.nav-label { max-width: 100%; text-align: center; overflow-wrap: anywhere; hyphens: auto; }
 .nav-ind { width: 64px; height: 32px; border-radius: 16px; display: grid; place-items: center; position: relative; overflow: hidden; }
 .nav-ind::after, .face::after { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; border-radius: inherit; pointer-events: none; }
 .nav-item:hover .nav-ind::after { opacity: .08; }
@@ -242,10 +243,10 @@ main:focus { outline: none; }
 
 /* ---------- Boutons ---------- */
 .face { position: relative; overflow: hidden; }
-.btn { min-height: 48px; padding: 4px 0; background: none; border: 0; display: inline-flex; align-items: center; color: inherit; }
+.btn { min-height: 48px; max-width: 100%; padding: 4px 0; background: none; border: 0; display: inline-flex; align-items: center; color: inherit; }
 .btn .face {
-  height: 40px; padding: 0 24px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; white-space: nowrap;
+  min-height: 40px; padding: 0 24px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; text-align: center; overflow-wrap: anywhere;
 }
 .btn .icon { width: 18px; height: 18px; }
 .btn-tonal .face { background: var(--tonal); color: var(--on-tonal); }
@@ -336,15 +337,16 @@ main:focus { outline: none; }
 .item-text { min-width: 0; display: grid; gap: 2px; }
 .item .title { font-size: 1rem; line-height: 1.5rem; font-weight: 500; overflow-wrap: anywhere; }
 .item.seen .title { color: var(--muted); }
-.item .meta { font-size: .875rem; line-height: 1.25rem; color: var(--muted); }
+.item .meta { font-size: .875rem; line-height: 1.25rem; color: var(--muted); overflow-wrap: anywhere; }
 .item .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
 .item.upcoming { border-style: dashed; }
 .item.ignored .title { color: var(--muted); }
 .item.ignored .poster { filter: grayscale(1); }
 .item-menu { flex: none; }
+.item-main .poster { flex: 0 1 72px; width: auto; min-width: 44px; height: auto; aspect-ratio: 2 / 3; } /* rétrécit quand le texte est très agrandi */
 .poster { width: 72px; height: 108px; flex: none; object-fit: cover; border-radius: 4px; background: var(--surface-2); }
 
-.badge { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 6px; font-size: .75rem; line-height: 1rem; font-weight: 500; background: var(--surface-2); color: var(--fg); border: 1px solid var(--border); white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; min-height: 20px; max-width: 100%; padding: 0 8px; border-radius: 6px; font-size: .75rem; line-height: 1rem; font-weight: 500; background: var(--surface-2); color: var(--fg); border: 1px solid var(--border); overflow-wrap: anywhere; }
 .badge.warn { background: var(--warn); color: #111; border-color: transparent; }
 .badge.alt { border-color: var(--accent); }
 .badge.soon { border-color: var(--outline); }
@@ -447,7 +449,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .sheet-action .text { display: grid; }
 .sheet-group { margin-bottom: 16px; }
 .sheet-group > h3 { font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; color: var(--muted); margin-bottom: 4px; }
-.sheet-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.sheet-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }
 .backup-actions { display: grid; gap: 4px; }
 
 .detail { padding: 0 0 16px; }
