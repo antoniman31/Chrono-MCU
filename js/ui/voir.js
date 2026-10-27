@@ -6,13 +6,16 @@ import { $, formatShort, h, hours, icon, today, withFocusRestore } from './dom.j
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { backupStatus, NUDGE_AFTER_CHECKS } from '../backup.js?v=__BUILD__';
+import { hideEpisodeTitle } from '../spoilers.js?v=__BUILD__';
 import { btn, checkbox, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
 const TABS = ['all', 'film', 'serie'];
 
-function unitLabel(unit, byId) {
+function unitLabel(unit, byId, ctx) {
   const t = byId.get(unit.titleId);
-  return unit.kind === 'film' ? t.title : `${t.title} · ép. ${unit.n} — ${unit.title}`;
+  if (unit.kind === 'film') return t.title;
+  // Mode sans spoiler : le prochain épisode n'est jamais vu, son titre reste donc caché
+  return hideEpisodeTitle(ctx.view, ctx.state, t.id, unit.n) ? `${t.title} · ép. ${unit.n}` : `${t.title} · ép. ${unit.n} — ${unit.title}`;
 }
 
 function activeFilterCount(ctx) {
@@ -89,7 +92,7 @@ function goToPhase(ctx, phase) {
 
 function renderNudge(ctx) {
   const el = $('nudge');
-  const st = backupStatus({ lastBackup: ctx.view.lastBackup, snoozeUntil: ctx.view.nudgeUntil }, Object.keys(ctx.state.seen).length, today());
+  const st = backupStatus({ lastBackup: ctx.view.lastBackup, snoozeUntil: ctx.view.nudgeUntil }, Object.keys(ctx.state.seen).length, today(), ctx.view.nudgeDays);
   if (!st.due) {
     el.replaceChildren();
     return;
@@ -114,8 +117,8 @@ function renderResume(ctx) {
   if (unit) {
     content = h('div', { class: 'row' },
       posterImg(byId.get(unit.titleId), ctx.view, 'w185', 64, 96),
-      h('div', { class: 'text' }, h('div', { class: 'label', text: 'Prochain à voir' }), h('div', { class: 'name', text: unitLabel(unit, byId) })),
-      btn({ label: 'Marquer comme vu', variant: 'filled', iconName: 'check', onclick: () => ctx.toggleUnit(unit, unitLabel(unit, byId)) }));
+      h('div', { class: 'text' }, h('div', { class: 'label', text: 'Prochain à voir' }), h('div', { class: 'name', text: unitLabel(unit, byId, ctx) })),
+      btn({ label: 'Marquer comme vu', variant: 'filled', iconName: 'check', onclick: () => ctx.toggleUnit(unit, unitLabel(unit, byId, ctx)) }));
   } else {
     content = h('div', { class: 'row' }, h('div', { class: 'name', text: status === 'done' ? 'Tout est vu. Bravo.' : 'Tu es arrivé à la fin de la liste.' }));
   }

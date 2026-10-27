@@ -1,6 +1,24 @@
-import { progress, stats } from '../logic.js?v=__BUILD__';
-import { $, formatDay, h, hours, today } from './dom.js?v=__BUILD__';
+import { goalPlan, progress, stats } from '../logic.js?v=__BUILD__';
+import { $, formatDay, formatShort, h, hours, today } from './dom.js?v=__BUILD__';
 import { checkbox, progressBar } from './parts.js?v=__BUILD__';
+
+// Carte « Objectif » : heures par semaine pour tout voir avant la date cible, comparées au rythme actuel
+function goalCard(ctx, s) {
+  const goalDate = ctx.view.goalDate;
+  if (!goalDate) return null;
+  const plan = goalPlan({ remainingMin: s.remainingMin, today: today(), goalDate, paceMinPerDay: s.paceMinPerDay });
+  const per = (min) => `${hours(min)} par semaine`;
+  const days = (n) => `${n} jour${n > 1 ? 's' : ''}`;
+  let lines;
+  if (plan.status === 'done') lines = ['Objectif atteint : tu as tout vu.'];
+  else if (plan.status === 'passed') lines = [`La date est passée depuis ${days(plan.daysLate)}.`, `Il te reste ${hours(plan.remainingMin)} à regarder.`];
+  else if (plan.status === 'unknown') lines = [`Il reste ${days(plan.daysLeft)} : il faut regarder ${per(plan.needWeekMin)} pour tout voir.`, 'Ton rythme apparaît après deux jours d\'utilisation.'];
+  else if (plan.status === 'on-track') lines = [`Dans les temps : ton rythme actuel est de ${per(plan.paceWeekMin)}, il en faut ${per(plan.needWeekMin)}.`, `Il reste ${days(plan.daysLeft)}.`];
+  else lines = [`En retard : ton rythme actuel est de ${per(plan.paceWeekMin)}, il en faut ${per(plan.needWeekMin)}.`, `Il te manque ${per(plan.needWeekMin - plan.paceWeekMin)}. Il reste ${days(plan.daysLeft)}.`];
+  return h('section', { class: `card goal goal-${plan.status}`, 'aria-labelledby': 'p-goal' },
+    h('h3', { id: 'p-goal', text: `Objectif : avant le ${formatShort(goalDate)}` }),
+    lines.map((text, i) => h('p', { class: i === 0 ? 'goal-main' : 'muted t-body-md', text })));
+}
 
 export function renderProgression(ctx) {
   const { state } = ctx;
@@ -28,6 +46,7 @@ export function renderProgression(ctx) {
       h('p', { class: 'big-number', text: `${p.percent} %` }),
       progressBar(p.percent, 'Progression globale'),
       h('p', { class: 'muted t-body-md', text: `${p.seen} sur ${p.total} unités vues (films et épisodes)` })),
+    goalCard(ctx, s),
     h('section', { class: 'card', 'aria-labelledby': 'p-phases' },
       h('h3', { id: 'p-phases', text: 'Par phase' }),
       h('ul', {}, phaseRows)),

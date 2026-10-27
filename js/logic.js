@@ -129,6 +129,18 @@ const DAY_MS = 86_400_000;
 const dayNumber = (s) => Math.floor(Date.parse(`${s}T00:00:00Z`) / DAY_MS);
 const fromDayNumber = (n) => new Date(n * DAY_MS).toISOString().slice(0, 10);
 
+// Objectif « tout voir avant la date cible » : ce qu'il faut regarder par semaine, comparé au rythme actuel.
+// status : 'done' (plus rien à voir), 'passed' (date dépassée), 'unknown' (pas encore de rythme), 'on-track' ou 'behind'.
+export function goalPlan({ remainingMin, today, goalDate, paceMinPerDay }) {
+  if (remainingMin <= 0) return { status: 'done' };
+  const daysLeft = dayNumber(goalDate) - dayNumber(today);
+  if (daysLeft <= 0) return { status: 'passed', remainingMin, daysLate: -daysLeft };
+  const needWeekMin = (remainingMin / daysLeft) * 7;
+  if (paceMinPerDay == null) return { status: 'unknown', daysLeft, remainingMin, needWeekMin };
+  const paceWeekMin = paceMinPerDay * 7;
+  return { status: paceWeekMin >= needWeekMin ? 'on-track' : 'behind', daysLeft, remainingMin, needWeekMin, paceWeekMin };
+}
+
 // `catchUp` : unités marquées d'un coup pour rattraper un historique. Elles comptent dans les heures vues et restantes,
 // mais pas dans le rythme (sinon cocher 40 films d'un coup ferait exploser « Rythme » et « Fin estimée »).
 export function stats(titles, seen, today, catchUp = {}) {

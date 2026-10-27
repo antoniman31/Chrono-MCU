@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions } from '../js/logic.js';
+import { sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions, goalPlan } from '../js/logic.js';
 
 const film = (id, chronoOrder, releaseDate, phase = 1, runtimeMin = 100) => ({
   id, title: id, type: 'film', phase, saga: 'infinity', releaseDate, chronoOrder, runtimeMin, verified: true,
@@ -303,4 +303,23 @@ test('withVersions : les heures du titre suivent la version choisie', () => {
   const base = stats(withVersions([eg], {}), seen, '2026-10-02');
   const enc = stats(withVersions([eg], { eg: 'encore' }), seen, '2026-10-02');
   assert.equal(enc.seenMin - base.seenMin, 4);
+});
+
+test('goalPlan : heures par semaine nécessaires et comparaison au rythme', () => {
+  const base = { today: '2026-10-27', goalDate: '2026-12-08' }; // 42 jours = 6 semaines
+  const done = goalPlan({ ...base, remainingMin: 0, paceMinPerDay: 60 });
+  assert.equal(done.status, 'done');
+  const unknown = goalPlan({ ...base, remainingMin: 1200, paceMinPerDay: null });
+  assert.equal(unknown.status, 'unknown');
+  assert.equal(unknown.daysLeft, 42);
+  assert.equal(Math.round(unknown.needWeekMin), 200); // 1200 min / 6 semaines
+  const ok = goalPlan({ ...base, remainingMin: 1200, paceMinPerDay: 40 }); // 280 min/sem
+  assert.equal(ok.status, 'on-track');
+  assert.equal(Math.round(ok.paceWeekMin), 280);
+  const late = goalPlan({ ...base, remainingMin: 1200, paceMinPerDay: 20 }); // 140 min/sem
+  assert.equal(late.status, 'behind');
+  const passed = goalPlan({ today: '2026-12-10', goalDate: '2026-12-08', remainingMin: 300, paceMinPerDay: 30 });
+  assert.equal(passed.status, 'passed');
+  assert.equal(passed.daysLate, 2);
+  assert.equal(goalPlan({ today: '2026-12-08', goalDate: '2026-12-08', remainingMin: 300, paceMinPerDay: 30 }).status, 'passed');
 });

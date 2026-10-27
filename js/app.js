@@ -6,9 +6,10 @@ import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
 import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
+import { hideSummary } from './spoilers.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
 import { renderProgression } from './ui/progression.js?v=__BUILD__';
-import { renderBackupSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
+import { renderBackupSheet, renderEraseSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
 import { renderFiltersSheet, renderItemMenu, renderVoir, setupVoir } from './ui/voir.js?v=__BUILD__';
 
 // Remplacé par l'identifiant du commit au déploiement (contourne le cache de 10 min de GitHub Pages): voir .github/workflows/pages.yml
@@ -228,7 +229,7 @@ ctx.openDetail = (id, opener = null) => {
   ctx.sheetDetailId = id;
   openSheet({
     title: t.title, kind: 'detail', opener: opener ?? document.activeElement,
-    hero: backdropImg(t, ctx.view),
+    hero: hideSummary(ctx.view, ctx.state, t) ? null : backdropImg(t, ctx.view), // mode sans spoiler : l'image paysage peut en dire trop
     render: (body) => renderDetail(body, ctx, id, { showTitle: false, showPoster: false }),
     onClose: () => { ctx.sheetDetailId = null; },
   });
@@ -252,6 +253,13 @@ ctx.exportProgress = () => {
   ctx.markBackedUp();
   closeSheet();
   showSnackbar('Progression exportée', false);
+};
+ctx.openErase = (opener) => openSheet({ title: 'Effacer ma progression', kind: 'erase', opener, render: (body) => renderEraseSheet(body, ctx) });
+ctx.eraseProgress = () => {
+  const before = ctx.state;
+  ctx.exportProgress(); // télécharge la sauvegarde, ferme la feuille
+  // On n'efface que l'avancement : coches, rattrapage, dernière coche et versions regardées (le reste est un choix de suivi)
+  update({ ...before, seen: {}, catchUp: {}, lastSeenKey: null, versions: {} }, 'Progression effacée');
 };
 ctx.chooseImportFile = () => $('import-file').click();
 ctx.cancelImport = () => {

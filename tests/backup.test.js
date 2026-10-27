@@ -41,3 +41,13 @@ test('daysAgoLabel', () => {
   assert.equal(daysAgoLabel(1), 'hier');
   assert.equal(daysAgoLabel(12), 'il y a 12 jours');
 });
+
+test('rappel réglable : délai choisi, 0 = jamais', () => {
+  const last = { lastBackup: { day: '2026-10-01', seenCount: 10 }, snoozeUntil: null };
+  assert.equal(backupStatus(last, 11, '2026-10-08', 7).due, true);
+  assert.equal(backupStatus(last, 11, '2026-10-07', 7).due, false);
+  assert.equal(backupStatus(last, 11, '2026-10-29', 30).due, false);
+  assert.equal(backupStatus(last, 11, '2026-10-31', 30).due, true);
+  assert.equal(backupStatus(last, 500, '2027-01-01', 0).due, false, 'désactivé même après beaucoup de coches');
+  assert.equal(backupStatus({ lastBackup: null, snoozeUntil: null }, 50, '2026-10-27', 0).due, false);
+});

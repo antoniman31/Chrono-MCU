@@ -4,6 +4,11 @@ import { formatShort, h, icon, hours, today } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { isReleased } from '../logic.js?v=__BUILD__';
+import { hideEpisodeTitle, hideSummary } from '../spoilers.js?v=__BUILD__';
+
+// Titres dont l'utilisateur a demandé l'affichage du résumé malgré le mode sans spoiler (valable jusqu'au rechargement)
+const revealed = new Set();
+const episodeName = (ctx, t, e) => (hideEpisodeTitle(ctx.view, ctx.state, t.id, e.n) ? `Ép. ${e.n}` : `Ép. ${e.n} — ${e.titleFr ?? e.title}`);
 
 export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
 
@@ -40,7 +45,7 @@ function episodesSection(ctx, t, ignored) {
         h('div', { class: 'item-fg' },
           h('span', { class: 'cb', 'aria-hidden': 'true' }),
           h('div', { class: 'ep-text' },
-            h('span', { class: 'title', text: `Ép. ${e.n} — ${e.titleFr ?? e.title}` }),
+            h('span', { class: 'title', text: episodeName(ctx, t, e) }),
             h('span', { class: 'meta', text: `Sort le ${formatShort(e.airDate)}` }))));
     }
     const key = `${t.id}/${e.n}`;
@@ -50,7 +55,7 @@ function episodesSection(ctx, t, ignored) {
     const fg = h('div', { class: 'item-fg' },
       checkbox({ checked: seen, disabled: ignored, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
-        h('span', { class: 'title', text: `Ép. ${e.n} — ${e.titleFr ?? e.title}` }),
+        h('span', { class: 'title', text: episodeName(ctx, t, e) }),
         h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
     const row = h('li', { class: `item${seen ? ' seen' : ''}` }, bg, fg);
     attachSwipe(row, fg, bg, swipe);
@@ -81,7 +86,13 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
         h('p', { class: 'meta', text: metaLine(t) }),
         h('div', { class: 'badges' }, titleBadges(t, ignored)))),
   ];
-  if (t.overview) children.push(h('p', { class: 'overview', text: t.overview }));
+  if (t.overview) {
+    if (hideSummary(ctx.view, ctx.state, t) && !revealed.has(t.id)) {
+      children.push(h('div', { class: 'spoiler-note' },
+        h('p', { class: 'muted', text: 'Résumé masqué (mode sans spoiler).' }),
+        btn({ label: 'Afficher le résumé', variant: 'text', key: `reveal:${t.id}`, onclick: () => { revealed.add(t.id); renderDetail(container, ctx, id, { showTitle, showPoster }); } })));
+    } else children.push(h('p', { class: 'overview', text: t.overview }));
+  }
   if (!t.upcoming) {
     const actions = [];
     if (ignored) children.push(h('p', { class: 'muted', text: info.category && !info.explicit
