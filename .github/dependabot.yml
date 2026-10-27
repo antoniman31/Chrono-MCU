@@ -7,6 +7,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    # Une seule PR pour toutes les actions : celles du déploiement (configure-pages, upload-pages-artifact, deploy-pages)
+    # doivent monter ensemble, et ce chemin ne tourne que sur main (la CI d'une PR ne l'exerce pas)
+    groups:
+      actions:
+        patterns: ["*"]
   - package-ecosystem: npm
     directory: /
     schedule:
