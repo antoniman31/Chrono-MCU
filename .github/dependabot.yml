@@ -1,0 +1,17 @@
+# Mises à jour hebdomadaires : les actions GitHub (épinglées par SHA, Dependabot met à jour le SHA et le commentaire de version)
+# et les dépendances de développement. Chaque mise à jour passe par la CI (tests, e2e) avant de pouvoir être fusionnée.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      dev-dependencies:
+        dependency-type: development
