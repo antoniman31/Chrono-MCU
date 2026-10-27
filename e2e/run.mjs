@@ -72,8 +72,7 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   await audit(page, `${where} À voir`);
 
   await page.click('[data-fk="ptab:4"]');
-  await audit(page, `${where} phase 4 choisie`);
-  await page.click('[data-fk="ptab:all"]');
+  await audit(page, `${where} phase 4 atteinte`);
 
   await page.click('#open-filters');
   await audit(page, `${where} feuille Filtres`);
@@ -185,8 +184,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
   };
   await inspect('À voir');
   await page.click('[data-fk="ptab:4"]');
-  await inspect('phase 4 choisie');
-  await page.click('[data-fk="ptab:all"]');
+  await inspect('phase 4 atteinte');
   await page.click('#open-filters');
   await inspect('feuille Filtres');
   await page.keyboard.press('Escape');
