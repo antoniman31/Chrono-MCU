@@ -125,6 +125,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Deadpool (2016) et Deadpool 2 (2018) : films de la Fox, ajoutés à la demande d'Antoni qui les compte dans le MCU. Rangés selon leur date de sortie et la phase en cours à ce moment : Deadpool (12/02/2016, entre la fin de la phase 2 avec Ant-Man et le début de la phase 3 avec Civil War) en phase 2, Deadpool 2 (18/05/2018) en phase 3, donc dans l'Infinity Saga ; chronoOrder juste avant Deadpool & Wolverine (les suivants décalés de 2). Durées 108 et 119 min (Wikipedia), scènes : Deadpool « end », Deadpool 2 « mid » (le bonus de fin de Deadpool 2 est seulement sonore, non compté). Ils sont marqués « autre réalité » (`altUniverse`, univers Fox) : le badge s'affiche et couper la catégorie « Autres réalités » les retire.
 
+- Titre d'en-tête : « Chrono-MCU » dans un bloc rouge (couleur du bouton principal, texte blanc, contraste AA) en capitales condensées, police Bebas Neue (SIL OFL) réduite et servie par le site ; CSP `font-src 'self'` ; repli sur les polices condensées du système. Mention « application non officielle » dans Réglages > À propos. Style seulement : ni le logo ni le nom Marvel ne sont repris.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 
