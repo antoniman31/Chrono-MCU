@@ -19,32 +19,71 @@ function activeFilterCount(ctx) {
   return ctx.filters.hideSeen ? 1 : 0;
 }
 
-// Barre des phases : onglets défilants (Toutes, Phase 1 à 6) sous la barre d'outils, et nom de la phase choisie
-let shownPhase;
-function renderPhaseBar(ctx) {
-  const { filters, state } = ctx;
-  const { byPhase, percent } = progress(ctx.counted, state.seen);
-  const entries = [{ key: 'all', value: null, label: 'Toutes', percent }, ...phaseList(ctx.allTitles).map((p) => ({ key: String(p), value: p, label: `Phase ${p}`, percent: byPhase[p]?.percent ?? 0 }))];
+// Barre des phases : un onglet par phase. Appuyer fait défiler la liste jusqu'à la phase (rien n'est masqué) ;
+// en défilant, l'onglet suit la phase du premier titre visible sous le bloc fixe.
+let currentPhase = null;
+let lockUntil = 0; // pendant un défilement lancé par un appui, le suivi automatique ne reprend pas la main
+
+function paintPhaseBar(ctx, phase) {
   const bar = $('phase-tabs');
-  bar.replaceChildren(...entries.map((e) => {
-    const selected = filters.phase === e.value;
-    const tab = h('button', {
-      type: 'button', class: 'ptab', role: 'tab', 'aria-selected': String(selected), tabindex: selected ? 0 : -1, 'aria-controls': 'list-panel',
-      'data-fk': `ptab:${e.key}`, 'data-phase': e.key, onclick: () => ctx.setFilter({ phase: e.value }),
-    }, e.label, h('span', { class: 'pfill', 'aria-hidden': 'true' }));
-    tab.style.setProperty('--p', `${e.percent}%`);
-    return tab;
-  }));
-  if (shownPhase !== filters.phase) {
-    shownPhase = filters.phase;
-    // Défilement manuel : scrollIntoView déplacerait le point de départ de la touche Tab
-    const on = bar.querySelector('[aria-selected="true"]');
-    if (on) bar.scrollLeft = on.offsetLeft - (bar.clientWidth - on.offsetWidth) / 2;
-  }
-  const info = phaseInfo(phaseSummary(ctx.allTitles, ctx.counted, state.seen, filters.phase));
+  bar.querySelectorAll('[role="tab"]').forEach((tab) => {
+    const on = Number(tab.dataset.phase) === phase;
+    tab.setAttribute('aria-selected', String(on));
+    tab.tabIndex = on ? 0 : -1;
+  });
+  const info = phaseInfo(phaseSummary(ctx.allTitles, ctx.counted, ctx.state.seen, phase));
   const [title, details] = $('phase-info').children;
   title.textContent = info.title;
   details.textContent = info.details;
+  // Défilement manuel : scrollIntoView déplacerait le point de départ de la touche Tab
+  const on = bar.querySelector('[aria-selected="true"]');
+  if (on) bar.scrollLeft = on.offsetLeft - (bar.clientWidth - on.offsetWidth) / 2;
+}
+
+function renderPhaseBar(ctx) {
+  // En ordre chronologique les phases se mélangent : la barre n'a de sens qu'en ordre de sortie
+  $('phasebar').hidden = ctx.state.order === 'chrono';
+  const { byPhase } = progress(ctx.counted, ctx.state.seen);
+  const phases = phaseList(ctx.allTitles);
+  if (!phases.includes(currentPhase)) currentPhase = phases[0] ?? null;
+  const bar = $('phase-tabs');
+  const left = bar.scrollLeft;
+  bar.replaceChildren(...phases.map((p) => {
+    const tab = h('button', {
+      type: 'button', class: 'ptab', role: 'tab', 'aria-selected': 'false', tabindex: -1, 'aria-controls': 'list-panel',
+      'data-fk': `ptab:${p}`, 'data-phase': String(p), onclick: () => goToPhase(ctx, p),
+    }, `Phase ${p}`, h('span', { class: 'pfill', 'aria-hidden': 'true' }));
+    tab.style.setProperty('--p', `${byPhase[p]?.percent ?? 0}%`);
+    return tab;
+  }));
+  bar.scrollLeft = left;
+  paintPhaseBar(ctx, currentPhase);
+}
+
+// Phase du premier élément de la liste encore visible sous le bloc fixe (titre + barre des phases)
+function visiblePhase() {
+  const els = [...$('list').querySelectorAll('[data-phase]')];
+  if (!els.length) return null;
+  const limit = Math.max(document.querySelector('.appbar').getBoundingClientRect().bottom, $('phasebar').getBoundingClientRect().bottom);
+  return Number((els.find((el) => el.getBoundingClientRect().bottom > limit + 1) ?? els.at(-1)).dataset.phase);
+}
+
+function syncPhase(ctx) {
+  if (ctx.state.order === 'chrono') return;
+  const phase = visiblePhase();
+  if (phase === null || phase === currentPhase) return;
+  currentPhase = phase;
+  paintPhaseBar(ctx, phase);
+}
+
+function goToPhase(ctx, phase) {
+  currentPhase = phase;
+  paintPhaseBar(ctx, phase);
+  const target = $('list').querySelector(`[data-phase="${phase}"]`);
+  if (!target) return;
+  const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  lockUntil = performance.now() + (smooth ? 900 : 100);
+  target.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
 }
 
 function renderNudge(ctx) {
@@ -149,7 +188,11 @@ function renderList(ctx) {
     return;
   }
   if (!view.groupByPhase) {
-    list.replaceChildren(h('ul', { class: 'items' }, shown.map((t) => itemFor(ctx, t))));
+    list.replaceChildren(h('ul', { class: 'items' }, shown.map((t) => {
+      const li = itemFor(ctx, t);
+      li.dataset.phase = String(t.phase);
+      return li;
+    })));
     return;
   }
   const { byPhase } = progress(ctx.counted, state.seen);
@@ -159,7 +202,7 @@ function renderList(ctx) {
     const ratio = byPhase[phase] ?? { seen: 0, total: 0, percent: 0 };
     const collapsed = view.collapsedPhases.includes(phase) && !searching;
     const all = ratio.total > 0 && ratio.seen === ratio.total;
-    return h('section', { class: 'group', 'aria-labelledby': `gh-${phase}` },
+    return h('section', { class: 'group', 'data-phase': String(phase), 'aria-labelledby': `gh-${phase}` },
       h('div', { class: 'group-head' },
         checkbox({
           checked: all, indeterminate: ratio.seen > 0 && !all, disabled: ratio.total === 0, label: `Vu : phase ${phase} entière`, key: `pcb:${phase}`,
@@ -191,10 +234,11 @@ export function renderVoir(ctx) {
   $('open-filters').setAttribute('aria-label', count ? `Filtres, ${count} actif${count > 1 ? 's' : ''}` : 'Filtres');
   $('search-clear').hidden = filters.query === '';
   withFocusRestore(() => renderList(ctx));
+  syncPhase(ctx);
 }
 
 export function setupVoir(ctx) {
-  // Clavier de la barre des phases : flèches, Début, Fin (une seule phase à la fois, comme Tout / Films / Séries)
+  // Clavier de la barre des phases : flèches, Début, Fin
   $('phase-tabs').addEventListener('keydown', (e) => {
     const keys = [...$('phase-tabs').querySelectorAll('[role="tab"]')].map((t) => t.dataset.phase);
     const i = keys.indexOf(document.activeElement?.dataset?.phase);
@@ -202,9 +246,20 @@ export function setupVoir(ctx) {
     const next = { ArrowRight: (i + 1) % keys.length, ArrowLeft: (i + keys.length - 1) % keys.length, Home: 0, End: keys.length - 1 }[e.key];
     if (next === undefined) return;
     e.preventDefault();
-    ctx.setFilter({ phase: keys[next] === 'all' ? null : Number(keys[next]) });
+    goToPhase(ctx, Number(keys[next]));
     document.querySelector(`[data-fk="ptab:${keys[next]}"]`)?.focus();
   });
+  // Suivi du défilement : l'onglet reste en cohérence avec les titres visibles
+  let frame = 0;
+  const follow = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      if (performance.now() >= lockUntil) syncPhase(ctx);
+    });
+  };
+  window.addEventListener('scroll', follow, { passive: true });
+  window.addEventListener('resize', follow);
   // Hauteur du bloc fixe : le focus et les défilements automatiques ne doivent jamais passer dessous
   const phasebar = $('phasebar');
   new ResizeObserver(() => document.documentElement.style.setProperty('--phasebar-h', `${phasebar.offsetHeight}px`)).observe(phasebar);

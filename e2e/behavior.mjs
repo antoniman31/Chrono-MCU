@@ -220,30 +220,46 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
   check((await progressTotal(page)).total === full.total, 'tout le catalogue devrait être de retour');
 });
 
-await scenario('barre des phases : sous la barre d\'outils, filtre, nom de phase, clavier, fixe en haut', async (page) => {
+await scenario('barre des phases : sous la barre d\'outils, appui = défilement, suivi du défilement, clavier, fixe en haut', async (page) => {
+  check(!(await page.locator('#phasebar').isVisible()), 'en ordre chronologique la barre des phases doit être cachée');
+  await page.click('[data-order="release"]');
   const after = await page.evaluate(() => Boolean(document.querySelector('.toolbar').compareDocumentPosition(document.querySelector('#phase-tabs')) & Node.DOCUMENT_POSITION_FOLLOWING));
   check(after, 'la barre des phases doit suivre la barre d\'outils');
-  const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
-  const phaseOf = (n) => data.filter((t) => t.phase === n).length;
+  check((await page.locator('#phase-tabs [role=tab]').count()) === 6, 'six onglets de phase attendus (plus de « Toutes »)');
   const info = () => page.locator('#phase-info').innerText();
+  const selected = () => page.evaluate(() => document.querySelector('#phase-tabs [aria-selected="true"]')?.dataset.phase);
+  const total = await page.locator('#result-count').innerText();
+  check((await selected()) === '1', 'en haut de la liste, la phase 1 devrait être suivie');
 
-  await page.click('[data-fk="ptab:3"]');
-  check((await page.locator('#result-count').innerText()) === `${phaseOf(3)} titres`, 'le filtre de phase devrait réduire la liste à la phase 3');
-  check(/Phase 3 · Infinity Saga/.test(await info()), `nom de phase attendu : ${await info()}`);
   await page.click('[data-fk="ptab:4"]');
-  check(/Phase 4 · Saga du Multivers/.test(await info()), 'la phase 4 devrait afficher la saga du Multivers');
-  check((await page.locator('[data-fk="ptab:4"]').getAttribute('aria-selected')) === 'true', 'l\'onglet choisi devrait être sélectionné');
+  await page.waitForTimeout(150);
+  check((await page.locator('#result-count').innerText()) === total, 'un appui sur un onglet ne doit rien masquer');
+  check((await selected()) === '4' && /Phase 4 · Saga du Multivers/.test(await info()), `phase 4 attendue : ${await info()}`);
+  const gap = await page.evaluate(() => {
+    const first = document.querySelector('#list [data-phase="4"]').getBoundingClientRect().top;
+    return first - Math.max(document.querySelector('.appbar').getBoundingClientRect().bottom, document.querySelector('#phasebar').getBoundingClientRect().bottom);
+  });
+  check(gap >= -2 && gap <= 40, `le premier titre de la phase 4 devrait être juste sous la barre (écart ${Math.round(gap)} px)`);
 
-  await page.locator('[data-fk="ptab:4"]').focus();
+  await page.click('[data-fk="ptab:2"]');
+  await page.waitForTimeout(150);
+  check(/Phase 2 · Infinity Saga/.test(await info()), 'la phase 2 appartient à l\'Infinity Saga');
+
+  // Suivi : on défile à la main vers la phase 5 puis vers le haut
+  await page.evaluate(() => { document.querySelector('#list [data-phase="5"]').scrollIntoView({ block: 'start' }); });
+  await page.waitForTimeout(400);
+  check((await selected()) === '5', `en défilant vers la phase 5, l'onglet devrait suivre (${await selected()})`);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(400);
+  check((await selected()) === '1', `en haut de la page, l'onglet devrait revenir à la phase 1 (${await selected()})`);
+
+  await page.locator('[data-fk="ptab:3"]').focus();
   await page.keyboard.press('ArrowRight');
-  check((await page.locator('[data-fk="ptab:5"]').getAttribute('aria-selected')) === 'true', 'flèche droite : phase 5');
-  check(await page.evaluate(() => document.activeElement?.dataset?.fk === 'ptab:5'), 'le focus devrait suivre la sélection');
+  check((await selected()) === '4' && (await page.evaluate(() => document.activeElement?.dataset?.fk === 'ptab:4')), 'flèche droite : phase 4 avec le focus');
   await page.keyboard.press('Home');
-  check(/Toutes les phases/.test(await info()), 'Début : toutes les phases');
+  check((await selected()) === '1', 'Début : phase 1');
   await page.keyboard.press('End');
-  check((await page.locator('[data-fk="ptab:6"]').getAttribute('aria-selected')) === 'true', 'Fin : dernière phase');
-  await page.click('[data-fk="ptab:all"]');
-  check(/Toutes les phases/.test(await info()), 'Toutes : retour à la liste complète');
+  check((await selected()) === '6', 'Fin : phase 6');
 
   // Fixe : après défilement, la barre reste collée sous le titre (qui est lui aussi fixe)
   await page.evaluate(() => window.scrollTo(0, 1200));
@@ -253,6 +269,7 @@ await scenario('barre des phases : sous la barre d\'outils, filtre, nom de phase
 });
 
 await scenario('barre des phases : sur un écran bas (paysage) elle défile avec la page', async (page) => {
+  await page.click('[data-order="release"]');
   await page.evaluate(() => window.scrollTo(0, 1200));
   await page.waitForTimeout(200);
   const top = await page.evaluate(() => document.querySelector('#phasebar').getBoundingClientRect().top);
