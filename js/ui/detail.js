@@ -1,6 +1,7 @@
 import { isIgnored, isTitleSeen } from '../store.js?v=__BUILD__';
 import { formatShort, h, icon, hours } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
+import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 
 export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
 
@@ -16,11 +17,16 @@ function episodesSection(ctx, t, ignored) {
   const rows = t.episodes.map((e) => {
     const key = `${t.id}/${e.n}`;
     const seen = Boolean(ctx.state.seen[key]);
-    return h('li', { class: `item${seen ? ' seen' : ''}` },
+    const swipe = ignored ? { right: null, left: null } : { right: { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleEpisode(t, e, seen) }, left: null };
+    const bg = swipeBackground(swipe);
+    const fg = h('div', { class: 'item-fg' },
       checkbox({ checked: seen, disabled: ignored, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
         h('span', { class: 'title', text: `Ép. ${e.n} — ${e.title}` }),
         h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
+    const row = h('li', { class: `item${seen ? ' seen' : ''}` }, bg, fg);
+    attachSwipe(row, fg, bg, swipe);
+    return row;
   });
   return h('section', { class: 'episodes', 'aria-labelledby': `eps-h-${t.id}` },
     h('h3', { id: `eps-h-${t.id}`, text: `Épisodes (${t.episodes.filter((e) => ctx.state.seen[`${t.id}/${e.n}`]).length}/${t.episodes.length} vus)` }),

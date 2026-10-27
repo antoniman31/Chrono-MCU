@@ -43,6 +43,7 @@ export function renderReglages(ctx) {
     h('section', { class: 'settings-section card about', 'aria-labelledby': 's-about' },
       h('h3', { id: 's-about', text: 'À propos' }),
       h('p', { class: 'muted', text: 'Chrono-MCU suit ton visionnage du MCU (films et séries Disney+), sans compte : ta progression reste dans ce navigateur.' }),
+      h('p', { class: 'muted', text: 'Sur écran tactile, glisse une ligne vers la droite pour la marquer vue, vers la gauche pour l\'ignorer.' }),
       h('ul', { class: 'link-list' },
         link('https://github.com/les2/marvel-screen-archive', 'Marvel Archive', 'ordre chronologique (CC BY 4.0)'),
         link('https://www.tvmaze.com', 'TVmaze', 'durées et titres des épisodes'),

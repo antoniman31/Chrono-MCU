@@ -2,6 +2,7 @@ import { filterTitles, progress, sortTitles, suggestNext } from '../logic.js?v=_
 import { isIgnored, isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
 import { $, formatShort, h, hours, icon, withFocusRestore } from './dom.js?v=__BUILD__';
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
+import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { btn, checkbox, chip, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
 const TABS = ['all', 'film', 'serie'];
@@ -51,7 +52,11 @@ function itemFor(ctx, t) {
   const meta = t.type === 'serie'
     ? `Série · ${done}/${t.episodes.length} ép. · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
     : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
-  return h('li', { class: `item${seen ? ' seen' : ''}${ignored ? ' ignored' : ''}${selected ? ' selected' : ''}` },
+  const seenSpec = { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleTitle(t) };
+  const ignoreSpec = { icon: ignored ? 'visibility' : 'block', label: ignored ? 'Ne plus ignorer' : 'Ignorer', run: () => ctx.toggleIgnore(t) };
+  const swipe = ignored ? { right: ignoreSpec, left: ignoreSpec } : { right: seenSpec, left: ignoreSpec };
+  const bg = swipeBackground(swipe);
+  const fg = h('div', { class: 'item-fg' },
     checkbox({
       checked: seen, indeterminate: partial, disabled: ignored, label: t.type === 'serie' ? `Vu : ${t.title} (série entière)` : `Vu : ${t.title}`, key: `cb:${t.id}`,
       onchange: () => ctx.toggleTitle(t),
@@ -63,6 +68,9 @@ function itemFor(ctx, t) {
         h('span', { class: 'meta', text: meta }),
         h('span', { class: 'badges' }, titleBadges(t, ignored)))),
     iconBtn({ iconName: 'more', label: `Actions : ${t.title}`, popup: true, key: `menu:${t.id}`, cls: 'item-menu', onclick: (e) => ctx.openItemMenu(t.id, e.currentTarget) }));
+  const row = h('li', { class: `item${seen ? ' seen' : ''}${ignored ? ' ignored' : ''}${selected ? ' selected' : ''}` }, bg, fg);
+  attachSwipe(row, fg, bg, swipe);
+  return row;
 }
 
 function renderList(ctx) {
