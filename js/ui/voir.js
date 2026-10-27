@@ -1,11 +1,12 @@
 import { filterTitles, isReleased, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
+import { phaseInfo, phaseList, phaseSummary } from '../phases.js?v=__BUILD__';
 import { isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
 import { ignoreInfo } from '../categories.js?v=__BUILD__';
 import { $, formatShort, h, hours, icon, today, withFocusRestore } from './dom.js?v=__BUILD__';
 import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { backupStatus, NUDGE_AFTER_CHECKS } from '../backup.js?v=__BUILD__';
-import { btn, checkbox, chip, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
+import { btn, checkbox, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
 const TABS = ['all', 'film', 'serie'];
 
@@ -15,8 +16,35 @@ function unitLabel(unit, byId) {
 }
 
 function activeFilterCount(ctx) {
-  const f = ctx.filters;
-  return (f.phase !== null ? 1 : 0) + (f.hideSeen ? 1 : 0);
+  return ctx.filters.hideSeen ? 1 : 0;
+}
+
+// Barre des phases : onglets défilants (Toutes, Phase 1 à 6) sous la barre d'outils, et nom de la phase choisie
+let shownPhase;
+function renderPhaseBar(ctx) {
+  const { filters, state } = ctx;
+  const { byPhase, percent } = progress(ctx.counted, state.seen);
+  const entries = [{ key: 'all', value: null, label: 'Toutes', percent }, ...phaseList(ctx.allTitles).map((p) => ({ key: String(p), value: p, label: `Phase ${p}`, percent: byPhase[p]?.percent ?? 0 }))];
+  const bar = $('phase-tabs');
+  bar.replaceChildren(...entries.map((e) => {
+    const selected = filters.phase === e.value;
+    const tab = h('button', {
+      type: 'button', class: 'ptab', role: 'tab', 'aria-selected': String(selected), tabindex: selected ? 0 : -1, 'aria-controls': 'list-panel',
+      'data-fk': `ptab:${e.key}`, 'data-phase': e.key, onclick: () => ctx.setFilter({ phase: e.value }),
+    }, e.label, h('span', { class: 'pfill', 'aria-hidden': 'true' }));
+    tab.style.setProperty('--p', `${e.percent}%`);
+    return tab;
+  }));
+  if (shownPhase !== filters.phase) {
+    shownPhase = filters.phase;
+    // Défilement manuel : scrollIntoView déplacerait le point de départ de la touche Tab
+    const on = bar.querySelector('[aria-selected="true"]');
+    if (on) bar.scrollLeft = on.offsetLeft - (bar.clientWidth - on.offsetWidth) / 2;
+  }
+  const info = phaseInfo(phaseSummary(ctx.allTitles, ctx.counted, state.seen, filters.phase));
+  const [title, details] = $('phase-info').children;
+  title.textContent = info.title;
+  details.textContent = info.details;
 }
 
 function renderNudge(ctx) {
@@ -149,6 +177,7 @@ export function renderVoir(ctx) {
   const { state, filters } = ctx;
   renderNudge(ctx);
   renderResume(ctx);
+  renderPhaseBar(ctx);
   document.querySelectorAll('[data-tab]').forEach((tab) => {
     const sel = tab.dataset.tab === filters.tab;
     tab.setAttribute('aria-selected', String(sel));
@@ -165,6 +194,20 @@ export function renderVoir(ctx) {
 }
 
 export function setupVoir(ctx) {
+  // Clavier de la barre des phases : flèches, Début, Fin (une seule phase à la fois, comme Tout / Films / Séries)
+  $('phase-tabs').addEventListener('keydown', (e) => {
+    const keys = [...$('phase-tabs').querySelectorAll('[role="tab"]')].map((t) => t.dataset.phase);
+    const i = keys.indexOf(document.activeElement?.dataset?.phase);
+    if (i === -1) return;
+    const next = { ArrowRight: (i + 1) % keys.length, ArrowLeft: (i + keys.length - 1) % keys.length, Home: 0, End: keys.length - 1 }[e.key];
+    if (next === undefined) return;
+    e.preventDefault();
+    ctx.setFilter({ phase: keys[next] === 'all' ? null : Number(keys[next]) });
+    document.querySelector(`[data-fk="ptab:${keys[next]}"]`)?.focus();
+  });
+  // Hauteur du bloc fixe : le focus et les défilements automatiques ne doivent jamais passer dessous
+  const phasebar = $('phasebar');
+  new ResizeObserver(() => document.documentElement.style.setProperty('--phasebar-h', `${phasebar.offsetHeight}px`)).observe(phasebar);
   const input = $('search');
   input.addEventListener('input', (e) => {
     ctx.filters.query = e.target.value;
@@ -198,18 +241,12 @@ export function setupVoir(ctx) {
 
 export function renderFiltersSheet(body, ctx) {
   const { filters, view } = ctx;
-  const phases = [...new Set(ctx.titles.map((t) => t.phase))].sort((a, b) => a - b);
   const switchRow = (label, desc, checked, onchange, key) =>
     h('label', { class: 'setting switch-row' },
       h('span', { class: 'text' }, label, desc ? h('span', { class: 'desc', text: desc }) : null),
       h('input', { type: 'checkbox', role: 'switch', checked, 'data-fk': key, onchange }),
       h('span', { class: 'switch', 'aria-hidden': 'true' }));
   body.append(
-    h('div', { class: 'sheet-group' },
-      h('h3', { id: 'f-phase', text: 'Phase' }),
-      h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'f-phase' },
-        chip({ label: 'Toutes', pressed: filters.phase === null, key: 'fp:all', onclick: () => ctx.setFilter({ phase: null }) }),
-        phases.map((p) => chip({ label: `Phase ${p}`, pressed: filters.phase === p, key: `fp:${p}`, onclick: () => ctx.setFilter({ phase: filters.phase === p ? null : p }) })))),
     h('div', { class: 'sheet-group' },
       h('h3', { text: 'Affichage' }),
       switchRow('Masquer les terminés', 'Cache les films et séries entièrement vus', filters.hideSeen, (e) => ctx.setFilter({ hideSeen: e.target.checked }), 'f-hide'),
