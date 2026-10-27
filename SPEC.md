@@ -9,7 +9,7 @@ Application web de suivi de visionnage du MCU (films + séries Disney+), inspir�
 - Hors périmètre : comptes, synchro cloud, affiches TMDB, partage social, notifications, scènes post-générique, prérequis, parcours alternatifs.
 
 ## Hypothèses
-Web statique, vanilla JS (ES modules), localStorage, mobile-first, navigateurs modernes, données MCU saisies à la main (à relire par Antoni), contenu : films + séries Disney+.
+Web statique, vanilla JS (ES modules), localStorage, mobile-first, navigateurs modernes, données MCU saisies à la main (à relire par Antoni), contenu : films + séries Disney+ sortis à ce jour, suivi par épisode pour les séries, ordre chronologique de référence : Disney+ officiel. Les entrées dont je ne suis pas sûr (sorties récentes, épisodes) sont marquées `"verified": false` et à compléter par Antoni.
 
 ## Tech Stack
 HTML5, CSS3, JavaScript ES2022, aucune dépendance runtime. Tests : Node `node:test` (natif, sans dépendance). Déploiement : GitHub Pages.
@@ -37,15 +37,21 @@ SPEC.md, README.md
 ## Modèle de données
 `mcu.json` : tableau d'objets
 ```json
-{ "id": "iron-man", "title": "Iron Man", "type": "film|serie",
+{ "id": "iron-man", "title": "Iron Man", "type": "film",
   "phase": 1, "saga": "infinity", "releaseDate": "2008-05-02",
-  "chronoOrder": 2, "runtimeMin": 126 }
+  "chronoOrder": 2, "runtimeMin": 126, "verified": true }
+{ "id": "wandavision", "title": "WandaVision", "type": "serie",
+  "phase": 4, "saga": "multiverse", "releaseDate": "2021-01-15",
+  "chronoOrder": 31, "verified": true,
+  "episodes": [ { "n": 1, "title": "Filmed Before a Live Studio Audience", "runtimeMin": 30 } ] }
 ```
-Pour une série, `runtimeMin` = durée totale (somme des épisodes). `id` unique et stable. `chronoOrder` entier unique. État utilisateur (localStorage, clé `chrono-mcu:v1`) :
+Film : `runtimeMin` obligatoire, pas d'`episodes`. Série : `episodes` obligatoire (non vide), la durée totale est dérivée. `id` unique et stable, `chronoOrder` entier unique (une série = une position unique dans l'ordre, ses épisodes se suivent). Les saisons sont ignorées en v1 ; la clé d'épisode est `n` (numérotation continue). État utilisateur (localStorage, clé `chrono-mcu:v1`), clés unitaires = `id` pour un film, `id/n` pour un épisode :
 ```json
-{ "version": 1, "order": "chrono|release", "seen": {"iron-man": "2026-10-27"},
-  "notes": {"iron-man": {"rating": 4, "text": "..."}}, "lastSeenId": "iron-man" }
+{ "version": 1, "order": "chrono|release",
+  "seen": {"iron-man": "2026-10-27", "wandavision/1": "2026-10-28"},
+  "notes": {"iron-man": {"rating": 4, "text": "..."}}, "lastSeenKey": "wandavision/1" }
 ```
+Une série est « vue » quand tous ses épisodes le sont (dérivé, jamais stocké). Les notes sont par titre (film ou série), pas par épisode.
 
 ## Code Style
 Fonctions pures dans `logic.js`, sans accès au DOM ni au storage ; effets de bord confinés à `store.js` et `app.js`.
@@ -57,18 +63,18 @@ export function nextToWatch(titles, seen, order) {
 Nommage camelCase, identifiants de données en kebab-case, pas de commentaires superflus, 2 espaces d'indentation.
 
 ## Testing Strategy
-Tests unitaires `node --test` sur `logic.js` (tri, filtres, progression, prochain, stats) et `store.js` (sérialisation, import invalide, migration de version). Validation de `mcu.json` par script (ids uniques, chronoOrder unique, champs requis, dates valides). Vérification manuelle de l'UI sur viewport mobile et desktop.
+Tests unitaires `node --test` sur `logic.js` (tri, filtres, progression, prochain, stats) et `store.js` (sérialisation, import invalide, migration de version). Validation de `mcu.json` par script (ids uniques, chronoOrder unique, champs requis, dates valides, films avec `runtimeMin`, séries avec `episodes` non vide et `n` uniques/continus). Vérification manuelle de l'UI sur viewport mobile et desktop.
 
 ## Exigences fonctionnelles et critères de succès
-1. **Vu/pas vu** : cocher/décocher un titre persiste après rechargement.
+1. **Vu/pas vu** : cocher/décocher un film ou un épisode persiste après rechargement. Cocher une série coche tous ses épisodes ; la décocher les décoche tous. Une série partiellement vue affiche « n/total ».
 2. **Ordres** : bascule chrono/sortie ; changer d'ordre ne modifie jamais la progression.
-3. **Progression** : % global et par phase (titres vus / total) affiché et exact (testé).
+3. **Progression** : % global et par phase calculé sur les unités (films + épisodes), affiché et exact (testé). Les titres `verified: false` sont comptés mais signalés visuellement.
 4. **Filtres** : par phase et par type (film/série), combinables ; la progression globale reste sur l'ensemble.
-5. **Prochain à voir** : premier titre non vu dans l'ordre actif ; `null` quand tout est vu.
+5. **Prochain à voir** : première unité non vue (film ou épisode) dans l'ordre actif, les épisodes d'une série étant dans l'ordre `n` ; `null` quand tout est vu.
 6. **Export/Import** : l'export produit un JSON ; l'import d'un export valide restitue l'état à l'identique ; un fichier invalide est rejeté avec message, sans écraser l'état existant.
 7. **Notes (v1.5)** : texte libre + note 1 à 5 par titre, persistés, modifiables, incluses dans l'export.
-8. **Je reprends (v1.5)** : `lastSeenId` mis à jour à chaque coche ; un bandeau propose le titre suivant dans l'ordre actif ; indépendant de l'ordre choisi.
-9. **Statistiques (v1.5)** : heures vues, heures restantes (via `runtimeMin`), rythme = heures vues / jours écoulés depuis la première coche, date de fin estimée ; affichage « n/a » si moins de 2 jours de données.
+8. **Je reprends (v1.5)** : `lastSeenKey` mis à jour à chaque coche ; un bandeau propose l'unité suivante dans l'ordre actif ; indépendant de l'ordre choisi.
+9. **Statistiques (v1.5)** : heures vues, heures restantes (somme des `runtimeMin` des unités, épisodes inclus), rythme = heures vues / jours écoulés depuis la première coche, date de fin estimée ; affichage « n/a » si moins de 2 jours de données.
 10. **Robustesse** : localStorage indisponible ou corrompu = l'app démarre à vide sans crash.
 11. **Responsive** : utilisable sans scroll horizontal dès 360 px de large.
 
@@ -77,7 +83,12 @@ Tests unitaires `node --test` sur `logic.js` (tri, filtres, progression, prochai
 - Ask first : ajouter une dépendance, changer le schéma d'état (version), ajouter un backend ou une API externe, étendre le périmètre.
 - Never : committer des secrets, écraser l'état utilisateur sur import invalide, supprimer un test en échec, inventer des données sans le signaler pour relecture.
 
+## Décisions validées
+Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètre de sorties : tout ce qui est sorti à ce jour.
+
+## Livraison des données
+Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
+
 ## Open Questions
-- L'ordre chronologique de référence : ordre Disney+ « Chronologique » officiel, ou autre ? (je propose Disney+).
-- Les séries comptent-elles comme un titre unique « vu », ou faut-il un suivi par épisode ? (je propose titre unique en v1.)
-- Les titres ultérieurs à 2025 (sorties récentes) : inclus jusqu'à quelle date ? À fixer à la relecture de `mcu.json`.
+- Ma connaissance des sorties récentes et des listes d'épisodes peut être incomplète : Antoni complète/corrige `mcu.json` pour les entrées `verified: false`.
+- Faut-il regrouper les épisodes par saison dans l'UI (repli/dépli) ? Proposition : oui, simple repli par série, sans modèle de saison en v1.
