@@ -1,5 +1,5 @@
 import { countedTitles, sortTitles } from './logic.js?v=__BUILD__';
-import { exportState, importState, isTitleSeen, loadState, saveState, setIgnored, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
+import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setIgnored, setPhaseSeen, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
 import { $, h, today } from './ui/dom.js?v=__BUILD__';
@@ -153,6 +153,12 @@ ctx.toggleEpisode = (t, e, seen) => update(toggleUnit(ctx.state, `${t.id}/${e.n}
 ctx.toggleUnit = (unit, label) => update(toggleUnit(ctx.state, unit.key, today()), `Vu : ${label}`);
 ctx.togglePhase = (phase, all) =>
   update(setPhaseSeen(ctx.state, sortTitles(ctx.counted, ctx.state.order), phase, !all, today()), `${all ? 'Décoché' : 'Coché'} : phase ${phase}`);
+// Rattrapage : tout marquer comme vu jusqu'à ce titre (inclus), dans l'ordre actif
+ctx.pendingUntilCount = (t) => new Set(pendingUntil(ctx.state, ctx.titles, t.id).map((u) => u.titleId)).size;
+ctx.markUntil = (t) => {
+  const count = ctx.pendingUntilCount(t);
+  update(markUntil(ctx.state, ctx.titles, t.id, today()), `${count} titre${count > 1 ? 's' : ''} marqué${count > 1 ? 's' : ''} comme vu${count > 1 ? 's' : ''}`);
+};
 ctx.toggleIgnore = (t) => {
   const ignored = Boolean(ctx.state.ignored[t.id]);
   update(setIgnored(ctx.state, t.id, !ignored), `${ignored ? 'Plus ignoré' : 'Ignoré'} : ${t.title}`);

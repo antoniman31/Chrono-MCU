@@ -220,3 +220,23 @@ test('countedTitles: retire les titres ignorés de progression et stats', () => 
   assert.equal(counted.some((t) => t.id === 'a'), false);
   assert.equal(progress(counted, {}).total, progress(titles, {}).total - 1);
 });
+
+test('stats: le rattrapage compte dans les heures vues mais pas dans le rythme', () => {
+  // titles : a (film 100 min) et s/1, s/2 ... on réutilise le jeu de données du fichier
+  const all = stats(titles, { a: '2026-01-01', b: '2026-01-01' }, '2026-01-11');
+  const caught = stats(titles, { a: '2026-01-01', b: '2026-01-01' }, '2026-01-11', { a: true, b: true });
+  assert.equal(caught.seenMin, all.seenMin);
+  assert.equal(caught.paceMinPerDay, null);
+  assert.equal(caught.etaDate, null);
+  const mixed = stats(titles, { a: '2026-01-01', b: '2026-01-06' }, '2026-01-11', { a: true });
+  assert.ok(mixed.paceMinPerDay > 0);
+  assert.equal(mixed.paceMinPerDay, titles.find((t) => t.id === 'b').runtimeMin / 5);
+});
+
+test('titres d\'épisodes en français : unité et recherche', () => {
+  const fr = [{ id: 's', title: 'S', type: 'serie', phase: 1, chronoOrder: 1, releaseDate: '2021-01-01', episodes: [{ n: 1, title: 'Pilot', titleFr: 'Le pilote', runtimeMin: 30 }] }];
+  assert.equal(toUnits(fr)[0].title, 'Le pilote');
+  assert.equal(filterTitles(fr, { query: 'pilote' }).length, 1);
+  assert.equal(filterTitles(fr, { query: 'pilot' }).length, 1);
+  assert.equal(filterTitles(fr, { query: 'inconnu' }).length, 0);
+});

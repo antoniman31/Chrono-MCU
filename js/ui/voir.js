@@ -215,6 +215,8 @@ export function renderItemMenu(body, ctx, id) {
       items.push(action('check', t.type === 'serie' ? (seen ? 'Marquer la série comme non vue' : 'Marquer la série comme vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
         () => { ctx.closeSheet(); ctx.toggleTitle(t); }, 'm-seen'));
     }
+    const pending = ignored ? 0 : ctx.pendingUntilCount(t);
+    if (pending >= 2) items.push(action('check', `Tout marquer vu jusqu'ici (${pending} titres)`, () => { ctx.closeSheet(); ctx.markUntil(t); }, 'm-until'));
     items.push(action(ignored ? 'visibility' : 'block', ignored ? 'Ne plus ignorer' : 'Ignorer ce titre', () => { ctx.closeSheet(); ctx.toggleIgnore(t); }, 'm-ignore'));
   }
   items.push(action('info', 'Voir la fiche', () => ctx.openDetail(id), 'm-detail'));

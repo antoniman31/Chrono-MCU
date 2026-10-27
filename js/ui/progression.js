@@ -5,7 +5,7 @@ import { checkbox, progressBar } from './parts.js?v=__BUILD__';
 export function renderProgression(ctx) {
   const { state } = ctx;
   const p = progress(ctx.counted, state.seen);
-  const s = stats(ctx.counted, state.seen, today());
+  const s = stats(ctx.counted, state.seen, today(), state.catchUp);
   const phases = Object.keys(p.byPhase).map(Number).sort((a, b) => a - b);
 
   const phaseRows = phases.map((phase) => {
@@ -36,6 +36,9 @@ export function renderProgression(ctx) {
       stat('Heures restantes', hours(s.remainingMin)),
       stat('Rythme', s.paceMinPerDay == null ? 'n/a' : `${hours(s.paceMinPerDay)} / jour`),
       stat('Fin estimée', s.etaDate == null ? 'n/a' : formatDay(s.etaDate))),
-    h('p', { class: 'muted t-body-sm', style: 'margin-top:12px', text: 'Le rythme et la fin estimée apparaissent après deux jours d\'utilisation.' }));
+    h('p', { class: 'muted t-body-sm', style: 'margin-top:12px', text: 'Le rythme et la fin estimée apparaissent après deux jours d\'utilisation.' }),
+    Object.keys(state.catchUp ?? {}).some((key) => state.seen[key])
+      ? h('p', { class: 'muted t-body-sm', text: 'Ce que tu as marqué d\'un coup (rattrapage) compte dans les heures vues, mais pas dans le rythme.' })
+      : null);
 }
 

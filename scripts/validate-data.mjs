@@ -67,6 +67,7 @@ export function validate(data) {
           if (e?.n !== j + 1) errors.push(`${at}: épisode ${j + 1} doit avoir n=${j + 1}`);
           if (!isText(e?.title)) errors.push(`${at}: épisode ${j + 1} sans title`);
           if (!isPosInt(e?.runtimeMin)) errors.push(`${at}: épisode ${j + 1} sans runtimeMin`);
+          if (e && 'titleFr' in e && !isText(e.titleFr)) errors.push(`${at}: épisode ${j + 1} avec titleFr vide`);
           if (e && 'airDate' in e && !isDate(e.airDate)) errors.push(`${at}: épisode ${j + 1} avec airDate invalide`);
         });
       }

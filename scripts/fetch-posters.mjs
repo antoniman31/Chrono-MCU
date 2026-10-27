@@ -1,12 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { orderTitle } from './shared.mjs';
 
 const API = 'https://api.themoviedb.org/3';
-const KEY_ORDER = [
-  'id', 'title', 'type', 'phase', 'saga', 'releaseDate', 'releaseDateFr', 'chronoOrder', 'runtimeMin', 'postCredits',
-  'upcoming', 'altUniverse', 'tmdbId', 'tvmazeId', 'poster', 'backdrop', 'overview', 'verified', 'episodes',
-];
-
 export function searchQuery(title) {
   return title.replace(/\s*\((?:saison|season)\s*\d+\)\s*$/i, '').trim();
 }
@@ -45,6 +41,21 @@ export function shortOverview(text, max = 300) {
   if (out.length <= max) return out;
   const cut = out.slice(0, max - 1);
   return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:\s]+$/, '')}…`;
+}
+
+// Titres d'épisodes en français d'une saison TMDB : Map n -> titre, ou null si les épisodes ne se correspondent pas.
+// Les titres identiques à l'original (non traduits) et les libellés génériques « Épisode N » sont ignorés.
+export function frenchEpisodeTitles(ours, tmdbEpisodes) {
+  if (!Array.isArray(tmdbEpisodes) || tmdbEpisodes.length !== ours.length) return null;
+  const out = new Map();
+  for (const e of ours) {
+    const tv = tmdbEpisodes.find((x) => x.episode_number === e.n);
+    if (!tv) return null;
+    const name = (tv.name ?? '').trim();
+    if (!name || /^(épisode|episode)\s*\d+$/i.test(name) || norm(name) === norm(e.title)) continue;
+    out.set(e.n, name);
+  }
+  return out;
 }
 
 // Sortie en salle en France: type 3 (cinéma), à défaut 2 (cinéma limité) puis 1 (première); la plus ancienne date du type retenu
@@ -112,8 +123,22 @@ async function addDetails(data, key, force) {
     const needBackdrop = !t.backdrop;
     const needFr = film && !t.upcoming && !t.releaseDateFr;
     const needOverview = !t.overview;
-    if (!force && !needBackdrop && !needFr && !needOverview) continue;
+    const needTitles = !film && !t.upcoming && !t.episodes.some((e) => 'titleFr' in e);
+    if (!force && !needBackdrop && !needFr && !needOverview && !needTitles) continue;
     try {
+      if (needTitles || (force && !film && !t.upcoming)) {
+        const season = await tmdb(`/tv/${t.tmdbId}/season/${seasonNumber(t.title) ?? 1}`, {}, key);
+        const titles = frenchEpisodeTitles(t.episodes, season.episodes);
+        if (!titles) missing.push(`${t.title} (titres français : épisodes différents de TVmaze)`);
+        else {
+          for (const e of t.episodes) {
+            if (titles.has(e.n)) {
+              e.titleFr = titles.get(e.n);
+              filled += 1;
+            } else delete e.titleFr;
+          }
+        }
+      }
       if (force || needOverview) {
         const short = shortOverview(await overviewFor(t, key));
         if (short) {
@@ -154,7 +179,7 @@ async function main() {
 
   if (process.argv.includes('--details')) {
     const { filled, missing: gaps } = await addDetails(data, key, force);
-    const out = data.map((t) => Object.fromEntries(KEY_ORDER.filter((k) => k in t).map((k) => [k, t[k]])));
+    const out = data.map(orderTitle);
     if (!dry) writeFileSync(path, `${JSON.stringify(out, null, 2)}\n`);
     console.log(`${filled} valeur(s) ajoutée(s) (images paysage, dates France, résumés)${dry ? ' (essai à blanc, rien écrit)' : ''}.`);
     if (gaps.length) console.log(`Manquant : ${gaps.join(' ; ')}`);
@@ -179,7 +204,7 @@ async function main() {
     await sleep(120);
   }
 
-  const out = data.map((t) => Object.fromEntries(KEY_ORDER.filter((k) => k in t).map((k) => [k, t[k]])));
+  const out = data.map(orderTitle);
   if (!dry) writeFileSync(path, `${JSON.stringify(out, null, 2)}\n`);
   console.log(`${found} affiche(s) trouvée(s)${dry ? ' (essai à blanc, rien écrit)' : ''}.`);
   if (missing.length) console.log(`Sans affiche : ${missing.join(' ; ')}`);

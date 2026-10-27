@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BACKUP_KEY, STATE_VERSION, migrate, STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
-  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen,
+  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil,
 } from '../js/store.js';
 
 const film = { id: 'f', type: 'film' };
@@ -171,8 +171,8 @@ test('anciens états: notes abandonnées au chargement et à l\'import, ignored 
 test('migrate: v1 devient v2 (notes abandonnées, ignored ajouté), v2 inchangé, futur refusé', () => {
   assert.equal(STATE_VERSION, 2);
   const v1 = { version: 1, order: 'release', seen: { f: D1 }, notes: { f: { rating: 3 } }, lastSeenKey: 'f' };
-  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, lastSeenKey: 'f' } });
-  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, lastSeenKey: null };
+  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, catchUp: {}, lastSeenKey: 'f' } });
+  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, catchUp: {}, lastSeenKey: null };
   assert.deepEqual(migrate(v2), { ok: true, state: v2 });
   const future = migrate({ version: 9, order: 'chrono', seen: {}, lastSeenKey: null });
   assert.equal(future.ok, false);
@@ -201,4 +201,41 @@ test('importState: un export v1 est accepté et migré, un export plus récent e
   const future = importState('{"version":5,"order":"chrono","seen":{},"lastSeenKey":null}');
   assert.equal(future.ok, false);
   assert.match(future.error, /plus récent/);
+});
+
+const t1 = { id: 't1', type: 'film', phase: 1, chronoOrder: 1, releaseDate: '2008-01-01', runtimeMin: 100 };
+const t2 = { id: 't2', type: 'serie', phase: 1, chronoOrder: 2, releaseDate: '2009-01-01', episodes: [{ n: 1, runtimeMin: 30 }, { n: 2, runtimeMin: 30 }] };
+const t3 = { id: 't3', type: 'film', phase: 2, chronoOrder: 3, releaseDate: '2010-01-01', runtimeMin: 100 };
+const t4 = { id: 't4', type: 'film', phase: 2, chronoOrder: 4, releaseDate: '2011-01-01', runtimeMin: 100 };
+const catalogue = [t4, t2, t1, t3];
+
+test('markUntil: marque tout jusqu\'au titre inclus, en rattrapage, sans toucher aux déjà vus ni à la suite', () => {
+  let s = toggleUnit(defaultState(), 't1', D1);
+  s = markUntil(s, catalogue, 't3', D2);
+  assert.deepEqual(Object.keys(s.seen).sort(), ['t1', 't2/1', 't2/2', 't3']);
+  assert.equal(s.seen.t1, D1);
+  assert.equal(s.seen.t3, D2);
+  assert.deepEqual(Object.keys(s.catchUp).sort(), ['t2/1', 't2/2', 't3']);
+  assert.equal(s.lastSeenKey, 't3');
+  assert.equal('t4' in s.seen, false);
+});
+
+test('markUntil / pendingUntil: ordre de sortie, titres ignorés exclus, rien à faire = état inchangé', () => {
+  const release = { ...defaultState(), order: 'release' };
+  assert.deepEqual(pendingUntil(release, catalogue, 't2').map((u) => u.key), ['t1', 't2/1', 't2/2']);
+  const ignored = setIgnored(defaultState(), 't2', true);
+  assert.deepEqual(pendingUntil(ignored, catalogue, 't3').map((u) => u.key), ['t1', 't3']);
+  assert.deepEqual(pendingUntil(defaultState(), catalogue, 'inconnu'), []);
+  const done = markUntil(defaultState(), catalogue, 't3', D1);
+  assert.equal(markUntil(done, catalogue, 't3', D2), done);
+});
+
+test('décocher une unité de rattrapage la sort du rattrapage ; l\'état v2 avec catchUp survit à l\'export', () => {
+  let s = markUntil(defaultState(), catalogue, 't3', D1);
+  s = toggleUnit(s, 't1', D2);
+  assert.equal('t1' in s.seen, false);
+  assert.equal('t1' in s.catchUp, false);
+  assert.equal('t3' in s.catchUp, true);
+  assert.deepEqual(importState(exportState(s)).state, s);
+  assert.ok(validateState({ ...s, catchUp: { x: false } }).length > 0);
 });
