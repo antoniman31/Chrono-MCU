@@ -26,9 +26,30 @@ export function toUnits(titles) {
   });
 }
 
-export function filterTitles(titles, { phase = null, type = null } = {}) {
+export function normalizeText(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+export function titleSeen(t, seen) {
+  if (t.upcoming) return false;
+  if (t.type === 'film') return Boolean(seen[t.id]);
+  return t.episodes.every((e) => seen[`${t.id}/${e.n}`]);
+}
+
+function matchesQuery(t, query) {
+  const q = normalizeText(query);
+  if (!q) return true;
+  if (normalizeText(t.title).includes(q)) return true;
+  return t.type === 'serie' && (t.episodes ?? []).some((e) => normalizeText(e.title).includes(q));
+}
+
+export function filterTitles(titles, { phase = null, type = null, query = '', hideSeen = false, seen = {} } = {}) {
   return titles.filter(
-    (t) => (phase === null || t.phase === phase) && (type === null || t.type === type),
+    (t) =>
+      (phase === null || t.phase === phase) &&
+      (type === null || t.type === type) &&
+      matchesQuery(t, query) &&
+      !(hideSeen && titleSeen(t, seen)),
   );
 }
 

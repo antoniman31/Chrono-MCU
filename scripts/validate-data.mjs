@@ -35,6 +35,12 @@ export function validate(data) {
 
     if ('upcoming' in t && t.upcoming !== true) errors.push(`${at}: upcoming doit valoir true ou être absent`);
 
+    if ('altUniverse' in t && t.altUniverse !== true) errors.push(`${at}: altUniverse doit valoir true ou être absent`);
+    if ('poster' in t && !(typeof t.poster === 'string' && /^\/[A-Za-z0-9_-]+\.(jpg|png)$/.test(t.poster))) {
+      errors.push(`${at}: poster doit être un chemin TMDB du type "/abc123.jpg"`);
+    }
+    if ('tmdbId' in t && !isPosInt(t.tmdbId)) errors.push(`${at}: tmdbId doit être un entier positif`);
+
     if ('postCredits' in t) {
       const pcs = t.postCredits;
       const ok = t.type === 'film' && Array.isArray(pcs) && new Set(pcs).size === pcs.length && pcs.every((x) => ['mid', 'end'].includes(x));

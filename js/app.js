@@ -1,4 +1,4 @@
-import { filterTitles, nextToWatch, progress, resumeFrom, sortTitles, stats, toUnits } from './logic.js';
+import { filterTitles, nextToWatch, normalizeText, progress, resumeFrom, sortTitles, stats, toUnits } from './logic.js';
 import {
   exportState, importState, isTitleSeen, loadState, saveState, setNote, setOrder, setPhaseSeen, setTitleSeen, toggleUnit,
 } from './store.js';
@@ -15,7 +15,7 @@ const storage = (() => {
 
 let titles = [];
 let state = loadState(storage);
-const filters = { phase: null, type: null };
+const filters = { phase: null, type: null, query: '', hideSeen: false };
 const openSeries = new Set();
 const openNotes = new Set();
 let storageWarned = false;
@@ -23,9 +23,14 @@ let storageWarned = false;
 const VIEW_KEY = 'chrono-mcu:view';
 const view = (() => {
   try {
-    return { groupByPhase: JSON.parse(storage?.getItem(VIEW_KEY))?.groupByPhase !== false };
+    const saved = JSON.parse(storage?.getItem(VIEW_KEY));
+    return {
+      groupByPhase: saved?.groupByPhase !== false,
+      showPosters: saved?.showPosters !== false,
+      collapsedPhases: Array.isArray(saved?.collapsedPhases) ? saved.collapsedPhases.filter(Number.isInteger) : [],
+    };
   } catch {
-    return { groupByPhase: true };
+    return { groupByPhase: true, showPosters: true, collapsedPhases: [] };
   }
 })();
 const saveView = () => {
@@ -64,12 +69,32 @@ function showMessage(text, isError = false) {
   el.hidden = !text;
 }
 
-function update(next) {
+let undoSnapshot = null;
+let undoTimer = null;
+
+function hideUndo() {
+  undoSnapshot = null;
+  clearTimeout(undoTimer);
+  $('undo').hidden = true;
+}
+
+function offerUndo(before, label) {
+  undoSnapshot = before;
+  clearTimeout(undoTimer);
+  $('undo-text').textContent = label;
+  $('undo').hidden = false;
+  undoTimer = setTimeout(hideUndo, 8000);
+}
+
+function update(next, label = null) {
+  const before = state;
   state = next;
   if (!saveState(storage, state) && !storageWarned) {
     storageWarned = true;
     showMessage('Stockage local indisponible: la progression ne sera pas conservée. Utilise Exporter.', true);
   }
+  if (label && next !== before) offerUndo(before, label);
+  else hideUndo();
   render();
 }
 
@@ -77,7 +102,7 @@ function phaseBox(phase, { seen, total }) {
   const all = total > 0 && seen === total;
   const box = h('input', {
     type: 'checkbox', checked: all, disabled: total === 0, 'aria-label': `Vu : phase ${phase} entière`,
-    onchange: () => update(setPhaseSeen(state, sortTitles(titles, state.order), phase, !all, today())),
+    onchange: () => update(setPhaseSeen(state, sortTitles(titles, state.order), phase, !all, today()), `${all ? 'Décoché' : 'Coché'} : phase ${phase}`),
   });
   box.indeterminate = seen > 0 && !all;
   return box;
@@ -117,7 +142,7 @@ function renderBanners() {
   const banner = (kind, unit) =>
     h('div', { class: 'card banner' },
       h('div', {}, h('div', { class: 'muted', text: kind }), h('strong', { text: unitLabel(unit, byId) })),
-      h('button', { type: 'button', text: 'Marquer comme vu', onclick: () => update(toggleUnit(state, unit.key, today())) }));
+      h('button', { type: 'button', text: 'Marquer comme vu', onclick: () => update(toggleUnit(state, unit.key, today()), `Vu : ${unitLabel(unit, byId)}`) }));
   const cards = [];
   if (!next) cards.push(h('div', { class: 'card', text: 'Tout est vu. Bravo.' }));
   else {
@@ -176,6 +201,7 @@ function noteButton(title) {
 
 function upcomingRow(t) {
   return h('li', { class: 'row upcoming' },
+    posterImg(t),
     h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', h('span', { class: 'badge soon', text: 'à venir' }),
       h('div', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatDay(t.releaseDate)} · phase ${t.phase}` })));
 }
@@ -189,13 +215,27 @@ function creditsBadges(t) {
   ];
 }
 
-const unverifiedBadge = (t) => (t.verified ? null : h('span', { class: 'badge', text: 'à vérifier' }));
+const POSTER_BASE = 'https://image.tmdb.org/t/p/w154';
+
+function posterImg(t) {
+  if (!view.showPosters || !t.poster) return null;
+  return h('img', {
+    class: 'poster', src: `${POSTER_BASE}${t.poster}`, alt: '', width: 46, height: 69,
+    loading: 'lazy', decoding: 'async', onerror: (e) => e.target.remove(),
+  });
+}
+
+const tagBadges = (t) => [
+  t.verified ? null : h('span', { class: 'badge', text: 'à vérifier' }),
+  t.altUniverse ? h('span', { class: 'badge alt', text: 'autre réalité' }) : null,
+].filter(Boolean).flatMap((b, i) => (i ? [' ', b] : [b]));
 
 function filmRow(t) {
   const seen = isTitleSeen(state, t);
   return h('li', { class: `row${seen ? ' seen' : ''}` },
-    h('input', { type: 'checkbox', checked: seen, 'aria-label': `Vu : ${t.title}`, onchange: () => update(setTitleSeen(state, t, !seen, today())) }),
-    h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', unverifiedBadge(t),
+    h('input', { type: 'checkbox', checked: seen, 'aria-label': `Vu : ${t.title}`, onchange: () => update(setTitleSeen(state, t, !seen, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title}`) }),
+    posterImg(t),
+    h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', tagBadges(t),
       h('div', { class: 'meta', text: `${t.releaseDate.slice(0, 4)} · ${t.runtimeMin} min · phase ${t.phase}` }),
       h('div', { class: 'credits-line' }, creditsBadges(t))),
     noteButton(t),
@@ -209,18 +249,21 @@ function serieRow(t) {
   const total = t.episodes.reduce((sum, e) => sum + e.runtimeMin, 0);
   const box = h('input', {
     type: 'checkbox', checked: all, 'aria-label': `Vu : ${t.title} (série entière)`,
-    onchange: () => update(setTitleSeen(state, t, !all, today())),
+    onchange: () => update(setTitleSeen(state, t, !all, today()), `${all ? 'Décoché' : 'Coché'} : ${t.title}`),
   });
   box.indeterminate = done > 0 && !all;
+  const q = normalizeText(filters.query);
+  const forcedOpen = q !== '' && !normalizeText(t.title).includes(q) && t.episodes.some((e) => normalizeText(e.title).includes(q));
   return h('li', {},
     h('details', {
-      class: 'serie', open: openSeries.has(t.id),
-      ontoggle: (e) => (e.target.open ? openSeries.add(t.id) : openSeries.delete(t.id)),
+      class: 'serie', open: forcedOpen || openSeries.has(t.id),
+      ontoggle: forcedOpen ? null : (e) => (e.target.open ? openSeries.add(t.id) : openSeries.delete(t.id)),
     },
       h('summary', {},
         h('div', { class: `row${all ? ' seen' : ''}` },
           h('span', { class: 'chev', text: '▶', 'aria-hidden': 'true' }), box,
-          h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', unverifiedBadge(t),
+          posterImg(t),
+          h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', tagBadges(t),
             h('div', { class: 'meta', text: `Série · ${done}/${t.episodes.length} ép. · ${hours(total)} · ${t.releaseDate.slice(0, 4)} · phase ${t.phase}` })),
           noteButton(t))),
       h('ul', { class: 'episodes' },
@@ -229,7 +272,7 @@ function serieRow(t) {
           const key = `${t.id}/${e.n}`;
           const seen = Boolean(state.seen[key]);
           return h('li', { class: `row${seen ? ' seen' : ''}` },
-            h('input', { type: 'checkbox', checked: seen, 'aria-label': `Vu : ${t.title} épisode ${e.n}`, onchange: () => update(toggleUnit(state, key, today())) }),
+            h('input', { type: 'checkbox', checked: seen, 'aria-label': `Vu : ${t.title} épisode ${e.n}`, onchange: () => update(toggleUnit(state, key, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title} ép. ${e.n}`) }),
             h('div', { class: 'name' }, h('span', { class: 'title', text: `Ép. ${e.n} — ${e.title}` }), h('div', { class: 'meta', text: `${e.runtimeMin} min` })));
         }))));
 }
@@ -239,15 +282,28 @@ function titleRow(t) {
   return t.type === 'serie' ? serieRow(t) : filmRow(t);
 }
 
-function phaseHeader(phase, ratio) {
-  return h('li', { class: 'phase-head' },
+function togglePhase(phase) {
+  const set = new Set(view.collapsedPhases);
+  if (!set.delete(phase)) set.add(phase);
+  view.collapsedPhases = [...set];
+  saveView();
+  render();
+}
+
+function phaseHeader(phase, ratio, collapsed) {
+  const toggle = () => togglePhase(phase);
+  return h('li', { class: `phase-head${collapsed ? ' collapsed' : ''}` },
+    h('button', {
+      type: 'button', class: 'chev-btn', 'aria-expanded': String(!collapsed),
+      'aria-label': `${collapsed ? 'Déplier' : 'Replier'} la phase ${phase}`, onclick: toggle,
+    }, h('span', { class: 'chev', text: '▶', 'aria-hidden': 'true' })),
     phaseBox(phase, ratio),
-    h('h2', { text: `Phase ${phase}` }),
+    h('h2', { text: `Phase ${phase}`, onclick: toggle }),
     h('span', { class: 'muted', text: `${ratio.seen}/${ratio.total} · ${ratio.percent} %` }));
 }
 
 function renderList() {
-  const shown = filterTitles(sortTitles(titles, state.order), filters);
+  const shown = filterTitles(sortTitles(titles, state.order), { ...filters, seen: state.seen });
   if (!shown.length) {
     $('list').replaceChildren(h('li', { class: 'empty', text: 'Aucun titre pour ces filtres.' }));
     return;
@@ -258,11 +314,15 @@ function renderList() {
   }
   const { byPhase } = progress(titles, state.seen);
   const phases = [...new Set(shown.map((t) => t.phase))].sort((a, b) => a - b);
+  const searching = filters.query.trim() !== '';
   $('list').replaceChildren(
-    ...phases.flatMap((phase) => [
-      phaseHeader(phase, byPhase[phase] ?? { seen: 0, total: 0, percent: 0 }),
-      ...shown.filter((t) => t.phase === phase).map(titleRow),
-    ]),
+    ...phases.flatMap((phase) => {
+      const collapsed = view.collapsedPhases.includes(phase) && !searching;
+      return [
+        phaseHeader(phase, byPhase[phase] ?? { seen: 0, total: 0, percent: 0 }, collapsed),
+        ...(collapsed ? [] : shown.filter((t) => t.phase === phase).map(titleRow)),
+      ];
+    }),
   );
 }
 
@@ -278,8 +338,21 @@ function setupControls() {
   const phases = [...new Set(titles.map((t) => t.phase))].sort((a, b) => a - b);
   $('filter-phase').append(...phases.map((p) => h('option', { value: String(p), text: `Phase ${p}` })));
   $('filter-phase').addEventListener('change', (e) => { filters.phase = e.target.value ? Number(e.target.value) : null; render(); });
+  const hasPosters = titles.some((t) => t.poster);
+  $('posters-toggle').hidden = !hasPosters;
+  $('credits').hidden = !hasPosters;
+  $('show-posters').checked = view.showPosters;
+  $('show-posters').addEventListener('change', (e) => { view.showPosters = e.target.checked; saveView(); render(); });
   $('group-phase').checked = view.groupByPhase;
   $('group-phase').addEventListener('change', (e) => { view.groupByPhase = e.target.checked; saveView(); render(); });
+  $('search').addEventListener('input', (e) => { filters.query = e.target.value; render(); });
+  $('hide-done').addEventListener('change', (e) => { filters.hideSeen = e.target.checked; render(); });
+  $('undo-btn').addEventListener('click', () => {
+    if (!undoSnapshot) return;
+    const snapshot = undoSnapshot;
+    hideUndo();
+    update(snapshot);
+  });
   $('filter-type').addEventListener('change', (e) => { filters.type = e.target.value || null; render(); });
   document.querySelectorAll('[data-order]').forEach((b) => b.addEventListener('click', () => update(setOrder(state, b.dataset.order))));
 
