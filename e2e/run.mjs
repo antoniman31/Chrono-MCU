@@ -26,6 +26,7 @@ await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${server.address().port}/`;
 
 const browser = await chromium.launch({ proxy: process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: '127.0.0.1,localhost' } : undefined });
+const started = Date.now();
 const failures = [];
 let checks = 0;
 const fail = (where, what) => failures.push(`${where}: ${what}`);
@@ -61,46 +62,57 @@ const variants = {
   oled: [{ theme: 'dark', oled: true }, 'dark'],
   'auto-oled': [{ theme: 'auto', oled: true }, 'dark'],
 };
-for (const [theme, [prefs, scheme]] of Object.entries(variants)) {
-  for (const [vname, width, height] of viewports) {
-    const where = `${theme}/${vname}`;
-    const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme });
-    await context.addInitScript(([v]) => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify(v)); } catch { /* ignore */ } }, [prefs]);
-    const page = await context.newPage();
-    page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
-    await page.goto(base);
-    await page.waitForSelector('body[data-ready]');
+// Les images TMDB sont décoratives (alt vide, aucun texte posé dessus) : on les bloque pour des tests rapides et indépendants du réseau
+const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => route.abort());
 
-    await audit(page, `${where} À voir`);
+async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
+  const where = `${theme}/${vname}`;
+  const t0 = Date.now();
+  const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme });
+  await blockImages(context);
+  await context.addInitScript(([v]) => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify(v)); } catch { /* ignore */ } }, [prefs]);
+  const page = await context.newPage();
+  page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
+  await page.goto(base);
+  await page.waitForSelector('body[data-ready]', { state: 'attached' });
 
-    await page.click('#open-filters');
-    await audit(page, `${where} feuille Filtres`);
-    await page.keyboard.press('Escape');
+  await audit(page, `${where} À voir`);
 
-    await page.click('[data-fk="menu:iron-man"]');
-    await audit(page, `${where} feuille Menu`);
-    await page.keyboard.press('Escape');
+  await page.click('#open-filters');
+  await audit(page, `${where} feuille Filtres`);
+  await page.keyboard.press('Escape');
 
-    await page.click('[data-fk="open:wandavision"]');
-    await audit(page, `${where} fiche série`);
-    if (vname !== 'expanded') await page.keyboard.press('Escape');
+  await page.click('[data-fk="menu:iron-man"]');
+  await audit(page, `${where} feuille Menu`);
+  await page.keyboard.press('Escape');
 
-    await page.click('[data-fk="cb:iron-man"]');
-    await audit(page, `${where} snackbar`);
+  await page.click('[data-fk="open:wandavision"]');
+  await audit(page, `${where} fiche série`);
+  if (vname !== 'expanded') await page.keyboard.press('Escape');
 
-    await page.click('.nav-item[data-route="progression"]');
-    await page.waitForSelector('#screen-progression:not([hidden])');
-    await audit(page, `${where} Progression`);
+  await page.click('[data-fk="cb:iron-man"]');
+  await audit(page, `${where} snackbar`);
 
-    await page.click('.nav-item[data-route="reglages"]');
-    await page.waitForSelector('#screen-reglages:not([hidden])');
-    await audit(page, `${where} Réglages`);
+  await page.click('.nav-item[data-route="progression"]');
+  await page.waitForSelector('#screen-progression:not([hidden])');
+  await audit(page, `${where} Progression`);
 
-    await page.click('[data-fk="s-backup"]');
-    await audit(page, `${where} feuille Sauvegarde`);
-    await context.close();
-  }
+  await page.click('.nav-item[data-route="reglages"]');
+  await page.waitForSelector('#screen-reglages:not([hidden])');
+  await audit(page, `${where} Réglages`);
+
+  await page.click('[data-fk="s-backup"]');
+  await audit(page, `${where} feuille Sauvegarde`);
+  await context.close();
+  if (process.env.E2E_VERBOSE) console.log(`${where}: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
 }
+
+// Les combinaisons thème × largeur sont indépendantes : on les exécute par lots de 4
+const combos = Object.entries(variants).flatMap(([theme, variant]) => viewports.map((vp) => [theme, variant, vp]));
+const queue = [...combos];
+await Promise.all(Array.from({ length: 4 }, async () => {
+  while (queue.length) await runCombo(...queue.shift());
+}));
 
 // Parcours clavier : l'écran principal doit être entièrement atteignable sans souris
 {
@@ -126,7 +138,7 @@ for (const [theme, [prefs, scheme]] of Object.entries(variants)) {
 
 await browser.close();
 server.close();
-console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états).`);
+console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états) en ${((Date.now() - started) / 1000).toFixed(0)} s.`);
 if (failures.length) {
   console.log(`${failures.length} problème(s) :`);
   [...new Set(failures)].forEach((f) => console.log(` - ${f}`));
