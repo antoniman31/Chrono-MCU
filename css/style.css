@@ -200,7 +200,9 @@ body.sheet-open { overflow: hidden; }
 html { scroll-padding-top: var(--appbar-h); scroll-padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
 .appbar, main { max-width: 760px; margin-inline: auto; padding-inline: 16px; }
 .appbar { height: var(--appbar-h); display: flex; align-items: center; position: sticky; top: 0; z-index: 4; background: var(--bg); max-width: none; }
-.appbar h1 { max-width: 760px; width: 100%; margin-inline: auto; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
+.appbar-in { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; max-width: 760px; margin-inline: auto; }
+.appbar h1 { min-width: 0; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
+#theme-toggle { margin-inline-end: -4px; color: var(--fg); }
 /* Titre : bloc rouge à coin chanfreiné et capitales condensées blanches, dans l'esprit d'un logo de franchise (style seulement, ce n'est pas le logo Marvel) */
 .logo {
   display: inline-block; max-width: 100%; padding: .16em .65em .06em .5em; background: var(--accent-btn); color: #fff;
@@ -413,6 +415,30 @@ main:focus { outline: none; }
 .phase-row .line { display: flex; justify-content: space-between; gap: 8px; font-size: .875rem; margin-bottom: 4px; }
 
 /* ---------- Réglages ---------- */
+ /* Réglages : sections repliables (une seule ouverte à la fois) */
+.acc { padding: 0; margin-bottom: 8px; }
+.acc + .acc { margin-top: 0; }
+.acc-head { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 16px; cursor: pointer; list-style: none; border-radius: var(--radius); }
+.acc-head::-webkit-details-marker { display: none; }
+.acc-head:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.acc-head:focus-visible { outline-offset: -3px; }
+.acc-head .text { flex: 1; min-width: 0; }
+.acc-title { display: block; font-size: 1rem; line-height: 1.5rem; font-weight: 500; }
+.sec-ic { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--tonal); color: var(--on-tonal); flex: none; }
+.acc-chev { color: var(--muted); transition: transform .2s cubic-bezier(.2, 0, 0, 1); }
+.acc[open] .acc-chev { transform: rotate(180deg); }
+.acc[open] .acc-head { border-bottom: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; }
+.acc-body { padding: 4px 0 12px; }
+.acc-body > p, .acc-body > ul { padding-inline: 16px; }
+.acc-body > p.muted { margin-top: 8px; }
+.theme-field { padding: 8px 0 4px; }
+.seg3 { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 16px 0; }
+.segopt { position: relative; flex: 1 1 max-content; }
+.segopt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.segopt .face { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--outline); border-radius: 22px; white-space: nowrap; }
+.segopt input:checked + .face { background: var(--tonal); color: var(--on-tonal); border-color: var(--accent-btn); font-weight: 700; }
+.segopt input:focus-visible + .face { outline: 3px solid var(--focus); outline-offset: 2px; }
+.theme-desc { padding: 8px 16px 0; }
 .settings-section { margin-bottom: 24px; }
 .settings-section > h3 { font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; color: var(--accent-text); margin: 0 0 8px 4px; }
 .setting { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; padding: 8px 16px; width: 100%; background: none; border: 0; text-align: left; color: inherit; }

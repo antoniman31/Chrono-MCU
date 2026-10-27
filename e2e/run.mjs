@@ -16,6 +16,12 @@ const failures = [];
 let checks = 0;
 const fail = (where, what) => failures.push(`${where}: ${what}`);
 
+// Réglages : sections repliables ; ouvre la section demandée si elle ne l'est pas déjà
+async function openSection(page, id) {
+  if (!(await page.locator(`[data-sec="${id}"]`).evaluate((d) => d.open))) await page.click(`[data-sec="${id}"] summary`);
+  await page.waitForFunction((sec) => document.querySelector(`[data-sec="${sec}"]`).open, id);
+}
+
 async function audit(page, where) {
   checks += 1;
   // On attend la fin des animations d'entrée (feuille, snackbar) pour mesurer les couleurs finales
@@ -97,7 +103,11 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
 
   await page.click('.nav-item[data-route="reglages"]');
   await page.waitForSelector('#screen-reglages:not([hidden])');
-  await audit(page, `${where} Réglages`);
+  // Sections repliables : on audite chacune ouverte (la dernière, Données, reste ouverte pour la suite)
+  for (const sec of ['look', 'follow', 'about', 'data']) {
+    await openSection(page, sec);
+    await audit(page, `${where} Réglages ${sec}`);
+  }
 
   await page.click('[data-fk="s-backup"]');
   await audit(page, `${where} feuille Sauvegarde`);
@@ -128,6 +138,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
   wanted.filter((w) => !seen.has(w)).forEach((w) => fail('clavier', `#${w} inatteignable à la touche Tab`));
   await page.click('.nav-item[data-route="reglages"]');
   await page.waitForSelector('#screen-reglages:not([hidden])');
+  await openSection(page, 'data');
   await page.click('[data-fk="s-backup"]');
   const importReachable = await page.evaluate(() => [...document.querySelectorAll('#sheet button')].some((b) => /Importer/.test(b.textContent)));
   if (!importReachable) fail('clavier', 'le bouton Importer est introuvable (ou inaccessible)');
@@ -201,7 +212,13 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
   for (const route of ['progression', 'reglages']) {
     await page.click(`.nav-item[data-route="${route}"]`);
     await page.waitForSelector(`#screen-${route}:not([hidden])`);
-    await inspect(route === 'progression' ? 'Progression' : 'Réglages');
+    if (route === 'progression') await inspect('Progression');
+    else {
+      for (const sec of ['look', 'follow', 'about', 'data']) {
+        await openSection(page, sec);
+        await inspect(`Réglages ${sec}`);
+      }
+    }
   }
   await context.close();
 }

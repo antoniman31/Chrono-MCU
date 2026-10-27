@@ -54,6 +54,11 @@ const go = async (page, route) => {
   await page.click(`.nav-item[data-route="${route}"]`);
   await page.waitForSelector(`#screen-${route}:not([hidden])`);
 };
+
+// Réglages : sections repliables, une seule ouverte à la fois
+const openSec = async (page, id) => {
+  if (!(await page.locator(`[data-sec="${id}"]`).evaluate((d) => d.open))) await page.click(`[data-sec="${id}"] summary`);
+};
 const progressTotal = async (page) => {
   await go(page, 'progression');
   const text = await page.locator('#progress-screen').first().innerText();
@@ -118,6 +123,7 @@ await scenario('ignorer : sorti de la progression et du « Prochain à voir »',
 await scenario('export puis import : aller-retour, fichier invalide sans effet', async (page) => {
   await page.click('[data-fk="cb:iron-man"]');
   await go(page, 'reglages');
+  await openSec(page, 'data');
   await page.click('[data-fk="s-backup"]');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-fk="b-export"]')]);
   const path = await download.path();
@@ -134,6 +140,7 @@ await scenario('export puis import : aller-retour, fichier invalide sans effet',
   await page.click('[data-fk="cb:iron-man"]');
   check(!(await checked(page, 'cb:iron-man')), 'décoche non appliquée');
   await go(page, 'reglages');
+  await openSec(page, 'data');
   await page.click('[data-fk="s-backup"]');
   await page.setInputFiles('#import-file', path);
   await page.click('[data-fk="b-confirm"]');
@@ -142,6 +149,7 @@ await scenario('export puis import : aller-retour, fichier invalide sans effet',
 
   // Un fichier invalide ne change rien et affiche un message
   await go(page, 'reglages');
+  await openSec(page, 'data');
   await page.click('[data-fk="s-backup"]');
   await page.setInputFiles('#import-file', { name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('pas du json') });
   await page.waitForSelector('#sheet [role="alert"]');
@@ -191,6 +199,7 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
   const loki = data.find((t) => t.id === 'loki-saison-1').episodes.length;
   const full = await progressTotal(page);
   await go(page, 'reglages');
+  await openSec(page, 'follow');
   const summary = await page.locator('.follow-total').innerText();
   check(/titres suivis/.test(summary), `résumé du suivi inattendu : ${summary}`);
   await page.locator('[data-fk="follow:series"]').uncheck({ force: true });
@@ -214,6 +223,7 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
   check((await progressTotal(page)).total === films + loki, 'le total devrait être le même après rechargement');
 
   await go(page, 'reglages');
+  await openSec(page, 'follow');
   await page.locator('[data-fk="follow:series"]').check({ force: true });
   const back = await stored(page);
   check(back.skip.length === 0 && Object.keys(back.included).length === 0, 'suivre à nouveau la catégorie doit effacer la réintégration');
@@ -284,8 +294,47 @@ await scenario('barre des phases : sur un écran bas (paysage) elle défile avec
   check(top < 0, `sur un écran bas la barre ne doit pas rester collée (top ${Math.round(top)})`);
 }, { viewport: { width: 640, height: 400 } });
 
+await scenario('réglages : une seule section ouverte, conservée quand on change un réglage', async (page) => {
+  await go(page, 'reglages');
+  const open = () => page.evaluate(() => [...document.querySelectorAll('[data-sec]')].filter((d) => d.open).map((d) => d.dataset.sec));
+  check(JSON.stringify(await open()) === '["look"]', `Apparence devrait être ouverte au départ : ${await open()}`);
+  await page.click('[data-sec="follow"] summary');
+  await page.waitForTimeout(100);
+  check(JSON.stringify(await open()) === '["follow"]', `une seule section à la fois : ${await open()}`);
+  await page.locator('[data-fk="follow:shorts"]').uncheck({ force: true });
+  check(JSON.stringify(await open()) === '["follow"]', `la section doit rester ouverte après un changement : ${await open()}`);
+  await openSec(page, 'look');
+  await page.locator('[data-fk="theme:light"]').check({ force: true });
+  check((await page.evaluate(() => document.documentElement.dataset.theme)) === 'light', 'le thème Clair devrait s\'appliquer');
+  check(JSON.stringify(await open()) === '["look"]', `Apparence doit rester ouverte après le changement de thème : ${await open()}`);
+  check(/Clair/.test(await page.locator('[data-sec="look"] .desc').first().innerText()), 'le résumé devrait indiquer le thème choisi');
+});
+
+await scenario('bouton de thème du bandeau : visible partout, cycle Auto > Clair > Sombre, synchronisé avec Réglages', async (page) => {
+  const theme = () => page.evaluate(() => document.documentElement.dataset.theme ?? 'auto');
+  const label = () => page.getAttribute('#theme-toggle', 'aria-label');
+  for (const route of ['voir', 'progression', 'reglages']) {
+    await go(page, route);
+    check(await page.locator('#theme-toggle').isVisible(), `le bouton de thème doit être visible sur ${route}`);
+  }
+  check(/Thème : Auto/.test(await label()), `libellé initial inattendu : ${await label()}`);
+  await page.click('#theme-toggle');
+  check((await theme()) === 'light' && /Thème : Clair/.test(await label()), `après un appui : Clair attendu (${await theme()}, ${await label()})`);
+  check(/Clair/.test(await page.locator('#theme-status').innerText()), 'le changement doit être annoncé');
+  await page.click('#theme-toggle');
+  check((await theme()) === 'dark' && /Thème : Sombre/.test(await label()), `après deux appuis : Sombre attendu (${await theme()})`);
+  await page.click('#theme-toggle');
+  check((await theme()) === 'auto', 'après trois appuis : retour à Auto');
+  await page.click('#theme-toggle');
+  await go(page, 'reglages');
+  check(await page.locator('[data-fk="theme:light"]').isChecked(), 'Réglages doit refléter le thème choisi avec le bouton');
+  await reload(page);
+  check((await theme()) === 'light', 'le thème choisi doit être conservé après rechargement');
+});
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
+  await openSec(page, 'look');
   await page.locator('[data-fk="s-oled"]').check({ force: true });
   check(await page.evaluate(() => document.documentElement.dataset.oled !== undefined), 'data-oled absent après activation');
   await reload(page);
@@ -318,6 +367,7 @@ await scenario('rappel de sauvegarde : « Exporter maintenant » enregistre la s
   check(download.suggestedFilename().startsWith('chrono-mcu-'), 'nom de fichier inattendu');
   check(await page.locator('#nudge .card-nudge').count() === 0, 'le rappel devrait disparaître après l\'export');
   await go(page, 'reglages');
+  await openSec(page, 'data');
   const text = await page.locator('#settings-screen').innerText();
   check(/Dernière sauvegarde : \d\d\/\d\d\/\d{4} \(aujourd'hui\)/.test(text), 'Réglages devrait afficher la dernière sauvegarde');
 }, { seed: { version: 2, order: 'chrono', seen: many, ignored: {}, lastSeenKey: null } });
