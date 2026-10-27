@@ -40,6 +40,20 @@ Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm
 
 Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à la main.
 
+## Affiches
+
+Le champ optionnel `poster` (chemin TMDB, ex. `/abc123.jpg`) ajoute une affiche à chaque titre ; `tmdbId` garde l'identifiant TMDB. Sans affiche, l'app s'affiche comme avant (la case « Afficher les affiches » et la mention TMDB n'apparaissent que s'il y en a). Une image qui ne charge pas disparaît sans casser la ligne.
+
+Pour remplir les affiches (clé API v3 gratuite sur themoviedb.org, réseau ouvert vers `api.themoviedb.org`) :
+
+```
+TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs          # ajoute les affiches manquantes
+TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs --dry    # essai à blanc
+TMDB_API_KEY=ta_clé node scripts/fetch-posters.mjs --force  # refait toutes les affiches
+```
+
+Les saisons (« Loki (saison 2) ») prennent l'affiche de la saison quand TMDB en a une. Relis le résultat : une recherche par titre peut se tromper, corrige `poster` à la main si besoin. Les affiches restent la propriété de leurs ayants droit ; elles sont chargées depuis TMDB, jamais copiées dans le dépôt.
+
 ## Déploiement
 
 Le workflow `.github/workflows/pages.yml` lance les tests, puis déploie sur GitHub Pages à chaque push sur `main`. À activer une fois dans Settings > Pages > Source : GitHub Actions.

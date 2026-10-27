@@ -23,9 +23,10 @@ let storageWarned = false;
 const VIEW_KEY = 'chrono-mcu:view';
 const view = (() => {
   try {
-    return { groupByPhase: JSON.parse(storage?.getItem(VIEW_KEY))?.groupByPhase !== false };
+    const saved = JSON.parse(storage?.getItem(VIEW_KEY));
+    return { groupByPhase: saved?.groupByPhase !== false, showPosters: saved?.showPosters !== false };
   } catch {
-    return { groupByPhase: true };
+    return { groupByPhase: true, showPosters: true };
   }
 })();
 const saveView = () => {
@@ -176,6 +177,7 @@ function noteButton(title) {
 
 function upcomingRow(t) {
   return h('li', { class: 'row upcoming' },
+    posterImg(t),
     h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', h('span', { class: 'badge soon', text: 'à venir' }),
       h('div', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatDay(t.releaseDate)} · phase ${t.phase}` })));
 }
@@ -189,12 +191,23 @@ function creditsBadges(t) {
   ];
 }
 
+const POSTER_BASE = 'https://image.tmdb.org/t/p/w154';
+
+function posterImg(t) {
+  if (!view.showPosters || !t.poster) return null;
+  return h('img', {
+    class: 'poster', src: `${POSTER_BASE}${t.poster}`, alt: '', width: 46, height: 69,
+    loading: 'lazy', decoding: 'async', onerror: (e) => e.target.remove(),
+  });
+}
+
 const unverifiedBadge = (t) => (t.verified ? null : h('span', { class: 'badge', text: 'à vérifier' }));
 
 function filmRow(t) {
   const seen = isTitleSeen(state, t);
   return h('li', { class: `row${seen ? ' seen' : ''}` },
     h('input', { type: 'checkbox', checked: seen, 'aria-label': `Vu : ${t.title}`, onchange: () => update(setTitleSeen(state, t, !seen, today())) }),
+    posterImg(t),
     h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', unverifiedBadge(t),
       h('div', { class: 'meta', text: `${t.releaseDate.slice(0, 4)} · ${t.runtimeMin} min · phase ${t.phase}` }),
       h('div', { class: 'credits-line' }, creditsBadges(t))),
@@ -220,6 +233,7 @@ function serieRow(t) {
       h('summary', {},
         h('div', { class: `row${all ? ' seen' : ''}` },
           h('span', { class: 'chev', text: '▶', 'aria-hidden': 'true' }), box,
+          posterImg(t),
           h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', unverifiedBadge(t),
             h('div', { class: 'meta', text: `Série · ${done}/${t.episodes.length} ép. · ${hours(total)} · ${t.releaseDate.slice(0, 4)} · phase ${t.phase}` })),
           noteButton(t))),
@@ -278,6 +292,11 @@ function setupControls() {
   const phases = [...new Set(titles.map((t) => t.phase))].sort((a, b) => a - b);
   $('filter-phase').append(...phases.map((p) => h('option', { value: String(p), text: `Phase ${p}` })));
   $('filter-phase').addEventListener('change', (e) => { filters.phase = e.target.value ? Number(e.target.value) : null; render(); });
+  const hasPosters = titles.some((t) => t.poster);
+  $('posters-toggle').hidden = !hasPosters;
+  $('credits').hidden = !hasPosters;
+  $('show-posters').checked = view.showPosters;
+  $('show-posters').addEventListener('change', (e) => { view.showPosters = e.target.checked; saveView(); render(); });
   $('group-phase').checked = view.groupByPhase;
   $('group-phase').addEventListener('change', (e) => { view.groupByPhase = e.target.checked; saveView(); render(); });
   $('filter-type').addEventListener('change', (e) => { filters.type = e.target.value || null; render(); });

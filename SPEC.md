@@ -92,6 +92,8 @@ Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètr
 
 - Scènes post-générique : champ optionnel `postCredits` sur les films (`mid`/`end`, `[]` = aucune, absent = inconnu), affiché en badges. Renseigné seulement quand c'est sûr.
 
+- Affiches : champs optionnels `poster` et `tmdbId`, chargées à la volée depuis `image.tmdb.org` (jamais stockées dans le dépôt), script `scripts/fetch-posters.mjs` pour les renseigner, réglage « Afficher les affiches » et mention TMDB affichés seulement s'il y en a.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

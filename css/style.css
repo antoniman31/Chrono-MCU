@@ -156,3 +156,9 @@ details[open] > summary .chev { transform: rotate(90deg); }
 .credits-line:empty { display: none; }
 .badge.credits { background: var(--surface-2); color: var(--fg); border: 1px solid var(--border); }
 .badge.credits.none { color: var(--muted); }
+
+.poster { width: 46px; height: 69px; flex: none; object-fit: cover; border-radius: 4px; background: var(--surface-2); }
+#credits { margin-top: 24px; font-size: .75rem; }
+#credits a { color: inherit; }
+
+[hidden] { display: none !important; }

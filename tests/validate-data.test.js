@@ -72,3 +72,11 @@ test('postCredits: films seulement, valeurs mid/end sans doublon', () => {
   assert.ok(validate([film({ postCredits: 'end' })]).some((e) => e.includes('postCredits')));
   assert.ok(validate([serie({ postCredits: ['end'] })]).some((e) => e.includes('postCredits')));
 });
+
+test('poster et tmdbId: formats stricts', () => {
+  assert.deepEqual(validate([film({ poster: '/bjiS5ipwxb9JFy3XRRN4OAilSeX.jpg', tmdbId: 969681 })]), []);
+  assert.ok(validate([film({ poster: 'https://evil.example/x.jpg' })]).some((e) => e.includes('poster')));
+  assert.ok(validate([film({ poster: '/../x.jpg' })]).some((e) => e.includes('poster')));
+  assert.ok(validate([film({ poster: '/ok.gif' })]).some((e) => e.includes('poster')));
+  assert.ok(validate([film({ tmdbId: 0 })]).some((e) => e.includes('tmdbId')));
+});
