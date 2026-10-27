@@ -26,9 +26,22 @@ jobs:
       - run: npm run validate
       - run: npm test
 
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Accessibilité (axe-core), cibles tactiles et clavier, 3 thèmes x 3 largeurs
+        run: npm run e2e
+
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: test
+    needs: [test, e2e]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

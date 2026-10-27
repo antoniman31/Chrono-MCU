@@ -2,66 +2,122 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#121316">
-  <script>try{var t=JSON.parse(localStorage.getItem('chrono-mcu:view')||'{}').theme;if(t==='light'||t==='dark'||t==='oled')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <meta name="color-scheme" content="light dark">
   <title>Chrono-MCU</title>
+  <script>try{var t=JSON.parse(localStorage.getItem('chrono-mcu:view')||'{}').theme;if(t==='light'||t==='dark'||t==='oled')document.documentElement.dataset.theme=t}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css?v=__BUILD__">
 </head>
 <body>
-  <main id="app">
-    <header class="top">
-      <h1>Chrono-MCU</h1>
-      <div class="data-actions">
-        <button type="button" id="export">Exporter</button>
-        <label class="button" for="import">Importer</label>
-        <input type="file" id="import" accept="application/json,.json" hidden>
-      </div>
-    </header>
-    <p id="message" role="status" hidden></p>
-    <section id="progress" aria-label="Progression"></section>
-    <section id="banners"></section>
-    <section class="controls" aria-label="Affichage">
-      <label class="search">Recherche
-        <input type="search" id="search" placeholder="Titre ou épisode…" autocomplete="off">
-      </label>
-      <div class="seg" role="group" aria-label="Ordre">
-        <button type="button" data-order="chrono">Chronologique</button>
-        <button type="button" data-order="release">Sortie</button>
-      </div>
-      <label>Phase
-        <select id="filter-phase"><option value="">Toutes</option></select>
-      </label>
-      <label>Type
-        <select id="filter-type">
-          <option value="">Tous</option>
-          <option value="film">Films</option>
-          <option value="serie">Séries</option>
-        </select>
-      </label>
-      <label>Thème
-        <select id="theme">
-          <option value="auto">Auto (système)</option>
-          <option value="light">Clair</option>
-          <option value="dark">Sombre</option>
-          <option value="oled">Noir OLED</option>
-        </select>
-      </label>
-      <label class="check"><input type="checkbox" id="group-phase"> Grouper par phase</label>
-      <label class="check"><input type="checkbox" id="hide-done"> Masquer les terminés</label>
-      <label class="check" id="posters-toggle" hidden><input type="checkbox" id="show-posters"> Afficher les affiches</label>
-    </section>
-    <section id="stats" aria-label="Statistiques"></section>
-    <ol id="list" class="list"></ol>
-    <div id="undo" role="status" hidden>
-      <span id="undo-text"></span>
-      <button type="button" id="undo-btn">Annuler</button>
+  <!-- Icônes Material Icons (Apache 2.0), intégrées pour éviter tout appel externe -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></symbol>
+    <symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
+    <symbol id="i-star-o" viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></symbol>
+    <symbol id="i-visibility" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <div class="app">
+    <nav class="nav" id="nav" aria-label="Navigation principale">
+      <a class="nav-item" href="#voir" data-route="voir">
+        <span class="nav-ind"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg></span>
+        <span class="nav-label">À voir</span>
+      </a>
+      <a class="nav-item" href="#progression" data-route="progression">
+        <span class="nav-ind"><svg class="icon" aria-hidden="true"><use href="#i-chart"/></svg></span>
+        <span class="nav-label">Progression</span>
+      </a>
+      <a class="nav-item" href="#reglages" data-route="reglages">
+        <span class="nav-ind"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg></span>
+        <span class="nav-label">Réglages</span>
+      </a>
+    </nav>
+
+    <div class="content">
+      <header class="appbar">
+        <h1>Chrono-MCU</h1>
+      </header>
+
+      <main id="main" tabindex="-1">
+        <p id="message" role="status" hidden></p>
+
+        <section id="screen-voir" class="screen" aria-labelledby="h-voir">
+          <h2 id="h-voir" class="sr-only" tabindex="-1">À voir</h2>
+          <div id="resume"></div>
+          <div class="searchbar">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input type="search" id="search" placeholder="Rechercher un titre ou un épisode" aria-label="Rechercher un titre ou un épisode" autocomplete="off" enterkeyhint="search">
+            <button type="button" class="icon-btn" id="search-clear" aria-label="Effacer la recherche" hidden>
+              <span class="face"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></span>
+            </button>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Type de titre" id="tabs">
+            <button type="button" class="tab" role="tab" id="tab-all" data-tab="all" aria-controls="list-panel">Tout</button>
+            <button type="button" class="tab" role="tab" id="tab-film" data-tab="film" aria-controls="list-panel">Films</button>
+            <button type="button" class="tab" role="tab" id="tab-serie" data-tab="serie" aria-controls="list-panel">Séries</button>
+          </div>
+          <div class="toolbar">
+            <button type="button" class="btn btn-tonal" id="open-filters" aria-haspopup="dialog">
+              <span class="face"><svg class="icon" aria-hidden="true"><use href="#i-tune"/></svg><span>Filtres</span><span class="count" id="filter-count" hidden></span></span>
+            </button>
+            <div class="seg" role="group" aria-label="Ordre d'affichage">
+              <button type="button" data-order="chrono"><span class="face">Chrono</span></button>
+              <button type="button" data-order="release"><span class="face">Sortie</span></button>
+            </div>
+          </div>
+          <p id="result-count" class="muted result-count" role="status" aria-live="polite"></p>
+          <div id="list-panel" role="tabpanel" tabindex="-1"><div id="list"></div></div>
+        </section>
+
+        <section id="screen-progression" class="screen" aria-labelledby="h-progression" hidden>
+          <h2 id="h-progression" tabindex="-1">Progression</h2>
+          <div id="progress-screen"></div>
+        </section>
+
+        <section id="screen-reglages" class="screen" aria-labelledby="h-reglages" hidden>
+          <h2 id="h-reglages" tabindex="-1">Réglages</h2>
+          <div id="settings-screen"></div>
+        </section>
+      </main>
     </div>
-    <footer id="credits" hidden>
-      <p class="muted">Affiches : <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
-    </footer>
-    <p id="version" class="muted"></p>
-  </main>
+
+    <aside class="detail-pane" id="detail-pane" aria-label="Fiche du titre"></aside>
+  </div>
+
+  <dialog id="sheet" class="sheet" aria-labelledby="sheet-title">
+    <div class="sheet-handle" id="sheet-handle" aria-hidden="true"><span></span></div>
+    <div class="sheet-head">
+      <h2 id="sheet-title"></h2>
+      <button type="button" class="icon-btn" id="sheet-close" aria-label="Fermer">
+        <span class="face"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></span>
+      </button>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </dialog>
+
+  <div id="snackbar" class="snackbar" hidden>
+    <span id="snackbar-text" role="status" aria-live="polite"></span>
+    <button type="button" class="btn btn-text" id="snackbar-action"><span class="face">Annuler</span></button>
+  </div>
+
+  <input type="file" id="import-file" accept="application/json,.json" hidden>
+
   <script type="module" src="js/app.js?v=__BUILD__"></script>
 </body>
 </html>
