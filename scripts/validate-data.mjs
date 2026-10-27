@@ -35,6 +35,12 @@ export function validate(data) {
 
     if ('upcoming' in t && t.upcoming !== true) errors.push(`${at}: upcoming doit valoir true ou être absent`);
 
+    if ('postCredits' in t) {
+      const pcs = t.postCredits;
+      const ok = t.type === 'film' && Array.isArray(pcs) && new Set(pcs).size === pcs.length && pcs.every((x) => ['mid', 'end'].includes(x));
+      if (!ok) errors.push(`${at}: postCredits réservé aux films, tableau sans doublon de "mid" / "end"`);
+    }
+
     if (t.upcoming === true) {
       if ('runtimeMin' in t || 'episodes' in t) errors.push(`${at}: un titre à venir n'a ni runtimeMin ni episodes`);
     } else if (t.type === 'film') {

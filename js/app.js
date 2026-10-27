@@ -180,6 +180,15 @@ function upcomingRow(t) {
       h('div', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatDay(t.releaseDate)} · phase ${t.phase}` })));
 }
 
+function creditsBadges(t) {
+  if (!Array.isArray(t.postCredits)) return null;
+  if (t.postCredits.length === 0) return h('span', { class: 'badge credits none', text: 'sans scène' });
+  return [
+    t.postCredits.includes('mid') ? h('span', { class: 'badge credits', text: 'scène mi-générique' }) : null,
+    t.postCredits.includes('end') ? h('span', { class: 'badge credits', text: 'scène post-générique' }) : null,
+  ];
+}
+
 const unverifiedBadge = (t) => (t.verified ? null : h('span', { class: 'badge', text: 'à vérifier' }));
 
 function filmRow(t) {
@@ -187,7 +196,8 @@ function filmRow(t) {
   return h('li', { class: `row${seen ? ' seen' : ''}` },
     h('input', { type: 'checkbox', checked: seen, 'aria-label': `Vu : ${t.title}`, onchange: () => update(setTitleSeen(state, t, !seen, today())) }),
     h('div', { class: 'name' }, h('span', { class: 'title', text: t.title }), ' ', unverifiedBadge(t),
-      h('div', { class: 'meta', text: `${t.releaseDate.slice(0, 4)} · ${t.runtimeMin} min · phase ${t.phase}` })),
+      h('div', { class: 'meta', text: `${t.releaseDate.slice(0, 4)} · ${t.runtimeMin} min · phase ${t.phase}` }),
+      h('div', { class: 'credits-line' }, creditsBadges(t))),
     noteButton(t),
     openNotes.has(t.id) ? notePanel(t) : null,
   );

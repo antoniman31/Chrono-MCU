@@ -151,3 +151,8 @@ details[open] > summary .chev { transform: rotate(90deg); }
 
 .row.upcoming { opacity: .75; border-style: dashed; }
 .badge.soon { background: var(--surface-2); color: var(--fg); border: 1px solid var(--muted); }
+
+.credits-line { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.credits-line:empty { display: none; }
+.badge.credits { background: var(--surface-2); color: var(--fg); border: 1px solid var(--border); }
+.badge.credits.none { color: var(--muted); }

@@ -63,3 +63,12 @@ test('titre à venir: sans durée ni épisodes, upcoming strictement true', () =
   delete upSerie.episodes;
   assert.deepEqual(validate([upSerie]), []);
 });
+
+test('postCredits: films seulement, valeurs mid/end sans doublon', () => {
+  assert.deepEqual(validate([film({ postCredits: ['mid', 'end'] })]), []);
+  assert.deepEqual(validate([film({ postCredits: [] })]), []);
+  assert.ok(validate([film({ postCredits: ['mid', 'mid'] })]).some((e) => e.includes('postCredits')));
+  assert.ok(validate([film({ postCredits: ['apres'] })]).some((e) => e.includes('postCredits')));
+  assert.ok(validate([film({ postCredits: 'end' })]).some((e) => e.includes('postCredits')));
+  assert.ok(validate([serie({ postCredits: ['end'] })]).some((e) => e.includes('postCredits')));
+});

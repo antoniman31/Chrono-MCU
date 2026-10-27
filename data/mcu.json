@@ -8,6 +8,9 @@
     "releaseDate": "2011-07-22",
     "chronoOrder": 1,
     "runtimeMin": 124,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -19,6 +22,10 @@
     "releaseDate": "2019-03-08",
     "chronoOrder": 2,
     "runtimeMin": 124,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -30,6 +37,9 @@
     "releaseDate": "2008-05-02",
     "chronoOrder": 3,
     "runtimeMin": 126,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -41,6 +51,9 @@
     "releaseDate": "2010-05-07",
     "chronoOrder": 4,
     "runtimeMin": 124,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -52,6 +65,9 @@
     "releaseDate": "2008-06-13",
     "chronoOrder": 5,
     "runtimeMin": 112,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -63,6 +79,10 @@
     "releaseDate": "2011-05-06",
     "chronoOrder": 6,
     "runtimeMin": 115,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -74,6 +94,10 @@
     "releaseDate": "2012-05-04",
     "chronoOrder": 7,
     "runtimeMin": 143,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -85,6 +109,10 @@
     "releaseDate": "2013-11-08",
     "chronoOrder": 8,
     "runtimeMin": 112,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -96,6 +124,9 @@
     "releaseDate": "2013-05-03",
     "chronoOrder": 9,
     "runtimeMin": 130,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -107,6 +138,10 @@
     "releaseDate": "2014-04-04",
     "chronoOrder": 10,
     "runtimeMin": 136,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -140,6 +175,9 @@
     "releaseDate": "2015-05-01",
     "chronoOrder": 13,
     "runtimeMin": 141,
+    "postCredits": [
+      "mid"
+    ],
     "verified": true
   },
   {
@@ -151,6 +189,10 @@
     "releaseDate": "2015-07-17",
     "chronoOrder": 14,
     "runtimeMin": 117,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -162,6 +204,10 @@
     "releaseDate": "2016-05-06",
     "chronoOrder": 15,
     "runtimeMin": 147,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -173,6 +219,9 @@
     "releaseDate": "2021-07-09",
     "chronoOrder": 16,
     "runtimeMin": 134,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -184,6 +233,10 @@
     "releaseDate": "2018-02-16",
     "chronoOrder": 17,
     "runtimeMin": 134,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -195,6 +248,10 @@
     "releaseDate": "2017-07-07",
     "chronoOrder": 18,
     "runtimeMin": 133,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -206,6 +263,10 @@
     "releaseDate": "2016-11-04",
     "chronoOrder": 19,
     "runtimeMin": 115,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -217,6 +278,10 @@
     "releaseDate": "2017-11-03",
     "chronoOrder": 20,
     "runtimeMin": 130,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -228,6 +293,10 @@
     "releaseDate": "2018-07-06",
     "chronoOrder": 21,
     "runtimeMin": 118,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -239,6 +308,9 @@
     "releaseDate": "2018-04-27",
     "chronoOrder": 22,
     "runtimeMin": 149,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -250,6 +322,7 @@
     "releaseDate": "2019-04-26",
     "chronoOrder": 23,
     "runtimeMin": 181,
+    "postCredits": [],
     "verified": true
   },
   {
@@ -459,6 +532,10 @@
     "releaseDate": "2019-07-02",
     "chronoOrder": 28,
     "runtimeMin": 129,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -470,6 +547,10 @@
     "releaseDate": "2021-09-03",
     "chronoOrder": 29,
     "runtimeMin": 132,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -481,6 +562,10 @@
     "releaseDate": "2021-11-05",
     "chronoOrder": 30,
     "runtimeMin": 156,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -492,6 +577,10 @@
     "releaseDate": "2021-12-17",
     "chronoOrder": 31,
     "runtimeMin": 148,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -629,6 +718,10 @@
     "releaseDate": "2022-05-06",
     "chronoOrder": 35,
     "runtimeMin": 126,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -640,6 +733,10 @@
     "releaseDate": "2022-07-08",
     "chronoOrder": 36,
     "runtimeMin": 119,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -651,6 +748,7 @@
     "releaseDate": "2022-10-07",
     "chronoOrder": 37,
     "runtimeMin": 53,
+    "postCredits": [],
     "verified": true
   },
   {
@@ -662,6 +760,9 @@
     "releaseDate": "2022-11-11",
     "chronoOrder": 38,
     "runtimeMin": 161,
+    "postCredits": [
+      "mid"
+    ],
     "verified": true
   },
   {
@@ -741,6 +842,10 @@
     "releaseDate": "2023-02-17",
     "chronoOrder": 41,
     "runtimeMin": 125,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -752,6 +857,10 @@
     "releaseDate": "2023-05-05",
     "chronoOrder": 42,
     "runtimeMin": 150,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -1225,6 +1334,10 @@
     "releaseDate": "2025-07-25",
     "chronoOrder": 56,
     "runtimeMin": 115,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
