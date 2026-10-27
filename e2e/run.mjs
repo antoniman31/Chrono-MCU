@@ -1,29 +1,14 @@
 // Contrôles de bout en bout : accessibilité (axe-core), taille des cibles tactiles et parcours clavier,
 // dans les variantes de thème (clair, sombre, noir OLED, Auto + OLED) et 3 largeurs d'écran (compact, medium, expanded). Lancer avec `npm run e2e`.
 import { createRequire } from 'node:module';
-import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { extname, join, normalize } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { startServer } from './server.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const axeSource = await readFile(require.resolve('axe-core/axe.min.js'), 'utf8');
 
-const root = fileURLToPath(new URL('..', import.meta.url));
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
-const server = createServer(async (req, res) => {
-  const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname));
-  try {
-    const file = join(root, path.endsWith('/') ? `${path}index.html` : path);
-    if (!file.startsWith(root)) throw new Error('hors racine');
-    res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' }).end(await readFile(file));
-  } catch {
-    res.writeHead(404).end('introuvable');
-  }
-});
-await new Promise((r) => server.listen(0, '127.0.0.1', r));
-const base = `http://127.0.0.1:${server.address().port}/`;
+const { base, close: closeServer } = await startServer();
 
 const browser = await chromium.launch({ proxy: process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: '127.0.0.1,localhost' } : undefined });
 const started = Date.now();
@@ -141,6 +126,22 @@ await Promise.all(Array.from({ length: 4 }, async () => {
   await context.close();
 }
 
+// Rappel de sauvegarde (affiché au-delà de 20 éléments vus sans sauvegarde), thèmes clair et sombre
+for (const scheme of ['light', 'dark']) {
+  const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+  await blockImages(context);
+  const seen = Object.fromEntries(Array.from({ length: 25 }, (_, i) => [`seed${i}`, '2026-10-01']));
+  await context.addInitScript(([state]) => { try { localStorage.setItem('chrono-mcu:v1', JSON.stringify(state)); } catch { /* ignore */ } },
+    [{ version: 2, order: 'chrono', seen, ignored: {}, lastSeenKey: null }]);
+  const page = await context.newPage();
+  page.on('pageerror', (e) => fail(`rappel/${scheme}`, `erreur JS : ${e.message}`));
+  await page.goto(base);
+  await page.waitForSelector('body[data-ready]', { state: 'attached' });
+  if (!(await page.locator('#nudge .card-nudge').count())) fail(`rappel/${scheme}`, 'le rappel de sauvegarde devrait s\'afficher');
+  await audit(page, `rappel/${scheme} À voir`);
+  await context.close();
+}
+
 // Swipe tactile : droite = vu, gauche = ignorer, geste court = rien ; un swipe n'ouvre pas la fiche (événements tactiles réels via CDP)
 {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, reducedMotion: 'reduce' });
@@ -196,7 +197,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 }
 
 await browser.close();
-server.close();
+closeServer();
 console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états) en ${((Date.now() - started) / 1000).toFixed(0)} s.`);
 if (failures.length) {
   console.log(`${failures.length} problème(s) :`);

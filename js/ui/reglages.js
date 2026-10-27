@@ -1,4 +1,5 @@
-import { $, h, icon } from './dom.js?v=__BUILD__';
+import { $, formatShort, h, icon, today } from './dom.js?v=__BUILD__';
+import { daysAgoLabel, daysBetween } from '../backup.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
 
 const THEME_LABELS = [
@@ -21,6 +22,16 @@ export function renderReglages(ctx) {
         h('span', { class: 'dot', 'aria-hidden': 'true' }),
         h('span', { class: 'text' }, label, desc ? h('span', { class: 'desc', text: desc }) : null))));
 
+  const lb = view.lastBackup;
+  const backupDesc = lb
+    ? `Dernière sauvegarde : ${formatShort(lb.day)} (${daysAgoLabel(daysBetween(lb.day, today()))})`
+    : 'Jamais sauvegardée : exporte ta progression';
+  const persistNote = ctx.persisted === true
+    ? 'Stockage protégé : le navigateur ne devrait pas effacer ta progression.'
+    : ctx.persisted === false
+      ? 'Stockage non protégé : le navigateur peut effacer les données du site. Exporte régulièrement, et installe l\'application sur ton écran d\'accueil si ton navigateur le propose.'
+      : null;
+
   const sections = [
     h('section', { class: 'settings-section card', 'aria-labelledby': 's-look' },
       h('h3', { id: 's-look', text: 'Apparence' }),
@@ -38,8 +49,9 @@ export function renderReglages(ctx) {
     h('section', { class: 'settings-section card', 'aria-labelledby': 's-data' },
       h('h3', { id: 's-data', text: 'Données' }),
       h('button', { type: 'button', class: 'setting', 'aria-haspopup': 'dialog', 'data-fk': 's-backup', onclick: (e) => ctx.openBackup(e.currentTarget) },
-        h('span', { class: 'text' }, 'Sauvegarde et restauration', h('span', { class: 'desc', text: 'Exporter ou importer ta progression' })),
-        icon('chevron'))),
+        h('span', { class: 'text' }, 'Sauvegarde et restauration', h('span', { class: 'desc', text: backupDesc })),
+        icon('chevron')),
+      persistNote ? h('p', { class: 'muted t-body-sm', text: persistNote }) : null),
     h('section', { class: 'settings-section card about', 'aria-labelledby': 's-about' },
       h('h3', { id: 's-about', text: 'À propos' }),
       h('p', { class: 'muted', text: 'Chrono-MCU suit ton visionnage du MCU (films et séries Disney+), sans compte : ta progression reste dans ce navigateur.' }),

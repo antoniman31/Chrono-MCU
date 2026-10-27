@@ -486,3 +486,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 .detail > .muted { margin-top: 12px; }
+
+.card-nudge { margin-bottom: 12px; display: grid; gap: 4px; }
+.card-nudge .nudge-title { font-size: 1rem; line-height: 1.5rem; font-weight: 500; }
+.row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; margin-top: 4px; }

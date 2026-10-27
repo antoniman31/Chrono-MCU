@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
+  BACKUP_KEY, STATE_VERSION, migrate, STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
   toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen,
 } from '../js/store.js';
 
@@ -105,7 +105,9 @@ test('import invalide: rejeté avec message, jamais d\'état retourné', () => {
   const cases = [
     'pas du json',
     '[]',
-    '{"version":2,"order":"chrono","seen":{},"lastSeenKey":null}',
+    '{"version":3,"order":"chrono","seen":{},"lastSeenKey":null}',
+    '{"version":0,"order":"chrono","seen":{},"lastSeenKey":null}',
+    '{"order":"chrono","seen":{},"lastSeenKey":null}',
     '{"version":1,"order":"nope","seen":{},"lastSeenKey":null}',
     '{"version":1,"order":"chrono","seen":{"f":"hier"},"lastSeenKey":null}',
     '{"version":1,"order":"chrono","seen":{},"ignored":{"f":false},"lastSeenKey":null}',
@@ -164,4 +166,39 @@ test('anciens états: notes abandonnées au chargement et à l\'import, ignored 
   assert.equal(imported.ok, true);
   assert.equal('notes' in imported.state, false);
   assert.equal('notes' in JSON.parse(exportState(imported.state)), false);
+});
+
+test('migrate: v1 devient v2 (notes abandonnées, ignored ajouté), v2 inchangé, futur refusé', () => {
+  assert.equal(STATE_VERSION, 2);
+  const v1 = { version: 1, order: 'release', seen: { f: D1 }, notes: { f: { rating: 3 } }, lastSeenKey: 'f' };
+  assert.deepEqual(migrate(v1), { ok: true, state: { version: 2, order: 'release', seen: { f: D1 }, ignored: {}, lastSeenKey: 'f' } });
+  const v2 = { version: 2, order: 'chrono', seen: {}, ignored: { g: true }, lastSeenKey: null };
+  assert.deepEqual(migrate(v2), { ok: true, state: v2 });
+  const future = migrate({ version: 9, order: 'chrono', seen: {}, lastSeenKey: null });
+  assert.equal(future.ok, false);
+  assert.match(future.error, /plus récent/);
+  assert.equal(migrate([]).ok, false);
+  assert.equal(migrate({ version: 'x' }).ok, false);
+});
+
+test('loadState: un état v1 est migré, réécrit en v2 et l\'ancien contenu est gardé une seule fois', () => {
+  const old = JSON.stringify({ version: 1, order: 'chrono', seen: { f: D1 }, notes: { f: { text: 'top' } }, lastSeenKey: 'f' });
+  const storage = memoryStorage({ [STORAGE_KEY]: old });
+  const loaded = loadState(storage);
+  assert.equal(loaded.version, 2);
+  assert.equal(JSON.parse(storage.getItem(STORAGE_KEY)).version, 2);
+  assert.equal(storage.getItem(BACKUP_KEY), old);
+  // Un second chargement ne réécrit pas la copie de secours
+  storage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, order: 'chrono', seen: {}, lastSeenKey: null }));
+  loadState(storage);
+  assert.equal(storage.getItem(BACKUP_KEY), old);
+});
+
+test('importState: un export v1 est accepté et migré, un export plus récent est refusé clairement', () => {
+  const r = importState('{"version":1,"order":"chrono","seen":{},"notes":{},"lastSeenKey":null}');
+  assert.equal(r.ok, true);
+  assert.equal(r.state.version, 2);
+  const future = importState('{"version":5,"order":"chrono","seen":{},"lastSeenKey":null}');
+  assert.equal(future.ok, false);
+  assert.match(future.error, /plus récent/);
 });

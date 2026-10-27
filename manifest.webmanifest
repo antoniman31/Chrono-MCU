@@ -1,0 +1,16 @@
+{
+  "name": "Chrono-MCU",
+  "short_name": "Chrono-MCU",
+  "description": "Suivi de visionnage du MCU : films et séries Disney+, ordre chronologique ou de sortie.",
+  "lang": "fr",
+  "start_url": "./#voir",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121316",
+  "theme_color": "#121316",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
