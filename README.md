@@ -4,12 +4,13 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 
 ## Fonctions
 
-- Cocher films et épisodes ; cocher une série coche tous ses épisodes.
+- Cocher films et épisodes ; cocher une série coche tous ses épisodes ; cocher une phase coche tous ses titres (case dans la barre de progression et en-tête de groupe dans la liste, option « Grouper par phase »).
 - Deux ordres : chronologique (ordre Disney+) ou date de sortie. Changer d'ordre ne touche pas à la progression.
 - Progression globale et par phase, filtres par phase et type.
 - « Prochain à voir » et « Je reprends » (suite de ta dernière coche).
 - Notes (1 à 5 étoiles + commentaire) par titre.
 - Statistiques : heures vues et restantes, rythme, date de fin estimée (disponible après 2 jours d'usage).
+- Indicateur de scènes mi-générique / post-générique par film (sans description, donc sans spoiler).
 - Export / import JSON de la progression (sauvegarde, changement d'appareil).
 
 ## Lancer en local
@@ -22,15 +23,22 @@ npm run validate              # vérifie data/mcu.json
 
 ## Corriger ou compléter les données
 
-Tout le catalogue est dans `data/mcu.json`. Chaque entrée a un champ `verified` : `false` signifie que je n'ai pas pu garantir la donnée (ordre chronologique après Endgame, titres et durées d'épisodes, séries récentes). Un badge « à vérifier » s'affiche dans l'app.
+Tout le catalogue est dans `data/mcu.json` (phases 1 à 6, jusqu'à Avengers : Secret Wars). Chaque entrée a un champ `verified` : `true` quand dates, titres et durées sont recoupés avec des sources (TheTVDB, Apple TV, presse), `false` quand une partie reste estimée (durées d'épisodes approximatives, titres d'épisodes génériques « Épisode n », séries en cours). Un badge « à vérifier » s'affiche dans l'app.
+
+L'ordre chronologique suit l'ordre Disney+ tel que je l'ai reconstitué : fiable jusqu'à Endgame, une approximation ensuite (les sources divergent, notamment sur la place de Loki). Corrige `chronoOrder` si ton Disney+ diffère.
+
+Les durées d'épisodes varient de quelques minutes selon les sources (avec ou sans générique) : elles sont indicatives. Encore à vérifier : WandaVision, Falcon, Loki 2, What If 2 et 3, Daredevil 1 et 2, Wonder Man, VisionQuest (durées issues de fuites ou estimées, titres génériques pour Daredevil 2).
+
+Les titres pas encore sortis portent `"upcoming": true` (sans `runtimeMin` ni `episodes`). Ils s'affichent « à venir » et ne comptent pas dans la progression. À leur sortie : retirer `upcoming`, ajouter durée ou épisodes.
 
 Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm run validate`. Règles :
 
 - `id` unique et stable (la progression est stockée avec cet id : le changer perd les coches) ;
 - `chronoOrder` unique par titre ;
+- `postCredits` (films) : tableau de `"mid"` / `"end"` ; `[]` = aucune scène ; champ absent = inconnu (aucun badge) ;
 - film : `runtimeMin` obligatoire ; série : `episodes` (`n` de 1 à N, `title`, `runtimeMin`).
 
-Les sorties postérieures à ma dernière connaissance ne sont pas toutes listées : à ajouter à la main.
+Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à la main.
 
 ## Déploiement
 

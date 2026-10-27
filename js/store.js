@@ -80,6 +80,7 @@ export function toggleUnit(state, key, today) {
 }
 
 export function setTitleSeen(state, title, value, today) {
+  if (title.upcoming) return state;
   if (title.type === 'film') {
     if (Boolean(state.seen[title.id]) === value) return state;
     return toggleUnit(state, title.id, today);
@@ -96,8 +97,15 @@ export function setTitleSeen(state, title, value, today) {
 }
 
 export function isTitleSeen(state, title) {
+  if (title.upcoming) return false;
   if (title.type === 'film') return Boolean(state.seen[title.id]);
   return title.episodes.every((e) => state.seen[`${title.id}/${e.n}`]);
+}
+
+export function setPhaseSeen(state, titles, phase, value, today) {
+  return titles
+    .filter((t) => t.phase === phase)
+    .reduce((acc, t) => setTitleSeen(acc, t, value, today), state);
 }
 
 export function exportState(state) {

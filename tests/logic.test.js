@@ -133,3 +133,13 @@ test('stats: tout vu = fin estimée aujourd\'hui', () => {
   assert.equal(r.remainingMin, 0);
   assert.equal(r.etaDate, '2026-01-11');
 });
+
+test('titres à venir: ignorés des unités, de la progression et du prochain à voir', () => {
+  const soon = { id: 'soon', title: 'soon', type: 'film', phase: 6, saga: 'multiverse',
+    releaseDate: '2099-01-01', chronoOrder: 0, upcoming: true, verified: false };
+  assert.deepEqual(toUnits([soon]), []);
+  assert.equal(progress([a, soon], {}).total, 1);
+  assert.equal(nextToWatch([soon, a], {}, 'chrono').key, 'a');
+  assert.equal(nextToWatch([soon], {}, 'chrono'), null);
+  assert.equal(filterTitles([a, soon], { phase: 6 }).length, 1);
+});

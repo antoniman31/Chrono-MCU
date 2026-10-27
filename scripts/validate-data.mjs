@@ -33,7 +33,17 @@ export function validate(data) {
     else if (orders.has(t.chronoOrder)) errors.push(`${at}: chronoOrder en double`);
     else orders.add(t.chronoOrder);
 
-    if (t.type === 'film') {
+    if ('upcoming' in t && t.upcoming !== true) errors.push(`${at}: upcoming doit valoir true ou être absent`);
+
+    if ('postCredits' in t) {
+      const pcs = t.postCredits;
+      const ok = t.type === 'film' && Array.isArray(pcs) && new Set(pcs).size === pcs.length && pcs.every((x) => ['mid', 'end'].includes(x));
+      if (!ok) errors.push(`${at}: postCredits réservé aux films, tableau sans doublon de "mid" / "end"`);
+    }
+
+    if (t.upcoming === true) {
+      if ('runtimeMin' in t || 'episodes' in t) errors.push(`${at}: un titre à venir n'a ni runtimeMin ni episodes`);
+    } else if (t.type === 'film') {
       if (!isPosInt(t.runtimeMin)) errors.push(`${at}: runtimeMin requis pour un film`);
       if ('episodes' in t) errors.push(`${at}: un film n'a pas d'episodes`);
     } else if (t.type === 'serie') {
@@ -68,5 +78,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const unverified = data.filter((t) => !t.verified).length;
-  console.log(`OK: ${data.length} titres (${unverified} non vérifiés)`);
+  const upcoming = data.filter((t) => t.upcoming).length;
+  console.log(`OK: ${data.length} titres (${unverified} non vérifiés, ${upcoming} à venir)`);
 }

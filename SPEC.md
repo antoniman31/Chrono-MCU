@@ -86,6 +86,12 @@ Tests unitaires `node --test` sur `logic.js` (tri, filtres, progression, prochai
 ## Décisions validées
 Ordre chronologique : Disney+ officiel. Séries : suivi par épisode. Périmètre de sorties : tout ce qui est sorti à ce jour.
 
+## Évolutions (v2)
+- Périmètre étendu jusqu'à la fin de la phase 6 (Avengers : Secret Wars). Champ `upcoming: true` pour les titres non sortis : sans durée ni épisodes, exclus des unités, de la progression, des stats et du « prochain à voir », affichés « à venir ».
+- Cocher une phase : coche/décoche tous les titres sortis de la phase (en conservant les dates déjà enregistrées). Case dans la barre de progression par phase et en-tête de groupe dans la liste ; regroupement par phase activable (préférence stockée à part, clé `chrono-mcu:view`).
+
+- Scènes post-générique : champ optionnel `postCredits` sur les films (`mid`/`end`, `[]` = aucune, absent = inconnu), affiché en badges. Renseigné seulement quand c'est sûr.
+
 ## Livraison des données
 Les données arrivent par paliers : d'abord films + séries de la saga Infinity et séries bien connues, puis le reste. Le code gère déjà le catalogue complet ; seule `mcu.json` avance. Toute entrée incertaine est `verified: false` et sera relue par Antoni avant d'être considérée comme fiable.
 

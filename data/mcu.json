@@ -8,6 +8,9 @@
     "releaseDate": "2011-07-22",
     "chronoOrder": 1,
     "runtimeMin": 124,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -19,6 +22,10 @@
     "releaseDate": "2019-03-08",
     "chronoOrder": 2,
     "runtimeMin": 124,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -30,6 +37,9 @@
     "releaseDate": "2008-05-02",
     "chronoOrder": 3,
     "runtimeMin": 126,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -41,6 +51,9 @@
     "releaseDate": "2010-05-07",
     "chronoOrder": 4,
     "runtimeMin": 124,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -52,6 +65,9 @@
     "releaseDate": "2008-06-13",
     "chronoOrder": 5,
     "runtimeMin": 112,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -63,6 +79,10 @@
     "releaseDate": "2011-05-06",
     "chronoOrder": 6,
     "runtimeMin": 115,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -74,6 +94,10 @@
     "releaseDate": "2012-05-04",
     "chronoOrder": 7,
     "runtimeMin": 143,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -85,6 +109,10 @@
     "releaseDate": "2013-11-08",
     "chronoOrder": 8,
     "runtimeMin": 112,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -96,6 +124,9 @@
     "releaseDate": "2013-05-03",
     "chronoOrder": 9,
     "runtimeMin": 130,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -107,6 +138,10 @@
     "releaseDate": "2014-04-04",
     "chronoOrder": 10,
     "runtimeMin": 136,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -140,6 +175,9 @@
     "releaseDate": "2015-05-01",
     "chronoOrder": 13,
     "runtimeMin": 141,
+    "postCredits": [
+      "mid"
+    ],
     "verified": true
   },
   {
@@ -151,6 +189,10 @@
     "releaseDate": "2015-07-17",
     "chronoOrder": 14,
     "runtimeMin": 117,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -162,6 +204,10 @@
     "releaseDate": "2016-05-06",
     "chronoOrder": 15,
     "runtimeMin": 147,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -173,6 +219,9 @@
     "releaseDate": "2021-07-09",
     "chronoOrder": 16,
     "runtimeMin": 134,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -184,6 +233,10 @@
     "releaseDate": "2018-02-16",
     "chronoOrder": 17,
     "runtimeMin": 134,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -195,6 +248,10 @@
     "releaseDate": "2017-07-07",
     "chronoOrder": 18,
     "runtimeMin": 133,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -206,6 +263,10 @@
     "releaseDate": "2016-11-04",
     "chronoOrder": 19,
     "runtimeMin": 115,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -217,6 +278,10 @@
     "releaseDate": "2017-11-03",
     "chronoOrder": 20,
     "runtimeMin": 130,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -228,6 +293,10 @@
     "releaseDate": "2018-07-06",
     "chronoOrder": 21,
     "runtimeMin": 118,
+    "postCredits": [
+      "mid",
+      "end"
+    ],
     "verified": true
   },
   {
@@ -239,6 +308,9 @@
     "releaseDate": "2018-04-27",
     "chronoOrder": 22,
     "runtimeMin": 149,
+    "postCredits": [
+      "end"
+    ],
     "verified": true
   },
   {
@@ -250,104 +322,63 @@
     "releaseDate": "2019-04-26",
     "chronoOrder": 23,
     "runtimeMin": 181,
+    "postCredits": [],
     "verified": true
   },
   {
-    "id": "loki-saison-1",
-    "title": "Loki (saison 1)",
+    "id": "wandavision",
+    "title": "WandaVision",
     "type": "serie",
     "phase": 4,
     "saga": "multiverse",
-    "releaseDate": "2021-06-09",
+    "releaseDate": "2021-01-15",
     "chronoOrder": 24,
     "verified": false,
     "episodes": [
       {
         "n": 1,
-        "title": "Glorious Purpose",
-        "runtimeMin": 52
+        "title": "Filmed Before a Live Studio Audience",
+        "runtimeMin": 30
       },
       {
         "n": 2,
-        "title": "The Variant",
-        "runtimeMin": 50
+        "title": "Don't Touch That Dial",
+        "runtimeMin": 37
       },
       {
         "n": 3,
-        "title": "Lamentis",
-        "runtimeMin": 49
-      },
-      {
-        "n": 4,
-        "title": "The Nexus Event",
-        "runtimeMin": 49
-      },
-      {
-        "n": 5,
-        "title": "Journey into Mystery",
-        "runtimeMin": 48
-      },
-      {
-        "n": 6,
-        "title": "For All Time. Always.",
-        "runtimeMin": 50
-      }
-    ]
-  },
-  {
-    "id": "what-if-saison-1",
-    "title": "What If...? (saison 1)",
-    "type": "serie",
-    "phase": 4,
-    "saga": "multiverse",
-    "releaseDate": "2021-08-11",
-    "chronoOrder": 25,
-    "verified": false,
-    "episodes": [
-      {
-        "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 33
-      },
-      {
-        "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 33
-      },
-      {
-        "n": 3,
-        "title": "Épisode 3",
+        "title": "Now in Color",
         "runtimeMin": 33
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 33
+        "title": "We Interrupt This Program",
+        "runtimeMin": 35
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 33
+        "title": "On a Very Special Episode...",
+        "runtimeMin": 42
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 33
+        "title": "All-New Halloween Spooktacular!",
+        "runtimeMin": 38
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 33
+        "title": "Breaking the Fourth Wall",
+        "runtimeMin": 38
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 33
+        "title": "Previously On",
+        "runtimeMin": 47
       },
       {
         "n": 9,
-        "title": "Épisode 9",
-        "runtimeMin": 33
+        "title": "The Series Finale",
+        "runtimeMin": 50
       }
     ]
   },
@@ -358,7 +389,7 @@
     "phase": 4,
     "saga": "multiverse",
     "releaseDate": "2021-03-19",
-    "chronoOrder": 26,
+    "chronoOrder": 25,
     "verified": false,
     "episodes": [
       {
@@ -369,84 +400,126 @@
       {
         "n": 2,
         "title": "The Star-Spangled Man",
-        "runtimeMin": 47
+        "runtimeMin": 51
       },
       {
         "n": 3,
         "title": "Power Broker",
-        "runtimeMin": 49
+        "runtimeMin": 54
       },
       {
         "n": 4,
         "title": "The Whole World Is Watching",
-        "runtimeMin": 49
+        "runtimeMin": 53
       },
       {
         "n": 5,
         "title": "Truth",
-        "runtimeMin": 53
+        "runtimeMin": 57
       },
       {
         "n": 6,
         "title": "One World, One People",
-        "runtimeMin": 67
+        "runtimeMin": 49
       }
     ]
   },
   {
-    "id": "wandavision",
-    "title": "WandaVision",
+    "id": "loki-saison-1",
+    "title": "Loki (saison 1)",
     "type": "serie",
     "phase": 4,
     "saga": "multiverse",
-    "releaseDate": "2021-01-15",
-    "chronoOrder": 27,
-    "verified": false,
+    "releaseDate": "2021-06-09",
+    "chronoOrder": 26,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Filmed Before a Live Studio Audience",
-        "runtimeMin": 29
+        "title": "Glorious Purpose",
+        "runtimeMin": 52
       },
       {
         "n": 2,
-        "title": "Don't Touch That Dial",
-        "runtimeMin": 27
+        "title": "The Variant",
+        "runtimeMin": 55
       },
       {
         "n": 3,
-        "title": "Now in Color",
-        "runtimeMin": 33
+        "title": "Lamentis",
+        "runtimeMin": 44
       },
       {
         "n": 4,
-        "title": "We Interrupt This Program",
-        "runtimeMin": 41
+        "title": "The Nexus Event",
+        "runtimeMin": 50
       },
       {
         "n": 5,
-        "title": "On a Very Special Episode...",
-        "runtimeMin": 34
+        "title": "Journey into Mystery",
+        "runtimeMin": 50
       },
       {
         "n": 6,
-        "title": "All-New Halloween Spooktacular!",
-        "runtimeMin": 28
+        "title": "For All Time. Always.",
+        "runtimeMin": 46
+      }
+    ]
+  },
+  {
+    "id": "what-if-saison-1",
+    "title": "What If...? (saison 1)",
+    "type": "serie",
+    "phase": 4,
+    "saga": "multiverse",
+    "releaseDate": "2021-08-11",
+    "chronoOrder": 27,
+    "verified": true,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "What If... Captain Carter Were the First Avenger?",
+        "runtimeMin": 36
       },
       {
-        "n": 7,
-        "title": "Breaking the Fourth Wall",
+        "n": 2,
+        "title": "What If... T'Challa Became a Star-Lord?",
+        "runtimeMin": 38
+      },
+      {
+        "n": 3,
+        "title": "What If... the World Lost Its Mightiest Heroes?",
         "runtimeMin": 35
       },
       {
+        "n": 4,
+        "title": "What If... Doctor Strange Lost His Heart Instead of His Hands?",
+        "runtimeMin": 38
+      },
+      {
+        "n": 5,
+        "title": "What If... Zombies?!",
+        "runtimeMin": 35
+      },
+      {
+        "n": 6,
+        "title": "What If... Killmonger Rescued Tony Stark?",
+        "runtimeMin": 36
+      },
+      {
+        "n": 7,
+        "title": "What If... Thor Were an Only Child?",
+        "runtimeMin": 33
+      },
+      {
         "n": 8,
-        "title": "Previously On",
-        "runtimeMin": 41
+        "title": "What If... Ultron Won?",
+        "runtimeMin": 30
       },
       {
         "n": 9,
-        "title": "The Series Finale",
-        "runtimeMin": 48
+        "title": "What If... the Watcher Broke His Oath?",
+        "runtimeMin": 33
       }
     ]
   },
@@ -459,7 +532,11 @@
     "releaseDate": "2019-07-02",
     "chronoOrder": 28,
     "runtimeMin": 129,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "shang-chi-et-la-legende-des-dix-anneaux",
@@ -470,7 +547,11 @@
     "releaseDate": "2021-09-03",
     "chronoOrder": 29,
     "runtimeMin": 132,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "les-eternels",
@@ -481,7 +562,11 @@
     "releaseDate": "2021-11-05",
     "chronoOrder": 30,
     "runtimeMin": 156,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "spider-man-no-way-home",
@@ -492,7 +577,11 @@
     "releaseDate": "2021-12-17",
     "chronoOrder": 31,
     "runtimeMin": 148,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "hawkeye",
@@ -502,37 +591,37 @@
     "saga": "multiverse",
     "releaseDate": "2021-11-24",
     "chronoOrder": 32,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
         "title": "Never Meet Your Heroes",
-        "runtimeMin": 48
+        "runtimeMin": 47
       },
       {
         "n": 2,
         "title": "Hide and Seek",
-        "runtimeMin": 48
+        "runtimeMin": 49
       },
       {
         "n": 3,
         "title": "Echoes",
-        "runtimeMin": 47
+        "runtimeMin": 42
       },
       {
         "n": 4,
         "title": "Partners, Am I Right?",
-        "runtimeMin": 47
+        "runtimeMin": 39
       },
       {
         "n": 5,
         "title": "Ronin",
-        "runtimeMin": 48
+        "runtimeMin": 43
       },
       {
         "n": 6,
         "title": "So This Is Christmas?",
-        "runtimeMin": 66
+        "runtimeMin": 59
       }
     ]
   },
@@ -544,32 +633,32 @@
     "saga": "multiverse",
     "releaseDate": "2022-03-30",
     "chronoOrder": 33,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
         "title": "The Goldfish Problem",
-        "runtimeMin": 46
+        "runtimeMin": 48
       },
       {
         "n": 2,
         "title": "Summon the Suit",
-        "runtimeMin": 46
+        "runtimeMin": 53
       },
       {
         "n": 3,
         "title": "The Friendly Type",
-        "runtimeMin": 45
+        "runtimeMin": 53
       },
       {
         "n": 4,
         "title": "The Tomb",
-        "runtimeMin": 46
+        "runtimeMin": 53
       },
       {
         "n": 5,
         "title": "Asylum",
-        "runtimeMin": 45
+        "runtimeMin": 50
       },
       {
         "n": 6,
@@ -586,17 +675,17 @@
     "saga": "multiverse",
     "releaseDate": "2022-06-08",
     "chronoOrder": 34,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
         "title": "Generation Why",
-        "runtimeMin": 48
+        "runtimeMin": 47
       },
       {
         "n": 2,
         "title": "Crushed",
-        "runtimeMin": 40
+        "runtimeMin": 49
       },
       {
         "n": 3,
@@ -606,17 +695,17 @@
       {
         "n": 4,
         "title": "Seeing Red",
-        "runtimeMin": 42
+        "runtimeMin": 45
       },
       {
         "n": 5,
         "title": "Time and Again",
-        "runtimeMin": 41
+        "runtimeMin": 38
       },
       {
         "n": 6,
         "title": "No Normal",
-        "runtimeMin": 45
+        "runtimeMin": 47
       }
     ]
   },
@@ -629,7 +718,11 @@
     "releaseDate": "2022-05-06",
     "chronoOrder": 35,
     "runtimeMin": 126,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "thor-love-and-thunder",
@@ -640,7 +733,11 @@
     "releaseDate": "2022-07-08",
     "chronoOrder": 36,
     "runtimeMin": 119,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "werewolf-by-night",
@@ -651,7 +748,8 @@
     "releaseDate": "2022-10-07",
     "chronoOrder": 37,
     "runtimeMin": 53,
-    "verified": false
+    "postCredits": [],
+    "verified": true
   },
   {
     "id": "black-panther-wakanda-forever",
@@ -662,7 +760,10 @@
     "releaseDate": "2022-11-11",
     "chronoOrder": 38,
     "runtimeMin": 161,
-    "verified": false
+    "postCredits": [
+      "mid"
+    ],
+    "verified": true
   },
   {
     "id": "special-les-gardiens-de-la-galaxie-joyeuses-fetes",
@@ -673,7 +774,7 @@
     "releaseDate": "2022-11-25",
     "chronoOrder": 39,
     "runtimeMin": 44,
-    "verified": false
+    "verified": true
   },
   {
     "id": "she-hulk-avocate",
@@ -683,52 +784,52 @@
     "saga": "multiverse",
     "releaseDate": "2022-08-18",
     "chronoOrder": 40,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 30
+        "title": "A Normal Amount of Rage",
+        "runtimeMin": 35
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 30
+        "title": "Superhuman Law",
+        "runtimeMin": 28
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 30
+        "title": "The People vs. Emil Blonsky",
+        "runtimeMin": 35
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 30
+        "title": "Is This Not Real Magic?",
+        "runtimeMin": 36
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 30
+        "title": "Mean, Green, and Straight Poured into These Jeans",
+        "runtimeMin": 29
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 30
+        "title": "Just Jen",
+        "runtimeMin": 31
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 30
+        "title": "The Retreat",
+        "runtimeMin": 35
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 30
+        "title": "Ribbit and Rip It",
+        "runtimeMin": 34
       },
       {
         "n": 9,
-        "title": "Épisode 9",
-        "runtimeMin": 30
+        "title": "Whose Show Is This?",
+        "runtimeMin": 32
       }
     ]
   },
@@ -741,7 +842,11 @@
     "releaseDate": "2023-02-17",
     "chronoOrder": 41,
     "runtimeMin": 125,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "les-gardiens-de-la-galaxie-vol-3",
@@ -752,7 +857,11 @@
     "releaseDate": "2023-05-05",
     "chronoOrder": 42,
     "runtimeMin": 150,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "secret-invasion",
@@ -762,37 +871,37 @@
     "saga": "multiverse",
     "releaseDate": "2023-06-21",
     "chronoOrder": 43,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 45
+        "title": "Resurrection",
+        "runtimeMin": 53
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 45
+        "title": "Promises",
+        "runtimeMin": 56
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 45
+        "title": "Betrayed",
+        "runtimeMin": 42
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 45
+        "title": "Beloved",
+        "runtimeMin": 36
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 45
+        "title": "Harvest",
+        "runtimeMin": 37
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 45
+        "title": "Home",
+        "runtimeMin": 36
       }
     ]
   },
@@ -809,32 +918,32 @@
       {
         "n": 1,
         "title": "Ouroboros",
-        "runtimeMin": 51
+        "runtimeMin": 48
       },
       {
         "n": 2,
         "title": "Breaking Brad",
-        "runtimeMin": 47
+        "runtimeMin": 52
       },
       {
         "n": 3,
         "title": "1893",
-        "runtimeMin": 47
+        "runtimeMin": 56
       },
       {
         "n": 4,
         "title": "Heart of the TVA",
-        "runtimeMin": 47
+        "runtimeMin": 51
       },
       {
         "n": 5,
         "title": "Science/Fiction",
-        "runtimeMin": 53
+        "runtimeMin": 47
       },
       {
         "n": 6,
         "title": "Glorious Purpose",
-        "runtimeMin": 54
+        "runtimeMin": 59
       }
     ]
   },
@@ -847,7 +956,7 @@
     "releaseDate": "2023-11-10",
     "chronoOrder": 45,
     "runtimeMin": 105,
-    "verified": false
+    "verified": true
   },
   {
     "id": "echo",
@@ -857,32 +966,32 @@
     "saga": "multiverse",
     "releaseDate": "2024-01-09",
     "chronoOrder": 46,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 42
+        "title": "Chafa",
+        "runtimeMin": 49
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 42
+        "title": "Lowak",
+        "runtimeMin": 39
       },
       {
         "n": 3,
-        "title": "Épisode 3",
+        "title": "Tuklo",
         "runtimeMin": 42
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 42
+        "title": "Taloa",
+        "runtimeMin": 37
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 42
+        "title": "Maya",
+        "runtimeMin": 34
       }
     ]
   },
@@ -898,48 +1007,48 @@
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 33
+        "title": "What If... Nebula Joined the Nova Corps?",
+        "runtimeMin": 29
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 33
+        "title": "What If... Peter Quill Attacked Earth's Mightiest Heroes?",
+        "runtimeMin": 30
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 33
+        "title": "What If... Happy Hogan Saved Christmas?",
+        "runtimeMin": 30
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 33
+        "title": "What If... Iron Man Crashed into the Grandmaster?",
+        "runtimeMin": 30
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 33
+        "title": "What If... Captain Carter Fought the Hydra Stomper?",
+        "runtimeMin": 30
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 33
+        "title": "What If... Kahhori Reshaped the World?",
+        "runtimeMin": 30
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 33
+        "title": "What If... Hela Found the Ten Rings?",
+        "runtimeMin": 30
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 33
+        "title": "What If... the Avengers Assembled in 1602?",
+        "runtimeMin": 30
       },
       {
         "n": 9,
-        "title": "Épisode 9",
-        "runtimeMin": 33
+        "title": "What If... Strange Supreme Intervened?",
+        "runtimeMin": 30
       }
     ]
   },
@@ -949,49 +1058,49 @@
     "type": "serie",
     "phase": 5,
     "saga": "multiverse",
-    "releaseDate": "2024-12-27",
+    "releaseDate": "2024-12-22",
     "chronoOrder": 48,
     "verified": false,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 33
+        "title": "What If... The Hulk Fought the Mech Avengers?",
+        "runtimeMin": 30
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 33
+        "title": "What If... Agatha Went to Hollywood?",
+        "runtimeMin": 30
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 33
+        "title": "What If... The Red Guardian Stopped the Winter Soldier?",
+        "runtimeMin": 30
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 33
+        "title": "What If... Howard the Duck Got Hitched?",
+        "runtimeMin": 30
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 33
+        "title": "What If... The Emergence Destroyed the Earth?",
+        "runtimeMin": 30
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 33
+        "title": "What If... 1872?",
+        "runtimeMin": 31
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 33
+        "title": "What If... The Watcher Disappeared?",
+        "runtimeMin": 30
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 33
+        "title": "What If?",
+        "runtimeMin": 30
       }
     ]
   },
@@ -1004,7 +1113,7 @@
     "releaseDate": "2024-07-26",
     "chronoOrder": 49,
     "runtimeMin": 128,
-    "verified": false
+    "verified": true
   },
   {
     "id": "agatha-all-along",
@@ -1014,52 +1123,52 @@
     "saga": "multiverse",
     "releaseDate": "2024-09-18",
     "chronoOrder": 50,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
+        "title": "Seekest Thou the Road",
         "runtimeMin": 40
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 40
+        "title": "Circle Sewn with Fate / Unlock Thy Hidden Gate",
+        "runtimeMin": 41
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 40
+        "title": "Through Many Miles / Of Tricks and Trials",
+        "runtimeMin": 37
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 40
+        "title": "If I Can't Reach You / Let My Song Teach You",
+        "runtimeMin": 41
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 40
+        "title": "Darkest Hour / Wake Thy Power",
+        "runtimeMin": 30
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 40
+        "title": "Familiar by Thy Side",
+        "runtimeMin": 47
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 40
+        "title": "Death's Hand in Mine",
+        "runtimeMin": 35
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 40
+        "title": "Follow Me, My Friend / To Glory at the End",
+        "runtimeMin": 47
       },
       {
         "n": 9,
-        "title": "Épisode 9",
-        "runtimeMin": 40
+        "title": "Maiden / Mother / Crone",
+        "runtimeMin": 39
       }
     ]
   },
@@ -1071,27 +1180,27 @@
     "saga": "multiverse",
     "releaseDate": "2025-08-01",
     "chronoOrder": 51,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 25
+        "title": "Into the Lion's Den",
+        "runtimeMin": 30
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 25
+        "title": "Legends and Lies",
+        "runtimeMin": 29
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 25
+        "title": "Lost and Found",
+        "runtimeMin": 28
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 25
+        "title": "The Last Panther",
+        "runtimeMin": 27
       }
     ]
   },
@@ -1107,47 +1216,47 @@
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 50
+        "title": "Heaven's Half Hour",
+        "runtimeMin": 59
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 50
+        "title": "Optics",
+        "runtimeMin": 47
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 50
+        "title": "The Hollow of His Hand",
+        "runtimeMin": 44
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 50
+        "title": "Sic Semper Systema",
+        "runtimeMin": 52
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 50
+        "title": "With Interest",
+        "runtimeMin": 40
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 50
+        "title": "Excessive Force",
+        "runtimeMin": 42
       },
       {
         "n": 7,
-        "title": "Épisode 7",
-        "runtimeMin": 50
+        "title": "Art for Art's Sake",
+        "runtimeMin": 40
       },
       {
         "n": 8,
-        "title": "Épisode 8",
-        "runtimeMin": 50
+        "title": "Isle of Joy",
+        "runtimeMin": 49
       },
       {
         "n": 9,
-        "title": "Épisode 9",
+        "title": "Straight to Hell",
         "runtimeMin": 50
       }
     ]
@@ -1161,7 +1270,7 @@
     "releaseDate": "2025-02-14",
     "chronoOrder": 53,
     "runtimeMin": 118,
-    "verified": false
+    "verified": true
   },
   {
     "id": "thunderbolts",
@@ -1172,7 +1281,7 @@
     "releaseDate": "2025-05-02",
     "chronoOrder": 54,
     "runtimeMin": 127,
-    "verified": false
+    "verified": true
   },
   {
     "id": "ironheart",
@@ -1182,37 +1291,37 @@
     "saga": "multiverse",
     "releaseDate": "2025-06-24",
     "chronoOrder": 55,
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
-        "title": "Épisode 1",
-        "runtimeMin": 45
+        "title": "Take Me Home",
+        "runtimeMin": 41
       },
       {
         "n": 2,
-        "title": "Épisode 2",
-        "runtimeMin": 45
+        "title": "Will the Real Natalie Please Stand Up?",
+        "runtimeMin": 48
       },
       {
         "n": 3,
-        "title": "Épisode 3",
-        "runtimeMin": 45
+        "title": "We in Danger, Girl",
+        "runtimeMin": 53
       },
       {
         "n": 4,
-        "title": "Épisode 4",
-        "runtimeMin": 45
+        "title": "Bad Magic",
+        "runtimeMin": 50
       },
       {
         "n": 5,
-        "title": "Épisode 5",
-        "runtimeMin": 45
+        "title": "Karma's a Glitch",
+        "runtimeMin": 57
       },
       {
         "n": 6,
-        "title": "Épisode 6",
-        "runtimeMin": 45
+        "title": "The Past Is the Past",
+        "runtimeMin": 40
       }
     ]
   },
@@ -1225,7 +1334,11 @@
     "releaseDate": "2025-07-25",
     "chronoOrder": 56,
     "runtimeMin": 115,
-    "verified": false
+    "postCredits": [
+      "mid",
+      "end"
+    ],
+    "verified": true
   },
   {
     "id": "marvel-zombies",
@@ -1235,28 +1348,217 @@
     "saga": "multiverse",
     "releaseDate": "2025-09-24",
     "chronoOrder": 57,
+    "verified": true,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Épisode 1",
+        "runtimeMin": 35
+      },
+      {
+        "n": 2,
+        "title": "Épisode 2",
+        "runtimeMin": 31
+      },
+      {
+        "n": 3,
+        "title": "Épisode 3",
+        "runtimeMin": 30
+      },
+      {
+        "n": 4,
+        "title": "Épisode 4",
+        "runtimeMin": 29
+      }
+    ]
+  },
+  {
+    "id": "wonder-man",
+    "title": "Wonder Man",
+    "type": "serie",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2026-01-27",
+    "chronoOrder": 58,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "Matinee",
+        "runtimeMin": 30
+      },
+      {
+        "n": 2,
+        "title": "Self-Tape",
+        "runtimeMin": 30
+      },
+      {
+        "n": 3,
+        "title": "Pacoima",
+        "runtimeMin": 30
+      },
+      {
+        "n": 4,
+        "title": "Doorman",
+        "runtimeMin": 30
+      },
+      {
+        "n": 5,
+        "title": "Found Footage",
+        "runtimeMin": 24
+      },
+      {
+        "n": 6,
+        "title": "Callback",
+        "runtimeMin": 33
+      },
+      {
+        "n": 7,
+        "title": "Kathy Friedman",
+        "runtimeMin": 34
+      },
+      {
+        "n": 8,
+        "title": "Yucca Valley",
+        "runtimeMin": 30
+      }
+    ]
+  },
+  {
+    "id": "daredevil-born-again-saison-2",
+    "title": "Daredevil : Born Again (saison 2)",
+    "type": "serie",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2026-03-24",
+    "chronoOrder": 59,
     "verified": false,
     "episodes": [
       {
         "n": 1,
         "title": "Épisode 1",
-        "runtimeMin": 25
+        "runtimeMin": 51
       },
       {
         "n": 2,
         "title": "Épisode 2",
-        "runtimeMin": 25
+        "runtimeMin": 46
       },
       {
         "n": 3,
         "title": "Épisode 3",
-        "runtimeMin": 25
+        "runtimeMin": 47
       },
       {
         "n": 4,
         "title": "Épisode 4",
-        "runtimeMin": 25
+        "runtimeMin": 51
+      },
+      {
+        "n": 5,
+        "title": "Épisode 5",
+        "runtimeMin": 50
+      },
+      {
+        "n": 6,
+        "title": "Épisode 6",
+        "runtimeMin": 49
+      },
+      {
+        "n": 7,
+        "title": "Épisode 7",
+        "runtimeMin": 44
+      },
+      {
+        "n": 8,
+        "title": "Épisode 8",
+        "runtimeMin": 51
       }
     ]
+  },
+  {
+    "id": "spider-man-brand-new-day",
+    "title": "Spider-Man : Brand New Day",
+    "type": "film",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2026-07-31",
+    "chronoOrder": 60,
+    "runtimeMin": 150,
+    "verified": true
+  },
+  {
+    "id": "visionquest",
+    "title": "VisionQuest",
+    "type": "serie",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2026-10-13",
+    "chronoOrder": 61,
+    "verified": false,
+    "episodes": [
+      {
+        "n": 1,
+        "title": "No Strings",
+        "runtimeMin": 53
+      },
+      {
+        "n": 2,
+        "title": "Theseus",
+        "runtimeMin": 45
+      },
+      {
+        "n": 3,
+        "title": "Reboot",
+        "runtimeMin": 52
+      },
+      {
+        "n": 4,
+        "title": "Malware",
+        "runtimeMin": 48
+      },
+      {
+        "n": 5,
+        "title": "Firewall",
+        "runtimeMin": 46
+      },
+      {
+        "n": 6,
+        "title": "Deadlock",
+        "runtimeMin": 54
+      },
+      {
+        "n": 7,
+        "title": "Immolation",
+        "runtimeMin": 62
+      },
+      {
+        "n": 8,
+        "title": "Forever",
+        "runtimeMin": 68
+      }
+    ]
+  },
+  {
+    "id": "avengers-doomsday",
+    "title": "Avengers : Doomsday",
+    "type": "film",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2026-12-18",
+    "chronoOrder": 62,
+    "upcoming": true,
+    "verified": false
+  },
+  {
+    "id": "avengers-secret-wars",
+    "title": "Avengers : Secret Wars",
+    "type": "film",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2027-12-17",
+    "chronoOrder": 63,
+    "upcoming": true,
+    "verified": false
   }
 ]
