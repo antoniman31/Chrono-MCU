@@ -477,7 +477,8 @@ async function main() {
     ctx.allTitles = withVersions(ctx.rawTitles, ctx.state.versions);
     ctx.titles = ctx.allTitles;
   } catch (e) {
-    showMessage(`Impossible de charger le catalogue (${e.message}).`, true);
+    console.error('Catalogue indisponible :', e);
+    showMessage('Impossible de charger le catalogue. Vérifie ta connexion, puis recharge la page.', true);
     return;
   }
   ctx.byId = new Map(ctx.allTitles.map((t) => [t.id, t]));
