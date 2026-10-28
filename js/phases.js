@@ -1,5 +1,6 @@
 // Barre des phases : libellés et chiffres, calculés à partir du catalogue (fonctions pures).
 import { progress, toUnits } from './logic.js?v=__BUILD__';
+import { formatDuration } from './duration.js?v=__BUILD__';
 
 // Marvel ne nomme officiellement que les deux sagas ; les phases n'ont pas de nom propre.
 const SAGAS = { infinity: 'Infinity Saga', multiverse: 'Saga du Multivers' };
@@ -30,12 +31,11 @@ export function phaseSummary(allTitles, counted, seen, phase) {
   };
 }
 
-const hoursText = (min) => `${(min / 60).toFixed(1).replace('.', ',')} h`;
 
 // Deux lignes sous la barre : le titre (« Phase 4 · Saga du Multivers ») et les chiffres
 export function phaseInfo(s) {
   const title = s.phase === null ? 'Toutes les phases' : `Phase ${s.phase} · ${s.saga}`;
   const years = s.from === null ? null : s.from === s.to ? String(s.from) : `${s.from}–${s.to}`;
-  const details = [years, `${s.titles} titre${s.titles > 1 ? 's' : ''} suivi${s.titles > 1 ? 's' : ''}`, hoursText(s.minutes), `${s.percent} % vu`].filter(Boolean).join(' · ');
+  const details = [years, `${s.titles} titre${s.titles > 1 ? 's' : ''} suivi${s.titles > 1 ? 's' : ''}`, formatDuration(s.minutes), `${s.percent} % vu`].filter(Boolean).join(' · ');
   return { title, details };
 }

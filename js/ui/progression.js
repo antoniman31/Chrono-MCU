@@ -25,7 +25,6 @@ function goalCard(ctx, s) {
 const TABS = [['bilan', 'Bilan'], ['rythme', 'Rythme'], ['mcu', 'MCU'], ['succes', 'Succès']];
 let currentTab = 'bilan';
 
-const hm = (min) => `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
 const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`;
 const fact = (label, value) => h('div', { class: 'fact' }, h('dt', { text: label }), h('dd', { text: value }));
 const card = (id, title, ...children) => h('section', { class: 'card', 'aria-labelledby': id }, h('h3', { id, text: title }), children);
@@ -147,7 +146,7 @@ function mcu(ctx) {
   const { state, counted } = ctx;
   const r = records(counted, state.seen);
   const b = breakdown(counted, state.seen);
-  const line = (t) => (t ? `${t.title} · ${hm(t.min)}` : 'n/a');
+  const line = (t) => (t ? `${t.title} · ${hours(t.min)}` : 'n/a');
   const timeline = releaseTimeline(counted, state.seen);
   const formatLabel = { film: 'Films', serie: 'Séries', short: 'Courts formats' };
   const sagaLabel = { infinity: 'Infinity Saga', multiverse: 'Saga du Multivers' };

@@ -126,7 +126,7 @@ function renderResume(ctx) {
         h('span', { class: 'text' },
           h('span', { class: 'label', text: 'Prochain à voir' }),
           h('span', { class: 'name', text: label }),
-          h('span', { class: 'meta', text: `${unit.runtimeMin} min · phase ${t.phase}` }))),
+          h('span', { class: 'meta', text: `${hours(unit.runtimeMin)} · phase ${t.phase}` }))),
       iconBtn({ iconName: 'check', label: `Marquer comme vu : ${label}`, key: 'resume-check', cls: 'resume-check', onclick: () => ctx.toggleUnit(unit, label) }));
   } else {
     content = h('div', { class: 'resume-bar resume-done' }, h('span', { class: 'name', text: status === 'done' ? 'Tout est vu. Bravo.' : 'Tu es arrivé à la fin de la liste.' }));
@@ -159,7 +159,7 @@ function itemFor(ctx, t) {
     const pending = t.type === 'serie' ? total - t.episodes.length : 0;
     meta = t.type === 'serie'
       ? `Série · ${done}/${total} ép.${pending ? ` (${pending} à venir)` : ''} · ${hours(t.episodes.reduce((sum, e) => sum + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
-      : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
+      : `${formatShort(filmDate(t))} · ${hours(t.runtimeMin)}`;
   }
   const seenSpec = { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleTitle(t) };
   const ignoreSpec = { icon: ignored ? 'visibility' : 'block', label: ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer') : 'Ignorer', run: () => ctx.toggleIgnore(t) };
@@ -311,7 +311,7 @@ const FILTER_GROUPS = [
   ['status', 'Statut', [['all', 'Tous'], ['todo', 'À voir'], ['progress', 'En cours'], ['done', 'Terminés']]],
   ['ignored', 'Titres ignorés', [['show', 'Afficher'], ['hide', 'Masquer'], ['only', 'Seulement']]],
   ['post', 'Scène après le générique', [['any', 'Peu importe'], ['with', 'Avec'], ['without', 'Sans']]],
-  ['duration', 'Durée', [['any', 'Toutes'], ['short', '< 1 h 30'], ['mid', '1 h 30 à 2 h'], ['long', '> 2 h']]],
+  ['duration', 'Durée', [['any', 'Toutes'], ['short', '< 1 h 30 min'], ['mid', '1 h 30 min à 2 h'], ['long', '> 2 h']]],
 ];
 
 export function renderFiltersSheet(body, ctx) {

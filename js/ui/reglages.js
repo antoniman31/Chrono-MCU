@@ -2,6 +2,7 @@ import { $, formatShort, h, icon, today } from './dom.js?v=__BUILD__';
 import { daysAgoLabel, daysBetween } from '../backup.js?v=__BUILD__';
 import { CATEGORIES, matchesCategory } from '../categories.js?v=__BUILD__';
 import { stats } from '../logic.js?v=__BUILD__';
+import { formatDuration } from '../duration.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
 import { DEFAULT_GOAL, NUDGE_CHOICES } from '../prefs.js?v=__BUILD__';
 import { ACTIONS_URL, validToken } from '../github.js?v=__BUILD__';
@@ -43,7 +44,7 @@ function followSection(ctx) {
   };
 }
 
-const hoursText = (min) => `${(min / 60).toFixed(1).replace('.', ',')} h`;
+const hoursText = formatDuration;
 
 // Synchronisation du catalogue : lien vers GitHub, et vrai bouton si un jeton personnel est enregistré sur cet appareil
 function syncBlock(ctx) {
