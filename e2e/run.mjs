@@ -316,7 +316,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
   await page.click('[data-fk="open:wandavision"]');
   const ep = page.locator('li.item:has([data-fk="ep:wandavision/1"])');
   await page.waitForTimeout(400);
-  await ep.scrollIntoViewIfNeeded(); // la barre Précédent / Suivant pousse la liste d'épisodes vers le bas
+  await ep.evaluate((el) => el.scrollIntoView({ block: 'center' })); // le pied de fiche Précédent / Suivant ne doit pas masquer la ligne
   const epBox = await ep.boundingBox();
   const epY = epBox.y + epBox.height / 2;
   const epDrag = async (from, to) => {

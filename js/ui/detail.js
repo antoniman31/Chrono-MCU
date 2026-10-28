@@ -1,7 +1,7 @@
 import { isTitleSeen } from '../store.js?v=__BUILD__';
 import { categoryLabel, ignoreInfo } from '../categories.js?v=__BUILD__';
 import { formatShort, h, icon, hours, today } from './dom.js?v=__BUILD__';
-import { btn, checkbox, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
+import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 import { attachPageSwipe, attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { isReleased } from '../logic.js?v=__BUILD__';
 import { hasSpoilers, hideEpisodeTitle, hideSummary } from '../spoilers.js?v=__BUILD__';
@@ -98,20 +98,24 @@ function episodesSection(ctx, t, ignored) {
     h('ul', { class: 'items' }, rows));
 }
 
-// Barre « Précédent / Suivant » : titres voisins dans la liste affichée (absente si le titre n'y figure pas)
+// Pied de fiche « ‹ titre précédent · n / N · titre suivant › » : titres voisins dans la liste affichée (absent si le titre n'y figure pas)
 function detailNav(ctx, id) {
   const ids = ctx.navIds ?? [];
   const i = ids.indexOf(id);
   if (i === -1 || ids.length < 2) return null;
-  const arrow = (dir, label, key, cls) => {
-    const b = iconBtn({ iconName: 'chevron', label, key, cls, onclick: () => ctx.stepDetail(dir, key) });
-    b.disabled = i + dir < 0 || i + dir >= ids.length;
+  const step = (dir, word, key) => {
+    const target = ctx.byId.get(ids[i + dir]);
+    const name = h('span', { class: 'name', text: target?.title ?? '' });
+    const chevron = icon('chevron');
+    const b = h('button', { type: 'button', class: `nav-step ${dir < 0 ? 'prev' : 'next'}`, 'aria-label': target ? `${word} : ${target.title}` : word, 'data-fk': key, onclick: () => ctx.stepDetail(dir, key) },
+      ...(dir < 0 ? [chevron, name] : [name, chevron]));
+    b.disabled = !target;
     return b;
   };
   return h('nav', { class: 'detail-nav', 'aria-label': 'Fiches voisines' },
-    arrow(-1, 'Titre précédent', 'detail-prev', 'flip'),
+    step(-1, 'Titre précédent', 'detail-prev'),
     h('span', { class: 'count', role: 'status', 'aria-live': 'polite', text: `${i + 1} / ${ids.length}` }),
-    arrow(1, 'Titre suivant', 'detail-next', ''));
+    step(1, 'Titre suivant', 'detail-next'));
 }
 
 export function renderDetail(container, ctx, id, { showTitle = true, showPoster = showTitle } = {}) {
@@ -131,7 +135,7 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
         h('p', { class: 'meta', text: metaLine(t) }),
         h('div', { class: 'badges' }, titleBadges(t, ignored))));
   const nav = detailNav(ctx, id);
-  const children = [nav, head];
+  const children = [head];
   const blurred = hideSummary(ctx.view, ctx.state, t) && !revealed.has(t.id);
   const toggleSpoilers = () => {
     if (revealed.has(t.id)) revealed.delete(t.id);
@@ -168,6 +172,7 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
       key: `detail-ignore:${t.id}`, onclick: () => ctx.toggleIgnore(t),
     })));
   }
+  children.push(nav);
   container.replaceChildren(h('div', { class: 'detail' }, children));
   // Glisser sur l'en-tête (titre, résumé) ou l'image paysage change de fiche ; la liste d'épisodes garde son propre glissement
   if (nav) for (const el of [head, summary]) if (el) attachPageSwipe(el, (dir) => ctx.stepDetail(dir));
