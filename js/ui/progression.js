@@ -1,4 +1,5 @@
 import { goalPlan, progress, stats } from '../logic.js?v=__BUILD__';
+import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
 import { $, formatDay, formatShort, h, hours, today } from './dom.js?v=__BUILD__';
 import { checkbox, progressBar } from './parts.js?v=__BUILD__';
 
@@ -20,12 +21,39 @@ function goalCard(ctx, s) {
     lines.map((text, i) => h('p', { class: i === 0 ? 'goal-main' : 'muted t-body-md', text })));
 }
 
-export function renderProgression(ctx) {
-  const { state } = ctx;
-  const p = progress(ctx.counted, state.seen);
-  const s = stats(ctx.counted, state.seen, today(), state.catchUp);
-  const phases = Object.keys(p.byPhase).map(Number).sort((a, b) => a - b);
+const TABS = [['bilan', 'Bilan'], ['rythme', 'Rythme'], ['mcu', 'MCU']];
+let currentTab = 'bilan';
 
+const hm = (min) => `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
+const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`;
+const fact = (label, value) => h('div', { class: 'fact' }, h('dt', { text: label }), h('dd', { text: value }));
+const card = (id, title, ...children) => h('section', { class: 'card', 'aria-labelledby': id }, h('h3', { id, text: title }), children);
+
+function renderTabs(ctx) {
+  const buttons = TABS.map(([id, label]) =>
+    h('button', {
+      type: 'button', role: 'tab', id: `stab-${id}`, class: 'stab', 'aria-selected': String(currentTab === id), 'aria-controls': 'progress-panel',
+      tabindex: currentTab === id ? '0' : '-1', 'data-fk': `stab:${id}`,
+      onclick: () => select(ctx, id),
+      onkeydown: (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        select(ctx, TABS[(TABS.findIndex(([t]) => t === id) + step + TABS.length) % TABS.length][0]);
+      },
+    }, label));
+  return h('div', { class: 'stabs', role: 'tablist', 'aria-label': 'Sections de la progression' }, buttons);
+}
+
+function select(ctx, id) {
+  currentTab = id;
+  renderProgression(ctx);
+  $(`stab-${id}`)?.focus();
+}
+
+function bilan(ctx, p, s) {
+  const { state } = ctx;
+  const phases = Object.keys(p.byPhase).map(Number).sort((a, b) => a - b);
   const phaseRows = phases.map((phase) => {
     const r = p.byPhase[phase];
     const all = r.total > 0 && r.seen === r.total;
@@ -38,9 +66,9 @@ export function renderProgression(ctx) {
         h('div', { class: 'line' }, h('span', { text: `Phase ${phase}` }), h('span', { class: 'muted', text: `${r.seen}/${r.total} · ${r.percent} %` })),
         progressBar(r.percent, `Progression de la phase ${phase}`)));
   });
-
   const stat = (label, value) => h('div', { class: 'card' }, h('dt', { text: label }), h('dd', { text: value }));
-  $('progress-screen').replaceChildren(
+  const ignoredCount = Object.keys(ctx.ignoredMap).length;
+  return [
     h('section', { class: 'card', 'aria-labelledby': 'p-global' },
       h('h3', { id: 'p-global', text: 'Progression globale' }),
       h('p', { class: 'big-number', text: `${p.percent} %` }),
@@ -56,11 +84,103 @@ export function renderProgression(ctx) {
       stat('Rythme', s.paceMinPerDay == null ? 'n/a' : `${hours(s.paceMinPerDay)} / jour`),
       stat('Fin estimée', s.etaDate == null ? 'n/a' : formatDay(s.etaDate))),
     h('p', { class: 'muted t-body-sm', style: 'margin-top:12px', text: 'Le rythme et la fin estimée apparaissent après deux jours d\'utilisation.' }),
-    Object.keys(ctx.ignoredMap).length
-      ? h('p', { class: 'muted t-body-sm', text: `${Object.keys(ctx.ignoredMap).length} titre${Object.keys(ctx.ignoredMap).length > 1 ? 's' : ''} ignoré${Object.keys(ctx.ignoredMap).length > 1 ? 's' : ''} (un par un ou par catégorie) : ils ne comptent pas ici.` })
+    ignoredCount
+      ? h('p', { class: 'muted t-body-sm', text: `${plural(ignoredCount, 'titre ignoré', 'titres ignorés')} (un par un ou par catégorie) : ${ignoredCount > 1 ? 'ils ne comptent' : 'il ne compte'} pas ici.` })
       : null,
     Object.keys(state.catchUp ?? {}).some((key) => state.seen[key])
       ? h('p', { class: 'muted t-body-sm', text: 'Ce que tu as marqué d\'un coup (rattrapage) compte dans les heures vues, mais pas dans le rythme.' })
-      : null);
+      : null,
+  ];
 }
 
+function rythme(ctx) {
+  const { state } = ctx;
+  const now = today();
+  const activity = activityByDay(state.seen, state.catchUp);
+  const active = Object.keys(activity).length;
+  if (!active) {
+    return [card('p-rhythm', 'Rythme', h('p', { class: 'muted', text: 'Coche des films ou des épisodes pour voir ton rythme, ta série de jours et ton activité.' }))];
+  }
+  const run = streaks(activity, now);
+  const avg = perWeek(activity, now);
+  const weeks = weeklyActivity(activity, now, 12);
+  const max = Math.max(1, ...weeks.map((w) => w.count));
+  const cells = heatmap(activity, now, 18);
+  const total = cells.reduce((sum, c) => sum + (c.count ?? 0), 0);
+  const ms = milestones(ctx.counted, state.seen);
+  const weekSummary = weeks.map((w) => `semaine du ${formatShort(w.start)} : ${w.count}`).join(', ');
+  return [
+    h('dl', { class: 'stat-grid' },
+      h('div', { class: 'card' }, h('dt', { text: 'Série en cours' }), h('dd', { text: plural(run.current, 'jour', 'jours') })),
+      h('div', { class: 'card' }, h('dt', { text: 'Meilleure série' }), h('dd', { text: plural(run.best, 'jour', 'jours') })),
+      h('div', { class: 'card' }, h('dt', { text: 'Par semaine' }), h('dd', { text: `${avg.toFixed(1).replace('.', ',')} titres` })),
+      h('div', { class: 'card' }, h('dt', { text: 'Jours actifs' }), h('dd', { text: String(active) }))),
+    card('p-weekly', 'Titres vus par semaine',
+      h('div', { class: 'bars', role: 'img', 'aria-label': `Titres vus par semaine sur 12 semaines : ${weekSummary}` },
+        weeks.map((w) => h('span', { class: 'bar-col', title: `${formatShort(w.start)} : ${w.count}` },
+          h('i', { style: `height:${Math.round((w.count / max) * 100)}%` })))),
+      h('div', { class: 'bars-axis muted t-body-sm' }, h('span', { text: formatShort(weeks[0].start) }), h('span', { text: `max ${max} / sem.` }), h('span', { text: 'cette semaine' }))),
+    card('p-heat', 'Activité des 18 dernières semaines',
+      h('div', { class: 'heat', role: 'img', 'aria-label': `${plural(total, 'unité vue', 'unités vues')} sur les 18 dernières semaines, ${plural(cells.filter((c) => c.count > 0).length, 'jour actif', 'jours actifs')}` },
+        cells.map((c) => h('i', { class: c.level == null ? 'future' : `l${c.level}`, title: c.count == null ? '' : `${formatShort(c.day)} : ${c.count}` }))),
+      h('p', { class: 'muted t-body-sm', text: 'Une case par jour, du plus clair (rien) au plus foncé (4 vus ou plus). Les rattrapages ne comptent pas.' })),
+    card('p-miles', 'Jalons',
+      h('dl', { class: 'facts' },
+        ms.first ? fact('Première coche', `${formatShort(ms.first.date)} · ${ms.first.label}`) : null,
+        ms.last ? fact('Dernière coche', `${formatShort(ms.last.date)} · ${ms.last.label}`) : null,
+        ms.steps.map((st) => fact(`${st.pct} % atteints`, st.date ? formatShort(st.date) : 'à venir')))),
+  ];
+}
+
+function breakdownCard(id, title, groups, label) {
+  const rows = groups.map((g) => {
+    const percent = g.totalMin ? Math.round((g.seenMin / g.totalMin) * 100) : 0;
+    return h('li', { class: 'brk-row' },
+      h('div', { class: 'line' }, h('span', { text: label(g.key) }), h('span', { class: 'muted', text: `${hours(g.seenMin)} / ${hours(g.totalMin)}` })),
+      progressBar(percent, `${label(g.key)} : ${percent} % du temps vu`));
+  });
+  return card(id, title, h('ul', {}, rows));
+}
+
+function mcu(ctx) {
+  const { state, counted } = ctx;
+  const r = records(counted, state.seen);
+  const b = breakdown(counted, state.seen);
+  const line = (t) => (t ? `${t.title} · ${hm(t.min)}` : 'n/a');
+  const timeline = releaseTimeline(counted, state.seen);
+  const formatLabel = { film: 'Films', serie: 'Séries', short: 'Courts formats' };
+  const sagaLabel = { infinity: 'Infinity Saga', multiverse: 'Saga du Multivers' };
+  return [
+    card('p-facts', 'Le MCU en chiffres',
+      h('dl', { class: 'facts' },
+        fact('Durée totale', hours(r.totalMin)),
+        fact('Films', String(r.films)),
+        fact('Séries', `${r.series} (${r.episodes} épisodes)`),
+        fact('Film le plus long', line(r.longest)),
+        fact('Film le plus court', line(r.shortest)),
+        fact('Série la plus fournie', r.mostEpisodes ? `${r.mostEpisodes.title} · ${r.mostEpisodes.n} épisodes` : 'n/a'),
+        fact('Série la plus longue', line(r.longestSeries)),
+        fact('Année la plus chargée', r.topYear ? `${r.topYear.year} · ${plural(r.topYear.n, 'titre', 'titres')}` : 'n/a'),
+        fact('Scènes post-générique', `${r.postCredits.with} titres sur ${r.postCredits.total} · ${r.postCredits.seen} déjà vus`))),
+    breakdownCard('p-by-phase', 'Temps vu par phase', b.byPhase, (k) => `Phase ${k}`),
+    breakdownCard('p-by-saga', 'Temps vu par saga', b.bySaga, (k) => sagaLabel[k] ?? k),
+    breakdownCard('p-by-format', 'Temps vu par format', b.byFormat, (k) => formatLabel[k] ?? k),
+    card('p-timeline', 'Frise des sorties',
+      h('ul', { class: 'timeline' }, timeline.map((row) =>
+        h('li', { class: 'tl-row', 'aria-label': `${row.year} : ${plural(row.items.length, 'titre', 'titres')}, ${row.done} vu${row.done > 1 ? 's' : ''}` },
+          h('span', { class: 'tl-year', 'aria-hidden': 'true', text: row.year }),
+          h('span', { class: 'tl-dots', 'aria-hidden': 'true' }, row.items.map((i) =>
+            h('i', { class: `${i.done ? 'done' : ''} ${i.type === 'serie' ? 'serie' : ''}`, title: i.title })))))),
+      h('p', { class: 'muted t-body-sm', text: 'Un rond par titre, plein quand il est vu ; les séries sont carrées.' })),
+  ];
+}
+
+export function renderProgression(ctx) {
+  const { state } = ctx;
+  const p = progress(ctx.counted, state.seen);
+  const s = stats(ctx.counted, state.seen, today(), state.catchUp);
+  const panel = currentTab === 'bilan' ? bilan(ctx, p, s) : currentTab === 'rythme' ? rythme(ctx) : mcu(ctx);
+  $('progress-screen').replaceChildren(
+    renderTabs(ctx),
+    h('div', { id: 'progress-panel', role: 'tabpanel', 'aria-labelledby': `stab-${currentTab}`, class: 'ppanel' }, panel));
+}

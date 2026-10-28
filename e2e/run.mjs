@@ -106,6 +106,11 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   await page.click('.nav-item[data-route="progression"]');
   await page.waitForSelector('#screen-progression:not([hidden])');
   await audit(page, `${where} Progression`);
+  await page.click('[data-fk="stab:rythme"]');
+  await audit(page, `${where} Progression Rythme`);
+  await page.click('[data-fk="stab:mcu"]');
+  await audit(page, `${where} Progression MCU`);
+  await page.click('[data-fk="stab:bilan"]');
 
   await page.click('.nav-item[data-route="reglages"]');
   await page.waitForSelector('#screen-reglages:not([hidden])');

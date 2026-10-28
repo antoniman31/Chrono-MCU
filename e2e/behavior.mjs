@@ -225,6 +225,27 @@ await scenario('filtres : ignorés masqués/seuls, statut, réinitialisation, co
   check((await total()) === 0, 'aucun titre terminé au départ');
 });
 
+await scenario('progression : sous-onglets Bilan / Rythme / MCU, clavier, chiffres', async (page) => {
+  await page.click('.nav-item[data-route="progression"]');
+  await page.waitForSelector('#screen-progression:not([hidden])');
+  check(await page.locator('#stab-bilan').getAttribute('aria-selected') === 'true', 'Bilan doit être sélectionné au départ');
+  check(await page.locator('#p-global').count() === 1, 'le bilan doit montrer la progression globale');
+  await page.focus('#stab-bilan');
+  await page.keyboard.press('ArrowRight');
+  check(await page.locator('#stab-rythme').getAttribute('aria-selected') === 'true', 'flèche droite : onglet Rythme');
+  check(await page.evaluate(() => document.activeElement.id) === 'stab-rythme', 'le focus doit suivre l\'onglet');
+  const txt = await page.locator('#progress-panel').innerText();
+  check(/Série en cours\s*3 jours/.test(txt), `série de jours attendue : ${txt.slice(0, 200)}`);
+  check(await page.locator('.heat').getAttribute('aria-label').then((l) => /3 unités vues/.test(l)), 'le calendrier doit annoncer 3 unités');
+  check(/Première coche/.test(txt) && /25 % atteints/.test(txt), 'les jalons doivent apparaître');
+  await page.keyboard.press('ArrowRight');
+  const mcuTxt = await page.locator('#progress-panel').innerText();
+  check(/Film le plus long/.test(mcuTxt) && /Frise des sorties/.test(mcuTxt) && /Temps vu par phase/.test(mcuTxt), 'l\'onglet MCU doit montrer records, répartition et frise');
+  check(await page.locator('.tl-row').count() >= 10, 'la frise doit avoir une ligne par année');
+  await page.keyboard.press('ArrowRight');
+  check(await page.locator('#stab-bilan').getAttribute('aria-selected') === 'true', 'retour au premier onglet en bouclant');
+}, { seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
   const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;
