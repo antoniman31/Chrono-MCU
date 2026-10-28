@@ -558,7 +558,15 @@ async function main() {
     else ctx.openWelcome(null);
   }
   // Hors-ligne : seulement sur un build déployé (sw.js porte alors un identifiant de version)
-  if ('serviceWorker' in navigator && !BUILD.startsWith('__')) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && !BUILD.startsWith('__')) {
+    // Un nouveau worker prend la main dès qu'il est prêt, mais cette page garde son ancien code : on propose de la recharger.
+    // Pas d'annonce à la toute première installation (aucun worker ne contrôlait la page).
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) $('update-toast').hidden = false; });
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  $('update-reload').addEventListener('click', () => location.reload());
+  $('update-later').addEventListener('click', () => { $('update-toast').hidden = true; });
   document.getElementById('app')?.setAttribute('data-ready', 'true');
   document.body.dataset.ready = 'true';
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-38nx+PRPzi8JY8d5L28aEX3agqsrGlritrk846V2HFQ='; style-src 'self'; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' https://image.tmdb.org data:; connect-src 'self' https://api.github.com; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-38nx+PRPzi8JY8d5L28aEX3agqsrGlritrk846V2HFQ='; style-src 'self'; style-src-attr 'none'; font-src 'self'; img-src 'self' https://image.tmdb.org data:; connect-src 'self' https://api.github.com; manifest-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="theme-color" content="#121316">
   <meta name="color-scheme" content="light dark">
   <link rel="manifest" href="manifest.webmanifest">
@@ -18,7 +18,7 @@
 </head>
 <body>
   <!-- Icônes Material Icons (Apache 2.0), intégrées pour éviter tout appel externe -->
-  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></symbol>
     <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/></symbol>
     <symbol id="i-settings" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
@@ -142,6 +142,12 @@
   <div id="achv-toast" class="snackbar achv-toast" hidden>
     <span id="achv-text" role="status" aria-live="polite"></span>
     <button type="button" class="btn btn-text" id="achv-view"><span class="face">Voir</span></button>
+  </div>
+
+  <div id="update-toast" class="snackbar update-toast" hidden>
+    <span id="update-text" role="status" aria-live="polite">Une nouvelle version est disponible.</span>
+    <button type="button" class="btn btn-text" id="update-later"><span class="face">Plus tard</span></button>
+    <button type="button" class="btn btn-text" id="update-reload"><span class="face">Recharger</span></button>
   </div>
 
   <input type="file" id="import-file" accept="application/json,.json" hidden>

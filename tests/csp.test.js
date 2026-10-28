@@ -35,10 +35,11 @@ test('images : site, TMDB et data: seulement ; connexions : site et API GitHub ;
   assert.deepEqual(directives['base-uri'], ["'none'"]);
   assert.deepEqual(directives['form-action'], ["'none'"]);
   assert.deepEqual(directives['style-src'], ["'self'"]);
-  assert.deepEqual(directives['style-src-attr'], ["'unsafe-inline'"]);
+  assert.deepEqual(directives['style-src-attr'], ["'none'"]);
 });
 
 test('aucun gestionnaire d\'événement inline ni feuille de style inline dans index.html', () => {
   assert.doesNotMatch(html, /\son[a-z]+="/i);
   assert.doesNotMatch(html, /<style[\s>]/i);
+  assert.doesNotMatch(html, /\sstyle="/i, 'style-src-attr \'none\' : aucun attribut style dans le HTML');
 });

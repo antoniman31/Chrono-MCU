@@ -8,7 +8,13 @@ export function h(tag, props = {}, ...children) {
     if (value == null || value === false) continue;
     if (key === 'class') el.className = value;
     else if (key === 'text') el.textContent = value;
-    else if (key.startsWith('on')) el.addEventListener(key.slice(2), value);
+    else if (key === 'style') {
+      // Via l'API CSS plutôt que setAttribute : la CSP interdit les attributs style écrits dans le HTML
+      for (const rule of String(value).split(';')) {
+        const i = rule.indexOf(':');
+        if (i > 0) el.style.setProperty(rule.slice(0, i).trim(), rule.slice(i + 1).trim());
+      }
+    } else if (key.startsWith('on')) el.addEventListener(key.slice(2), value);
     else if (key === 'value' || key === 'checked' || key === 'disabled' || key === 'selected') el[key] = value;
     else el.setAttribute(key, value === true ? '' : String(value));
   }
