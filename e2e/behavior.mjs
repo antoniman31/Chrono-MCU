@@ -353,23 +353,47 @@ await scenario('film à versions (Endgame Encore) : une seule case, durée et sc
   check(Object.keys(await total()).length === 0, 'revenir à l\'originale doit effacer le choix');
 });
 
-await scenario('mode sans spoiler : résumé, image et titres d\'épisodes cachés jusqu\'à ce que ce soit commencé ou vu', async (page) => {
+await scenario('résumé de la fiche : 3 lignes, « Voir plus » seulement si le texte est plus long', async (page) => {
+  await page.click('[data-fk="open:moon-knight"]');
+  const p = page.locator('#sheet .overview');
+  await page.waitForSelector('[data-fk="more:moon-knight"]:not([hidden])');
+  const lines = async () => page.evaluate(() => { const el = document.querySelector('#sheet .overview'); return Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)); });
+  check((await lines()) === 3, `le résumé long doit tenir sur 3 lignes, pas ${await lines()}`);
+  await page.click('[data-fk="more:moon-knight"]');
+  check((await lines()) > 3, 'après « Voir plus », le résumé doit être entier');
+  check(/Voir moins/.test(await page.locator('[data-fk="more:moon-knight"]').innerText()), 'le bouton doit proposer « Voir moins »');
+  check((await page.locator('[data-fk="more:moon-knight"]').getAttribute('aria-expanded')) === 'true', 'aria-expanded doit être vrai');
+  await page.click('[data-fk="more:moon-knight"]');
+  check((await lines()) === 3, '« Voir moins » doit replier à 3 lignes');
+  await page.keyboard.press('Escape');
+  await page.click('[data-fk="open:captain-america-first-avenger"]');
+  await page.waitForSelector('#sheet .overview');
+  await page.waitForTimeout(200);
+  check(await page.locator('[data-fk="more:captain-america-first-avenger"]').isHidden(), 'un résumé court ne doit pas avoir de chevron');
+  check(!!(await p.count()), 'le résumé court doit s\'afficher');
+});
+
+await scenario('mode sans spoiler : résumé, image et titres d\'épisodes floutés, un bouton révèle et re-floute', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');
   await page.locator('[data-fk="s-spoiler"]').check({ force: true });
   await go(page, 'voir');
   await page.click('[data-fk="open:wandavision"]');
-  const sheet = page.locator('#sheet');
-  check(/Résumé masqué/.test(await sheet.innerText()), 'le résumé de WandaVision doit être masqué');
-  check((await page.locator('#sheet .overview').count()) === 0, 'aucun résumé ne doit s\'afficher');
-  const t = await sheet.innerText();
-  check(/Ép\. 1(?! —)/.test(t) && !/Ép\. 1 —/.test(t), `les titres d'épisodes doivent être cachés : ${t.slice(0, 400)}`);
-  check((await page.locator('#sheet-hero img').count()) === 0, 'l\'image paysage doit être cachée');
+  const blurs = () => page.locator('#sheet .spoiler-blur').count();
+  check((await page.locator('#sheet .overview.spoiler-blur').count()) === 1, 'le résumé doit être flouté (et non retiré)');
+  check((await page.locator('#sheet .overview').getAttribute('aria-hidden')) === 'true', 'le résumé flouté doit être caché aux lecteurs d\'écran');
+  check(await page.locator('#sheet-hero .hero-img.spoiler-blur').count() === 1, 'l\'image paysage doit être floutée');
+  check((await page.locator('#sheet .ep .spoiler-blur, #sheet .item .spoiler-blur').count()) >= 3, 'les titres d\'épisodes doivent être flous');
+  check(/Ép\. 1 —/.test(await page.locator('#sheet').innerText()), 'le numéro de l\'épisode reste lisible');
   await page.click('[data-fk="reveal:wandavision"]');
-  check((await page.locator('#sheet .overview').count()) === 1, '« Afficher le résumé » doit révéler le résumé');
+  check((await blurs()) === 0 && (await page.locator('#sheet-hero .spoiler-blur').count()) === 0, '« Afficher les spoilers » doit tout révéler (résumé, image, épisodes)');
+  check(/Masquer les spoilers/.test(await page.locator('[data-fk="spoilers:wandavision"]').innerText()), 'un bouton « Masquer les spoilers » doit apparaître');
+  await page.click('[data-fk="spoilers:wandavision"]');
+  check((await page.locator('#sheet .overview.spoiler-blur').count()) === 1 && (await page.locator('#sheet-hero .hero-img.spoiler-blur').count()) === 1, 'le second appui doit tout re-flouter');
   await page.locator('[data-fk="ep:wandavision/1"]').check({ force: true });
-  check(/Ép\. 1 —/.test(await sheet.innerText()), 'le titre d\'un épisode vu doit apparaître');
-  check(!/Ép\. 2 —/.test(await sheet.innerText()), 'l\'épisode suivant reste caché');
+  const rows = await page.evaluate(() => [...document.querySelectorAll('#sheet .episodes .item')].slice(0, 2).map((li) => li.querySelectorAll('.spoiler-blur').length));
+  check(rows[0] === 0 && rows[1] === 1, `le titre de l\'épisode vu n\'est plus flou, le suivant le reste : ${rows}`);
+  await page.locator('[data-fk="ep:wandavision/1"]').uncheck({ force: true });
 });
 
 await scenario('objectif : carte sur Progression, date modifiable, retirable', async (page) => {

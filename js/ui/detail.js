@@ -4,11 +4,18 @@ import { formatShort, h, icon, hours, today } from './dom.js?v=__BUILD__';
 import { btn, checkbox, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { isReleased } from '../logic.js?v=__BUILD__';
-import { hideEpisodeTitle, hideSummary } from '../spoilers.js?v=__BUILD__';
+import { hasSpoilers, hideEpisodeTitle, hideSummary } from '../spoilers.js?v=__BUILD__';
 
-// Titres dont l'utilisateur a demandé l'affichage du résumé malgré le mode sans spoiler (valable jusqu'au rechargement)
+// Mode sans spoiler : titres dont les spoilers sont affichés dans la fiche (jusqu'au rechargement) et résumés dépliés (« Voir plus »)
 const revealed = new Set();
-const episodeName = (ctx, t, e) => (hideEpisodeTitle(ctx.view, ctx.state, t.id, e.n) ? `Ép. ${e.n}` : `Ép. ${e.n} — ${e.titleFr ?? e.title}`);
+const expanded = new Set();
+
+// Titre d'épisode : flouté (et caché aux lecteurs d'écran) tant que le mode sans spoiler l'exige
+function episodeName(ctx, t, e) {
+  const name = e.titleFr ?? e.title;
+  if (!(hideEpisodeTitle(ctx.view, ctx.state, t.id, e.n) && !revealed.has(t.id))) return [`Ép. ${e.n} — ${name}`];
+  return [`Ép. ${e.n} — `, h('span', { class: 'spoiler-blur', 'aria-hidden': 'true', text: name }), h('span', { class: 'sr-only', text: 'titre masqué' })];
+}
 
 export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
 
@@ -35,6 +42,29 @@ function versionSection(ctx, t) {
     t.versions.map((v) => h('p', { class: 'muted t-body-sm', text: `${v.label}, ressortie le ${formatShort(v.releaseDate)} : ${v.runtimeMin} min. ${v.note}` })));
 }
 
+// Résumé : 3 lignes, « Voir plus » seulement si le texte est plus long ; flouté (avec un bouton dessus) tant que les spoilers sont masqués
+function summarySection(t, { blurred, toggleSpoilers, spoilers, revealed: isRevealed }) {
+  const open = expanded.has(t.id);
+  const p = h('p', { class: `overview clamp${open ? ' open' : ''}${blurred ? ' spoiler-blur' : ''}`, 'aria-hidden': blurred ? 'true' : null, text: t.overview });
+  const more = h('button', { type: 'button', class: 'link-btn more', hidden: !open, 'aria-expanded': String(open), 'data-fk': `more:${t.id}` },
+    h('span', { text: open ? 'Voir moins' : 'Voir plus' }), icon('expand', 'chev'));
+  more.addEventListener('click', () => {
+    const now = p.classList.toggle('open');
+    if (now) expanded.add(t.id);
+    else expanded.delete(t.id);
+    more.setAttribute('aria-expanded', String(now));
+    more.firstElementChild.textContent = now ? 'Voir moins' : 'Voir plus';
+  });
+  // Le chevron n'apparaît que si le texte dépasse les 3 lignes (mesuré quand la fiche est affichée, et à chaque changement de largeur)
+  new ResizeObserver(() => { if (!p.classList.contains('open')) more.hidden = !(p.scrollHeight - p.clientHeight > 1); }).observe(p);
+  const eye = (iconName, label, key) => h('button', { type: 'button', class: 'link-btn', 'data-fk': key, onclick: toggleSpoilers }, icon(iconName), h('span', { text: label }));
+  return h('div', { class: 'summary' },
+    h('div', { class: 'summary-text' }, p,
+      blurred ? btn({ label: 'Afficher les spoilers', iconName: 'visibility', variant: 'tonal', key: `reveal:${t.id}`, extra: { class: 'btn btn-tonal reveal-over' }, onclick: toggleSpoilers }) : null),
+    h('div', { class: 'summary-foot' }, more,
+      spoilers && !blurred ? eye(isRevealed ? 'visibility-off' : 'visibility', isRevealed ? 'Masquer les spoilers' : 'Afficher les spoilers', `spoilers:${t.id}`) : null));
+}
+
 function episodesSection(ctx, t, ignored) {
   const day = today();
   const released = t.episodes.filter((e) => isReleased(e, day));
@@ -45,7 +75,7 @@ function episodesSection(ctx, t, ignored) {
         h('div', { class: 'item-fg' },
           h('span', { class: 'cb', 'aria-hidden': 'true' }),
           h('div', { class: 'ep-text' },
-            h('span', { class: 'title', text: episodeName(ctx, t, e) }),
+            h('span', { class: 'title' }, episodeName(ctx, t, e)),
             h('span', { class: 'meta', text: `Sort le ${formatShort(e.airDate)}` }))));
     }
     const key = `${t.id}/${e.n}`;
@@ -55,7 +85,7 @@ function episodesSection(ctx, t, ignored) {
     const fg = h('div', { class: 'item-fg' },
       checkbox({ checked: seen, disabled: ignored, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
-        h('span', { class: 'title', text: episodeName(ctx, t, e) }),
+        h('span', { class: 'title' }, episodeName(ctx, t, e)),
         h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
     const row = h('li', { class: `item${seen ? ' seen' : ''}` }, bg, fg);
     attachSwipe(row, fg, bg, swipe);
@@ -86,13 +116,14 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
         h('p', { class: 'meta', text: metaLine(t) }),
         h('div', { class: 'badges' }, titleBadges(t, ignored)))),
   ];
-  if (t.overview) {
-    if (hideSummary(ctx.view, ctx.state, t) && !revealed.has(t.id)) {
-      children.push(h('div', { class: 'spoiler-note' },
-        h('p', { class: 'muted', text: 'Résumé masqué (mode sans spoiler).' }),
-        btn({ label: 'Afficher le résumé', variant: 'text', key: `reveal:${t.id}`, onclick: () => { revealed.add(t.id); renderDetail(container, ctx, id, { showTitle, showPoster }); } })));
-    } else children.push(h('p', { class: 'overview', text: t.overview }));
-  }
+  const blurred = hideSummary(ctx.view, ctx.state, t) && !revealed.has(t.id);
+  const toggleSpoilers = () => {
+    if (revealed.has(t.id)) revealed.delete(t.id);
+    else revealed.add(t.id);
+    renderDetail(container, ctx, id, { showTitle, showPoster });
+  };
+  if (!showTitle) document.querySelector('#sheet-hero .hero-img')?.classList.toggle('spoiler-blur', blurred); // image paysage de la feuille
+  if (t.overview) children.push(summarySection(t, { blurred, toggleSpoilers, spoilers: hasSpoilers(ctx.view, ctx.state, t), revealed: revealed.has(t.id) }));
   if (!t.upcoming) {
     const actions = [];
     if (ignored) children.push(h('p', { class: 'muted', text: info.category && !info.explicit

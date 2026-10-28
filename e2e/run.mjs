@@ -154,6 +154,25 @@ await Promise.all(Array.from({ length: 4 }, async () => {
   await context.close();
 }
 
+// Fiche en mode sans spoiler : contenu flouté, puis révélé (contrastes, noms accessibles), thèmes clair et sombre
+for (const scheme of ['light', 'dark']) {
+  const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+  await blockImages(context);
+  await withAxe(context);
+  await context.addInitScript(() => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ spoilerFree: true })); } catch { /* ignore */ } });
+  const page = await context.newPage();
+  page.on('pageerror', (e) => fail(`spoiler/${scheme}`, `erreur JS : ${e.message}`));
+  await page.goto(base);
+  await page.waitForSelector('body[data-ready]', { state: 'attached' });
+  await page.click('[data-fk="open:moon-knight"]');
+  await page.waitForSelector('[data-fk="reveal:moon-knight"]');
+  await audit(page, `spoiler/${scheme} fiche floutée`);
+  await page.click('[data-fk="reveal:moon-knight"]');
+  await page.waitForSelector('[data-fk="spoilers:moon-knight"]');
+  await audit(page, `spoiler/${scheme} fiche révélée`);
+  await context.close();
+}
+
 // Rappel de sauvegarde (affiché au-delà de 20 éléments vus sans sauvegarde), thèmes clair et sombre
 for (const scheme of ['light', 'dark']) {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });

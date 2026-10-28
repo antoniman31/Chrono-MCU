@@ -9,3 +9,8 @@ export const isStarted = (state, title) =>
 export const hideSummary = (view, state, title) => view.spoilerFree === true && !isStarted(state, title);
 
 export const hideEpisodeTitle = (view, state, titleId, n) => view.spoilerFree === true && !state.seen[`${titleId}/${n}`];
+
+// Y a-t-il quelque chose à révéler dans cette fiche ? Résumé et image tant que le titre n'est pas commencé, titres d'épisodes
+// tant que tous les épisodes ne sont pas vus : c'est ce qui décide si le bouton « Afficher / Masquer les spoilers » apparaît.
+export const hasSpoilers = (view, state, title) =>
+  view.spoilerFree === true && (!isStarted(state, title) || (title.type === 'serie' && (title.episodes ?? []).some((e) => !state.seen[`${title.id}/${e.n}`])));
