@@ -28,7 +28,7 @@ export function progressBar(percent, label) {
 // short : libellés courts pour la liste (cartes de hauteur fixe) ; la fiche garde les libellés complets
 export function titleBadges(t, ignored = false, short = false) {
   const out = [];
-  if (ignored) out.push(h('span', { class: 'badge', text: 'ignoré' }));
+  if (ignored) out.push(h('span', { class: 'badge ign', text: 'ignoré' }));
   if (!t.verified && !t.upcoming) out.push(h('span', { class: 'badge warn', text: 'à vérifier' }));
   if (t.upcoming) out.push(h('span', { class: 'badge soon', text: 'à venir' }));
   if (t.altUniverse) out.push(h('span', { class: 'badge alt', text: 'autre réalité' }));
@@ -36,12 +36,12 @@ export function titleBadges(t, ignored = false, short = false) {
     const v = t.versions.find((x) => x.id === t.activeVersion);
     // Version choisie : on l'affiche ; sinon on signale seulement que la version existe et ce qu'elle ajoute
     const first = t.versions[0];
-    out.push(h('span', { class: 'badge', text: v ? `version ${v.label}` : short && first.badgeShort ? `${first.label} : ${first.badgeShort}` : `version ${first.label} : ${first.badge}` }));
+    out.push(h('span', { class: 'badge ver', text: v ? `version ${v.label}` : short && first.badgeShort ? `${first.label} : ${first.badgeShort}` : `version ${first.label} : ${first.badge}` }));
   }
   if (Array.isArray(t.postCredits)) {
     if (t.postCredits.length === 0) out.push(h('span', { class: 'badge', text: 'sans scène' }));
-    if (t.postCredits.includes('mid')) out.push(h('span', { class: 'badge', text: short ? 'mi-générique' : 'scène mi-générique' }));
-    if (t.postCredits.includes('end')) out.push(h('span', { class: 'badge', text: short ? 'post-générique' : 'scène post-générique' }));
+    if (t.postCredits.includes('mid')) out.push(h('span', { class: 'badge post', text: short ? 'mi-générique' : 'scène mi-générique' }));
+    if (t.postCredits.includes('end')) out.push(h('span', { class: 'badge post', text: short ? 'post-générique' : 'scène post-générique' }));
   }
   return out;
 }
