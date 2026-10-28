@@ -1,6 +1,6 @@
 // Succès : calculés depuis les coches, le catalogue et quelques réglages (fonctions pures).
 // Un succès a un ou trois paliers (bronze, argent, or) ; une fois débloqué, un palier n'est jamais retiré (voir merge).
-import { titleSeen, toUnits } from './logic.js?v=__BUILD__';
+import { sortTitles, titleSeen, toUnits } from './logic.js?v=__BUILD__';
 import { matchesCategory } from './categories.js?v=__BUILD__';
 import { HEROES } from './heroes.js?v=__BUILD__';
 import { activityByDay, dayNumber, weekStart } from './insights.js?v=__BUILD__';
@@ -17,19 +17,33 @@ const CATALOG = [
   { id: 'phases', family: 'progression', name: 'Phase après phase', tiers: [1, 3, 5], metric: (m) => m.phasesDone, desc: (n) => `Terminer ${n} ${plural(n, 'phase', 'phases')} en entier` },
   { id: 'infinity', family: 'progression', name: 'Infinity Saga', tiers: [1], metric: (m) => m.infinityDone, desc: () => 'Voir toute l\'Infinity Saga' },
   { id: 'multiverse', family: 'progression', name: 'Saga du Multivers', tiers: [1], metric: (m) => m.multiverseDone, desc: () => 'Voir tout ce qui est sorti de la Saga du Multivers' },
+  { id: 'hours', family: 'progression', name: 'Heures de vol', unit: 'h', tiers: [24, 100, 200], metric: (m) => m.hoursSeen, desc: (n) => `Cumuler ${n} h de visionnage` },
+  { id: 'backup1', family: 'progression', name: 'Prévoyant', tiers: [1], metric: (m) => m.hasBackup, desc: () => 'Exporter ta progression une première fois' },
+  { id: 'backup2', family: 'progression', name: 'Sauvegarde à jour', tiers: [1], metric: (m) => m.recentBackup, desc: () => 'Avoir une sauvegarde de moins de 30 jours' },
   { id: 'goal', family: 'progression', name: 'Dans les temps', tiers: [1], metric: (m) => m.goalDone, desc: () => 'Tout voir avant la date de ton objectif' },
   { id: 'streak', family: 'rythme', name: 'Assidu', tiers: [3, 7, 30], metric: (m) => m.bestStreak, desc: (n) => `Regarder quelque chose ${n} jours de suite` },
   { id: 'marathon', family: 'rythme', name: 'Marathon', tiers: [3, 5, 10], metric: (m) => m.maxPerDay, desc: (n) => `Voir ${n} titres en une journée` },
   { id: 'week', family: 'rythme', name: 'Semaine chargée', tiers: [7, 15, 30], metric: (m) => m.maxPerWeek, desc: (n) => `Voir ${n} titres en une semaine (lundi au dimanche)` },
+  { id: 'weeks', family: 'rythme', name: 'Régulier', unit: 'sem.', tiers: [4, 8, 12], metric: (m) => m.bestWeekStreak, desc: (n) => `Cocher au moins une fois par semaine pendant ${n} semaines de suite` },
+  { id: 'chrono', family: 'rythme', name: 'Chronologue', tiers: [10, 25, 50], metric: (m) => m.chronoRun, desc: (n) => `Voir ${n} films ou épisodes d'affilée dans l'ordre chronologique, sans en sauter` },
+  { id: 'release', family: 'rythme', name: 'Fidèle à la sortie', tiers: [10, 25, 50], metric: (m) => m.releaseRun, desc: (n) => `Voir ${n} films ou épisodes d'affilée dans l'ordre de sortie, sans en sauter` },
+  { id: 'phaseFast', family: 'rythme', name: 'Phase express', tiers: [1], metric: (m) => m.phaseFast, desc: () => 'Terminer une phase en 7 jours' },
+  { id: 'sagaFast', family: 'rythme', name: 'Saga express', tiers: [1], metric: (m) => m.sagaFast, desc: () => 'Terminer l\'Infinity Saga en 30 jours' },
   { id: 'series', family: 'mcu', name: 'Binge-watcher', tiers: [1, 5, 10], metric: (m) => m.seriesDone, desc: (n) => `Terminer ${n} ${plural(n, 'série', 'séries')}` },
   { id: 'films', family: 'mcu', name: 'Cinéphile', tiers: [10, 25, 40], metric: (m) => m.filmsDone, desc: (n) => `Voir ${n} films` },
   { id: 'post', family: 'mcu', name: 'Chasseur de scènes', tiers: [10, 25, 35], metric: (m) => m.postDone, desc: (n) => `Voir ${n} titres avec une scène après le générique` },
+  { id: 'postAll', family: 'mcu', name: 'Complétiste des scènes', tiers: [1], metric: (m) => m.postAll, desc: () => 'Voir tous les titres avec une scène après le générique' },
+  { id: 'longest', family: 'mcu', name: 'Film fleuve', tiers: [1], metric: (m) => m.longestSeen, desc: () => 'Voir le film le plus long du MCU' },
+  { id: 'shortest', family: 'mcu', name: 'Film éclair', tiers: [1], metric: (m) => m.shortestSeen, desc: () => 'Voir le film le plus court du MCU' },
   { id: 'shorts', family: 'mcu', name: 'Format court', tiers: [1], metric: (m) => m.shortsDone, desc: () => 'Voir tous les courts formats' },
   { id: 'alt', family: 'mcu', name: 'Autres réalités', tiers: [1], metric: (m) => m.altDone, desc: () => 'Voir tous les titres d\'autres réalités' },
   { id: 'spoiler', family: 'secret', hidden: true, name: 'Bouche cousue', tiers: [1], metric: (m) => m.spoilerFree, desc: () => 'Activer le mode sans spoiler' },
   { id: 'version', family: 'secret', hidden: true, name: 'Deuxième séance', tiers: [1], metric: (m) => m.versionChosen, desc: () => 'Choisir une autre version d\'un film' },
   { id: 'birthday', family: 'secret', hidden: true, name: 'Joyeux anniversaire', tiers: [1], metric: (m) => m.birthday, desc: () => 'Voir un titre le jour anniversaire de sa sortie' },
   { id: 'catchup', family: 'secret', hidden: true, name: 'Rattrapage express', tiers: [1], metric: (m) => m.catchUpCount >= 10, desc: () => 'Marquer 10 titres d\'un coup comme déjà vus' },
+  { id: 'picky', family: 'secret', hidden: true, name: 'Sélectif', tiers: [1], metric: (m) => m.ignoredCount >= 5, desc: () => 'Ignorer 5 titres' },
+  { id: 'encore', family: 'secret', hidden: true, name: 'Encore !', tiers: [1], metric: (m) => m.encoreChosen, desc: () => 'Choisir la version Encore d\'Endgame' },
+  { id: 'launch', family: 'secret', hidden: true, name: 'Dès la sortie', tiers: [1], metric: (m) => m.releaseDay, desc: () => 'Voir un titre le jour de sa sortie' },
   { id: 'phases3', family: 'secret', hidden: true, name: 'Multivers à la maison', tiers: [1], metric: (m) => m.triplePhaseDay, desc: () => 'Voir trois phases différentes en un seul jour' },
 ];
 
@@ -48,7 +62,7 @@ export const TOTAL_MEDALS = CATALOG.reduce((sum, a) => sum + a.tiers.length, 0);
 
 const md = (day) => day.slice(5);
 
-export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, spoilerFree = false, versions = {} }) {
+export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, spoilerFree = false, versions = {}, ignored = {}, lastBackup = null }) {
   const units = toUnits(titles);
   const byId = new Map(titles.map((t) => [t.id, t]));
   const seenUnits = units.filter((u) => seen[u.key]);
@@ -75,6 +89,42 @@ export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, sp
     const release = u.kind === 'film' ? t.releaseDate : t.episodes.find((e) => e.n === u.n)?.airDate;
     return typeof release === 'string' && typeof seen[u.key] === 'string' && md(release) === md(seen[u.key]) && release < seen[u.key];
   });
+  // Plus longue suite de films ou épisodes vus d'affilée dans un ordre donné, dans cet ordre (les rattrapages ne comptent pas)
+  const runIn = (order) => {
+    let best = 0;
+    let run = 0;
+    let prev = null;
+    for (const u of toUnits(sortTitles(titles, order))) {
+      const day = seen[u.key];
+      if (!day || catchUp[u.key]) { run = 0; prev = null; continue; }
+      run = prev !== null && day >= prev ? run + 1 : 1;
+      prev = day;
+      best = Math.max(best, run);
+    }
+    return best;
+  };
+  const weekSet = new Set(days.map(weekStart));
+  let bestWeekStreak = 0;
+  let weekRun = 0;
+  [...weekSet].sort((a, b) => a - b).forEach((w, i, all) => { weekRun = i > 0 && w === all[i - 1] + 7 ? weekRun + 1 : 1; bestWeekStreak = Math.max(bestWeekStreak, weekRun); });
+  // Tout un groupe de titres vu sans rattrapage, étalé sur au plus `maxDays` jours
+  const doneWithin = (group, maxDays) => {
+    const gu = toUnits(group);
+    if (!gu.length || !gu.every((u) => seen[u.key] && !catchUp[u.key])) return false;
+    const ds = gu.map((u) => dayNumber(seen[u.key]));
+    return Math.max(...ds) - Math.min(...ds) + 1 <= maxDays;
+  };
+  const released = titles.filter((t) => !t.upcoming);
+  const films = released.filter((t) => t.type === 'film');
+  const extreme = (dir) => films.reduce((best, t) => (best === null || dir * (t.runtimeMin - best.runtimeMin) > 0 ? t : best), null);
+  const longest = extreme(1);
+  const shortest = extreme(-1);
+  const withPost = released.filter((t) => (t.postCredits ?? []).length > 0);
+  const releaseDay = seenUnits.some((u) => {
+    const t = byId.get(u.titleId);
+    const days = u.kind === 'film' ? [t.releaseDate, t.releaseDateFr] : [t.episodes.find((e) => e.n === u.n)?.airDate];
+    return days.includes(seen[u.key]);
+  });
   const shorts = titles.filter((t) => matchesCategory('shorts', t));
   const alts = titles.filter((t) => t.altUniverse === true);
   return {
@@ -97,6 +147,20 @@ export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, sp
     birthday,
     catchUpCount: Object.keys(catchUp).filter((key) => seen[key]).length,
     triplePhaseDay: Object.values(phasesByDay).some((set) => set.size >= 3),
+    hoursSeen: Math.floor(seenUnits.reduce((sum, u) => sum + u.runtimeMin, 0) / 60),
+    hasBackup: Boolean(lastBackup),
+    recentBackup: Boolean(lastBackup) && dayNumber(today) - dayNumber(lastBackup.day) <= 30,
+    bestWeekStreak,
+    chronoRun: runIn('chrono'),
+    releaseRun: runIn('release'),
+    phaseFast: phases.some((p) => doneWithin(titles.filter((t) => t.phase === p), 7)),
+    sagaFast: doneWithin(titles.filter((t) => t.saga === 'infinity'), 30),
+    postAll: allDone(withPost),
+    longestSeen: longest !== null && titleSeen(longest, seen),
+    shortestSeen: shortest !== null && titleSeen(shortest, seen),
+    ignoredCount: Object.values(ignored ?? {}).filter(Boolean).length,
+    encoreChosen: versions?.['avengers-endgame'] === 'encore',
+    releaseDay,
     heroPercent: Object.fromEntries(HEROES.map((hero) => {
       const own = titles.filter((t) => (t.heroes ?? []).includes(hero.id));
       return [hero.id, own.length ? Math.floor((own.filter((t) => titleSeen(t, seen)).length / own.length) * 100) : 0];

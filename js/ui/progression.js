@@ -181,7 +181,7 @@ export function showAchievementsTab() { currentTab = 'succes'; }
 
 export function achievementInput(ctx) {
   const { state, view } = ctx;
-  return { titles: ctx.counted, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions };
+  return { titles: ctx.counted, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions, ignored: state.ignored, lastBackup: view.lastBackup };
 }
 
 function succes(ctx) {
@@ -195,14 +195,15 @@ function succes(ctx) {
     const single = a.tiers.length === 1;
     const tier = single ? (locked ? 'Verrouillé' : 'Obtenu') : (locked ? 'Verrouillé' : LEVEL_LABELS[a.level]);
     const showBar = !secret && !single && a.level < a.tiers.length;
+    const amount = (n) => `${n}${a.unit ? ` ${a.unit}` : ''}`;
     return h('li', { class: `achv${locked ? ' locked' : ''}` },
       h('span', { class: `medal l${single && !locked ? 3 : a.level}`, 'aria-hidden': 'true' }, secret ? '?' : locked ? icon('lock') : single ? icon('check') : String(a.level)),
       h('div', { class: 'achv-body' },
         h('div', { class: 'achv-name' }, h('span', { text: secret ? 'Succès caché' : a.name }), h('span', { class: 'tier', text: tier })),
         h('div', { class: 'achv-desc', text: secret ? 'À découvrir en regardant.' : a.desc }),
         a.date && !locked ? h('div', { class: 'achv-desc', text: `Débloqué le ${formatShort(a.date)}` }) : null,
-        showBar ? progressBar(Math.min(100, Math.round((Math.min(a.value, a.next) / a.next) * 100)), `${a.name} : ${Math.min(a.value, a.next)}${a.unit} sur ${a.next}${a.unit}`) : null,
-        showBar ? h('div', { class: 'achv-desc', text: `${Math.min(a.value, a.next)}${a.unit ? ' ' : ''}${a.unit} / ${a.next}${a.unit ? ' ' : ''}${a.unit}` }) : null));
+        showBar ? progressBar(Math.min(100, Math.round((Math.min(a.value, a.next) / a.next) * 100)), `${a.name} : ${amount(Math.min(a.value, a.next))} sur ${amount(a.next)}`) : null,
+        showBar ? h('div', { class: 'achv-desc', text: `${amount(Math.min(a.value, a.next))} / ${amount(a.next)}` }) : null));
   };
   return [
     card('p-achv', 'Succès',

@@ -163,3 +163,5 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 - Accueil (feuille `welcome`, une fois, préférence `welcomed`), historique d'annulation en mémoire (20 actions, Réglages > Données), retour tactile à la coche (`feedback`, vibration + rebond, désactivable). « Tout marquer vu jusqu'ici » existait déjà (menu ⋮) : l'accueil le réutilise.
 
 - Hors-ligne : service worker `sw.js` (cache `chrono-mcu-<build>`, fichiers ?v= en cache d'abord, navigation réseau d'abord avec repli, affiches TMDB jamais conservées pour ne pas stocker de réponses opaques). Enregistré seulement sur un build déployé. Précache de js/, css/, data/ vérifié par tests/sw.test.js ; test e2e hors ligne sur une copie « buildée ».
+
+- Succès ajoutés : Heures de vol, Prévoyant et Sauvegarde à jour, Régulier (semaines), Chronologue et Fidèle à la sortie (suites d'unités vues dans l'ordre, rattrapages exclus), Phase et Saga express, Complétiste des scènes, Film fleuve et Film éclair, et trois cachés (Sélectif, Encore !, Dès la sortie). Les sauvegardes s'appuient sur `lastBackup` des préférences d'affichage.
