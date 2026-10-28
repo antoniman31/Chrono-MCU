@@ -173,3 +173,5 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 - Lancement de la synchronisation depuis Réglages (js/github.js) : lien vers la page Actions du workflow, et, si l'utilisateur colle un jeton fine-grained (Actions : lecture/écriture, ce dépôt seulement), vrai bouton qui appelle l'API `workflow_dispatch` puis suit le lancement. Jeton dans une clé localStorage séparée, jamais exporté ; CSP `connect-src` élargie à `https://api.github.com` ; sw.js ignore déjà les requêtes d'autres origines.
 
 - Titres « à venir » : menu ⋮, glissement à gauche et bouton de la fiche pour ignorer / ne plus ignorer (sans case à cocher) ; l'état « ignoré » est conservé à la sortie ; cadre pointillé fin par pseudo-élément.
+
+- Fiches voisines : barre Précédent / Suivant (compteur « n / N »), glissement horizontal limité à l'en-tête de la fiche et à l'image paysage (la liste d'épisodes garde son glissement « vu »), flèches ← → (sauf dans un champ ou un onglet). Ordre = liste affichée (`ctx.navIds`), butoir aux bouts, ignorés et « à venir » inclus.

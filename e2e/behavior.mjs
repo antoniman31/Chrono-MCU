@@ -453,6 +453,55 @@ await scenario('titre à venir : menu, ignorer / ne plus ignorer, badge, filtre,
   check(!(await stored(page)).ignored[id], 'ne plus ignorer doit retirer le titre des ignorés');
 });
 
+await scenario('fiche : titres voisins par boutons, flèches du clavier et glissement sur l\'en-tête, dans l\'ordre de la liste filtrée', async (page) => {
+  await page.fill('#search', 'Iron Man');
+  const ids = await page.locator('#list [data-fk^="open:"]').evaluateAll((els) => els.map((el) => el.dataset.fk.slice(5)));
+  check(ids.length === 3, `3 titres Iron Man attendus : ${ids}`);
+  const titles = await page.locator('#list .item .title').allInnerTexts();
+  const shownTitle = () => page.locator('#sheet-title').innerText();
+  const count = () => page.locator('.detail-nav .count').innerText();
+  await page.click(`[data-fk="open:${ids[0]}"]`);
+  check((await shownTitle()) === titles[0] && (await count()) === '1 / 3', `première fiche : ${await shownTitle()} ${await count()}`);
+  check(await page.locator('[data-fk="detail-prev"]').isDisabled(), 'pas de titre précédent au premier');
+  await page.click('[data-fk="detail-next"]');
+  check((await shownTitle()) === titles[1] && (await count()) === '2 / 3', `suivant : ${await shownTitle()} ${await count()}`);
+  check(await page.evaluate(() => document.activeElement?.dataset?.fk) === 'detail-next', 'le focus reste sur le bouton Suivant');
+  await page.keyboard.press('ArrowRight');
+  check((await shownTitle()) === titles[2] && await page.locator('[data-fk="detail-next"]').isDisabled(), 'flèche droite : dernière fiche, Suivant désactivé');
+  await page.keyboard.press('ArrowRight');
+  check((await shownTitle()) === titles[2], 'au dernier titre, la flèche droite ne change rien');
+  await page.keyboard.press('ArrowLeft');
+  check((await shownTitle()) === titles[1], 'flèche gauche : fiche précédente');
+  const swipe = (selector, from, to) => page.evaluate(([sel, a, b]) => {
+    const el = document.querySelector(sel);
+    const fire = (type, x) => el.dispatchEvent(new PointerEvent(type, { pointerType: 'touch', pointerId: 7, clientX: x, clientY: 300, bubbles: true }));
+    fire('pointerdown', a);
+    fire('pointerup', b);
+  }, [selector, from, to]);
+  await swipe('.detail-head', 280, 80); // vers la gauche : suivant
+  check((await shownTitle()) === titles[2], 'glissement à gauche sur l\'en-tête : titre suivant');
+  await swipe('.detail-head', 80, 280); // vers la droite : précédent
+  check((await shownTitle()) === titles[1], 'glissement à droite sur l\'en-tête : titre précédent');
+  await swipe('.detail-head', 200, 170); // trop court
+  check((await shownTitle()) === titles[1], 'un glissement trop court ne change rien');
+  await page.keyboard.press('Escape');
+  check(await page.locator('#sheet[open]').count() === 0, 'la fiche se ferme');
+});
+
+await scenario('fiche sur grand écran : boutons et flèches changent le panneau et la ligne sélectionnée', async (page) => {
+  const ids = await page.locator('#list [data-fk^="open:"]').evaluateAll((els) => els.slice(0, 3).map((el) => el.dataset.fk.slice(5)));
+  await page.click(`[data-fk="open:${ids[0]}"]`);
+  const paneTitle = () => page.locator('#detail-pane h2').innerText();
+  const first = await paneTitle();
+  await page.click('[data-fk="detail-next"]');
+  const second = await paneTitle();
+  check(first !== second && await page.locator(`#list li.selected:has([data-fk="open:${ids[1]}"])`).count() === 1, 'le bouton Suivant doit changer le panneau et la ligne sélectionnée');
+  await page.keyboard.press('ArrowRight');
+  check(await paneTitle() !== second && await page.locator(`#list li.selected:has([data-fk="open:${ids[2]}"])`).count() === 1, 'la flèche droite doit passer au titre suivant');
+  await page.keyboard.press('ArrowLeft');
+  check(await paneTitle() === second, 'la flèche gauche doit revenir au titre précédent');
+}, { viewport: { width: 1200, height: 800 } });
+
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
   const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;

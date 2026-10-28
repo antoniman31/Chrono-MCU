@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { swipeAction, SWIPE_RATIO } from '../js/ui/swipe.js';
+import { pageSwipe, PAGE_MIN_PX, swipeAction, SWIPE_RATIO } from '../js/ui/swipe.js';
 
 const both = { right: true, left: true };
 
@@ -25,4 +25,16 @@ test('swipeAction: un sens désactivé ne valide jamais', () => {
 
 test('swipeAction: largeur nulle sans effet', () => {
   assert.equal(swipeAction(100, 0, both), null);
+});
+
+test('pageSwipe : seuil, direction et geste surtout horizontal', () => {
+  assert.equal(PAGE_MIN_PX, 60);
+  assert.equal(pageSwipe(-120, 10, 360), 'next'); // vers la gauche : titre suivant
+  assert.equal(pageSwipe(120, -10, 360), 'prev'); // vers la droite : titre précédent
+  assert.equal(pageSwipe(-50, 0, 360), null); // trop court
+  assert.equal(pageSwipe(-70, 0, 600), null); // 20 % de 600 = 120 px
+  assert.equal(pageSwipe(-130, 0, 600), 'next');
+  assert.equal(pageSwipe(-100, 90, 360), null); // plutôt un défilement vertical
+  assert.equal(pageSwipe(-100, 60, 360), 'next');
+  assert.equal(pageSwipe(0, 0, 0), null);
 });

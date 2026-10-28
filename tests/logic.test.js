@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { titleStatus, titleMinutes, sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions, goalPlan } from '../js/logic.js';
+import { stepId, titleStatus, titleMinutes, sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions, goalPlan } from '../js/logic.js';
 
 const film = (id, chronoOrder, releaseDate, phase = 1, runtimeMin = 100) => ({
   id, title: id, type: 'film', phase, saga: 'infinity', releaseDate, chronoOrder, runtimeMin, verified: true,
@@ -360,4 +360,14 @@ test('filtre par personnage ou équipe', () => {
   assert.deepEqual(ids('avengers'), ['x']);
   assert.deepEqual(ids('thor'), ['y']);
   assert.deepEqual(ids('hulk'), []);
+});
+
+test('stepId : voisin dans la liste, null aux bouts ou si absent', () => {
+  const ids = ['a', 'b', 'c'];
+  assert.equal(stepId(ids, 'b', 1), 'c');
+  assert.equal(stepId(ids, 'b', -1), 'a');
+  assert.equal(stepId(ids, 'a', -1), null);
+  assert.equal(stepId(ids, 'c', 1), null);
+  assert.equal(stepId(ids, 'x', 1), null);
+  assert.equal(stepId([], 'a', 1), null);
 });
