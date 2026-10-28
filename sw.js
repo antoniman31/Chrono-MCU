@@ -15,6 +15,7 @@ const VERSIONED = [
   'js/github.js',
   'js/heroes.js',
   'js/insights.js',
+  'js/duration.js',
   'js/logic.js',
   'js/phases.js',
   'js/prefs.js',

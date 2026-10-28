@@ -22,7 +22,7 @@ export const filmDate = (t) => t.releaseDateFr ?? t.releaseDate;
 export function metaLine(t) {
   const year = t.releaseDate.slice(0, 4);
   if (t.upcoming) return `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatShort(t.releaseDate)} · phase ${t.phase}`;
-  if (t.type === 'film') return `Film · ${formatShort(filmDate(t))} · ${t.runtimeMin} min · phase ${t.phase}`;
+  if (t.type === 'film') return `Film · ${formatShort(filmDate(t))} · ${hours(t.runtimeMin)} · phase ${t.phase}`;
   const total = t.episodes.reduce((sum, e) => sum + e.runtimeMin, 0);
   return `Série · ${year} · ${t.episodes.length} ép. · ${hours(total)} · phase ${t.phase}`;
 }
@@ -39,7 +39,7 @@ function versionSection(ctx, t) {
         h('label', { class: 'segopt' },
           h('input', { type: 'radio', name: `version-${t.id}`, value: o.id ?? '', checked: current === o.id, 'data-fk': `version:${t.id}:${o.id ?? 'original'}`, onchange: () => ctx.setVersion(t, o.id) }),
           h('span', { class: 'face', text: o.label }))))),
-    t.versions.map((v) => h('p', { class: 'muted t-body-sm', text: `${v.label}, ressortie le ${formatShort(v.releaseDate)} : ${v.runtimeMin} min. ${v.note}` })));
+    t.versions.map((v) => h('p', { class: 'muted t-body-sm', text: `${v.label}, ressortie le ${formatShort(v.releaseDate)} : ${hours(v.runtimeMin)}. ${v.note}` })));
 }
 
 // Résumé : 3 lignes, « Voir plus » seulement si le texte est plus long ; flouté (avec un bouton dessus) tant que les spoilers sont masqués
@@ -86,7 +86,7 @@ function episodesSection(ctx, t, ignored) {
       checkbox({ checked: seen, disabled: ignored, label: `Vu : ${t.title}, épisode ${e.n}`, key: `ep:${key}`, onchange: () => ctx.toggleEpisode(t, e, seen) }),
       h('div', { class: 'ep-text' },
         h('span', { class: 'title' }, episodeName(ctx, t, e)),
-        h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${e.runtimeMin} min` : `${e.runtimeMin} min` })));
+        h('span', { class: 'meta', text: e.airDate ? `${formatShort(e.airDate)} · ${hours(e.runtimeMin)}` : hours(e.runtimeMin) })));
     const row = h('li', { class: `item${seen ? ' seen' : ''}` }, bg, fg);
     attachSwipe(row, fg, bg, swipe);
     return row;
