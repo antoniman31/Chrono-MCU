@@ -14,10 +14,12 @@ let scenarios = 0;
 const check = (cond, message) => { if (!cond) throw new Error(message); };
 const STATE = 'chrono-mcu:v1';
 
+const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+
 async function scenario(name, run, { prefs = null, seed = null, colorScheme = 'light', viewport = { width: 360, height: 740 } } = {}) {
   scenarios += 1;
   const context = await browser.newContext({ viewport, colorScheme, reducedMotion: 'reduce', acceptDownloads: true });
-  await context.route(/image\.tmdb\.org/, (route) => route.abort());
+  await context.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: PIXEL }));
   // Les valeurs de départ ne sont posées qu'une fois (pas à chaque rechargement), pour pouvoir tester la persistance
   await context.addInitScript(([p, s]) => {
     try {
@@ -334,7 +336,7 @@ await scenario('bouton de thème du bandeau : visible partout, cycle Auto > Clai
 
 await scenario('film à versions (Endgame Encore) : une seule case, durée et scènes suivent la version choisie', async (page) => {
   const row = () => page.locator('li.item', { has: page.locator('[data-fk="open:avengers-endgame"]') }).first();
-  check(/version Encore : nouvelle scène post-générique/.test(await row().innerText()), 'la liste doit signaler la version Encore et sa nouvelle scène');
+  check(/Encore : nouvelle scène/.test(await row().innerText()), 'la liste doit signaler la version Encore et sa nouvelle scène');
   check(/181 min/.test(await row().innerText()), 'par défaut : durée d\'origine (181 min)');
   const total = async () => (await page.evaluate(() => JSON.parse(localStorage.getItem('chrono-mcu:v1'))?.versions ?? {}));
   await page.click('[data-fk="open:avengers-endgame"]');
@@ -342,7 +344,7 @@ await scenario('film à versions (Endgame Encore) : une seule case, durée et sc
   check((await total())['avengers-endgame'] === 'encore', 'le choix de version doit être enregistré');
   await page.keyboard.press('Escape');
   check(/185 min/.test(await row().innerText()) && /version Encore/.test(await row().innerText()), `après le choix : 185 min et badge « version Encore » (${await row().innerText()})`);
-  check(/scène post-générique/.test(await row().innerText()), 'la scène post-générique de l\'Encore doit être comptée');
+  check(/post-générique/.test(await row().innerText()), 'la scène post-générique de l\'Encore doit être comptée');
   check((await page.locator('[data-fk="cb:avengers-endgame"]').count()) === 1, 'une seule case pour le film');
   await reload(page);
   check(/185 min/.test(await row().innerText()), 'le choix doit survivre au rechargement');
@@ -413,6 +415,24 @@ await scenario('effacer ma progression : sauvegarde téléchargée, coches effac
   check(/Progression effacée/.test(await page.locator('#snackbar').innerText()), 'un message avec « Annuler » doit apparaître');
   await page.click('#snackbar-action');
   check((await seen()) === 1, 'Annuler doit rendre la coche');
+});
+
+await scenario('affiches de la liste : toutes de la même taille, même avec des badges longs', async (page) => {
+  // Les tests bloquent les images TMDB ; ici on sert une image de 1 pixel pour que les affiches existent
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  await page.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: png }));
+  await reload(page);
+  await page.waitForFunction(() => document.querySelectorAll('#list .poster').length > 5);
+  const sizes = await page.evaluate(() => [...new Set([...document.querySelectorAll('#list .poster')].map((i) => `${Math.round(i.getBoundingClientRect().width)}x${Math.round(i.getBoundingClientRect().height)}`))]);
+  check(sizes.length === 1, `toutes les affiches doivent avoir la même taille : ${sizes.join(', ')}`);
+  // Cartes de même hauteur : l'affiche remplit la carte (144 px) pour tous les titres de début de liste
+  const heights = await page.evaluate(() => [...document.querySelectorAll('#list li.item')].slice(0, 25).map((li) => ({
+    card: Math.round(li.querySelector('.item-fg').getBoundingClientRect().height),
+    poster: Math.round(li.querySelector('.poster').getBoundingClientRect().height),
+  })));
+  const distinct = [...new Set(heights.map((x) => x.card))];
+  check(distinct.length === 1 && distinct[0] === 144, `toutes les cartes doivent avoir la même hauteur : ${distinct.join(', ')}`);
+  check(heights.every((x) => x.poster === x.card), 'l\'affiche doit remplir toute la hauteur de la carte');
 });
 
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
