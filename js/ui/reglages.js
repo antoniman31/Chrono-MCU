@@ -1,6 +1,6 @@
 import { $, formatShort, h, icon, today } from './dom.js?v=__BUILD__';
 import { daysAgoLabel, daysBetween } from '../backup.js?v=__BUILD__';
-import { CATEGORIES, matchesCategory } from '../categories.js?v=__BUILD__';
+import { CATEGORIES, categoryTexts, matchesCategory } from '../categories.js?v=__BUILD__';
 import { stats } from '../logic.js?v=__BUILD__';
 import { formatDuration } from '../duration.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
@@ -25,8 +25,9 @@ function followSection(ctx) {
   const rows = CATEGORIES.map((c) => {
     const inCategory = released.filter((t) => matchesCategory(c.id, t));
     const minutes = inCategory.reduce((sum, t) => sum + titleMinutes(t), 0);
+    const texts = categoryTexts(c, ctx.sagas, ctx.allTitles);
     return h('label', { class: 'setting switch-row' },
-      h('span', { class: 'text' }, c.label, h('span', { class: 'desc', text: `${c.desc} · ${inCategory.length} titre${inCategory.length > 1 ? 's' : ''}, ${hoursText(minutes)}` })),
+      h('span', { class: 'text' }, texts.label, h('span', { class: 'desc', text: `${texts.desc} · ${inCategory.length} titre${inCategory.length > 1 ? 's' : ''}, ${hoursText(minutes)}` })),
       h('input', { type: 'checkbox', role: 'switch', checked: !skip.includes(c.id), 'data-fk': `follow:${c.id}`, onchange: (e) => ctx.setSkip(c.id, !e.target.checked) }),
       h('span', { class: 'switch', 'aria-hidden': 'true' }));
   });

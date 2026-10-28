@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CATEGORIES, effectiveIgnored, ignoreInfo, matchesCategory, titleIgnored } from '../js/categories.js';
+import { CATEGORIES, categoryLabel, categoryTexts, effectiveIgnored, ignoreInfo, matchesCategory, titleIgnored } from '../js/categories.js';
 import { defaultState } from '../js/store.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../data/mcu.json', import.meta.url), 'utf8'));
@@ -45,4 +45,18 @@ test('ignoreInfo : explicite, par catégorie, réintégré', () => {
 test('effectiveIgnored : table des titres ignorés', () => {
   const map = effectiveIgnored({ ...defaultState(), skip: ['altUniverse'] }, catalogue);
   assert.deepEqual(Object.keys(map).sort(), of('altUniverse').map((t) => t.id).sort());
+});
+
+test('catégorie de saga : nom et description suivent data/sagas.json', () => {
+  const sagas = JSON.parse(readFileSync(new URL('../data/sagas.json', import.meta.url), 'utf8'));
+  const c = CATEGORIES.find((x) => x.id === 'multiverse');
+  const texts = categoryTexts(c, sagas, catalogue);
+  assert.equal(texts.label, "Saga du Multivers");
+  assert.equal(texts.desc, "Phases 4 à 6 : à couper pour s'arrêter à la Saga de l'Infini");
+  assert.equal(categoryLabel('multiverse', sagas, catalogue), 'Saga du Multivers');
+  assert.equal(categoryLabel('series'), 'Séries');
+  // renommé dans le fichier : tout suit, sans l'article en titre
+  const renamed = sagas.map((s) => (s.id === 'infinity' ? { ...s, name: "L'Épopée de l'Infini" } : { ...s, name: 'Le Grand Multivers' }));
+  assert.equal(categoryTexts(c, renamed, catalogue).label, 'Grand Multivers');
+  assert.match(categoryTexts(c, renamed, catalogue).desc, /à couper pour s'arrêter à L'Épopée de l'Infini$/);
 });

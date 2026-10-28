@@ -2,6 +2,7 @@
 // Un succès a un ou trois paliers (bronze, argent, or) ; une fois débloqué, un palier n'est jamais retiré (voir merge).
 import { sortTitles, titleSeen, toUnits } from './logic.js?v=__BUILD__';
 import { matchesCategory } from './categories.js?v=__BUILD__';
+import { sagaNames } from './phases.js?v=__BUILD__';
 import { HEROES } from './heroes.js?v=__BUILD__';
 import { activityByDay, dayNumber, weekStart } from './insights.js?v=__BUILD__';
 
@@ -15,8 +16,8 @@ const CATALOG = [
   { id: 'first', family: 'progression', name: 'Premier pas', tiers: [1], metric: (m) => m.seenUnits, desc: () => 'Coche ton premier film ou épisode' },
   { id: 'percent', family: 'progression', name: 'Cap sur la fin', unit: '%', tiers: [25, 50, 100], metric: (m) => m.percent, desc: (n) => `Atteindre ${n} % du catalogue` },
   { id: 'phases', family: 'progression', name: 'Phase après phase', tiers: [1, 3, 5], metric: (m) => m.phasesDone, desc: (n) => `Terminer ${n} ${plural(n, 'phase', 'phases')} en entier` },
-  { id: 'infinity', family: 'progression', name: 'Infinity Saga', tiers: [1], metric: (m) => m.infinityDone, desc: () => 'Voir toute l\'Infinity Saga' },
-  { id: 'multiverse', family: 'progression', name: 'Saga du Multivers', tiers: [1], metric: (m) => m.multiverseDone, desc: () => 'Voir tout ce qui est sorti de la Saga du Multivers' },
+  { id: 'infinity', family: 'progression', saga: 'infinity', name: 'Saga de l\'Infini', tiers: [1], metric: (m) => m.infinityDone, desc: () => 'Voir toute la Saga de l\'Infini', named: (s) => ({ name: s.short, desc: `Voir toute ${s.inText}` }) },
+  { id: 'multiverse', family: 'progression', saga: 'multiverse', name: 'Saga du Multivers', tiers: [1], metric: (m) => m.multiverseDone, desc: () => 'Voir tout ce qui est sorti de la Saga du Multivers', named: (s) => ({ name: s.short, desc: `Voir tout ce qui est sorti de ${s.inText}` }) },
   { id: 'hours', family: 'progression', name: 'Heures de vol', unit: 'h', tiers: [24, 100, 200], metric: (m) => m.hoursSeen, desc: (n) => `Cumuler ${n} h de visionnage` },
   { id: 'backup1', family: 'progression', name: 'Prévoyant', tiers: [1], metric: (m) => m.hasBackup, desc: () => 'Exporter ta progression une première fois' },
   { id: 'backup2', family: 'progression', name: 'Sauvegarde à jour', tiers: [1], metric: (m) => m.recentBackup, desc: () => 'Avoir une sauvegarde de moins de 30 jours' },
@@ -28,7 +29,7 @@ const CATALOG = [
   { id: 'chrono', family: 'rythme', name: 'Chronologue', tiers: [10, 25, 50], metric: (m) => m.chronoRun, desc: (n) => `Voir ${n} films ou épisodes d'affilée dans l'ordre chronologique, sans en sauter` },
   { id: 'release', family: 'rythme', name: 'Fidèle à la sortie', tiers: [10, 25, 50], metric: (m) => m.releaseRun, desc: (n) => `Voir ${n} films ou épisodes d'affilée dans l'ordre de sortie, sans en sauter` },
   { id: 'phaseFast', family: 'rythme', name: 'Phase express', tiers: [1], metric: (m) => m.phaseFast, desc: () => 'Terminer une phase en 7 jours' },
-  { id: 'sagaFast', family: 'rythme', name: 'Saga express', tiers: [1], metric: (m) => m.sagaFast, desc: () => 'Terminer l\'Infinity Saga en 30 jours' },
+  { id: 'sagaFast', family: 'rythme', saga: 'infinity', name: 'Saga express', tiers: [1], metric: (m) => m.sagaFast, desc: () => 'Terminer la Saga de l\'Infini en 30 jours', named: (s) => ({ name: 'Saga express', desc: `Terminer ${s.inText} en 30 jours` }) },
   { id: 'series', family: 'mcu', name: 'Binge-watcher', tiers: [1, 5, 10], metric: (m) => m.seriesDone, desc: (n) => `Terminer ${n} ${plural(n, 'série', 'séries')}` },
   { id: 'films', family: 'mcu', name: 'Cinéphile', tiers: [10, 25, 40], metric: (m) => m.filmsDone, desc: (n) => `Voir ${n} films` },
   { id: 'post', family: 'mcu', name: 'Chasseur de scènes', tiers: [10, 25, 35], metric: (m) => m.postDone, desc: (n) => `Voir ${n} titres avec une scène après le générique` },
@@ -178,7 +179,9 @@ export function evaluate(input) {
     const value = num(a.metric(m));
     const level = a.tiers.filter((t) => value >= t).length;
     const next = a.tiers[level] ?? null;
-    return { id: a.id, family: a.family, name: a.name, unit: a.unit ?? '', hidden: a.hidden === true, tiers: a.tiers, value, level, next, desc: a.desc(next ?? a.tiers.at(-1)) };
+    // Les succès liés à une saga prennent son nom dans data/sagas.json (input.sagas) ; sinon le texte de repli du catalogue
+    const text = a.named ? a.named(sagaNames(a.saga, input.sagas, input.titles)) : { name: a.name, desc: a.desc(next ?? a.tiers.at(-1)) };
+    return { id: a.id, family: a.family, name: text.name, unit: a.unit ?? '', hidden: a.hidden === true, tiers: a.tiers, value, level, next, desc: text.desc };
   });
 }
 

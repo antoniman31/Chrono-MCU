@@ -274,7 +274,7 @@ ctx.setVersion = (title, versionId) => {
   const v = title.versions?.find((x) => x.id === versionId);
   update(setTitleVersion(ctx.state, title.id, versionId), `${title.title} : version ${v ? v.label : 'd\'origine'}`);
 };
-ctx.setSkip = (id, skipped) => update(setSkip(ctx.state, id, skipped, ctx.allTitles), `${categoryLabel(id)} : ${skipped ? 'non suivi' : 'suivi'}`);
+ctx.setSkip = (id, skipped) => update(setSkip(ctx.state, id, skipped, ctx.allTitles), `${categoryLabel(id, ctx.sagas, ctx.allTitles)} : ${skipped ? 'non suivi' : 'suivi'}`);
 ctx.setFilter = (patch) => {
   Object.assign(ctx.filters, patch);
   render();

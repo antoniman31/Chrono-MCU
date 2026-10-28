@@ -14,6 +14,16 @@ export function sagaLabel(saga, sagas = [], titles = []) {
   return phases.length === 1 ? `Phase ${phases[0]}` : `Phases ${phases[0]} à ${phases.at(-1)}`;
 }
 
+// Nom de saga pour un titre (« Saga de l'Infini ») et pour une phrase (« la Saga de l'Infini ») : l'article du fichier est retiré du
+// premier et gardé en minuscules dans le second. Un nom sans article (ou « Phases 7 à 9 ») est utilisé tel quel.
+export function sagaNames(saga, sagas = [], titles = []) {
+  const label = sagaLabel(saga, sagas, titles);
+  const m = label.match(/^(la|le|les)\s+(.+)$/i);
+  if (!m) return { short: label, inText: label };
+  const short = m[2][0].toUpperCase() + m[2].slice(1);
+  return { short, inText: `${m[1].toLowerCase()} ${m[2]}` };
+}
+
 const mostFrequent = (values) => {
   const counts = new Map();
   for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
