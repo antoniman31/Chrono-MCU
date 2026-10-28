@@ -600,7 +600,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 }
 .phase-tabs { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); padding-top: 6px; }
 .phase-tabs::-webkit-scrollbar { display: none; }
-/* Frise : un rond par phase (anneau vert = part vue), reliés par un trait ; la phase courante a un anneau rouge et son libellé */
+/* Frise : un rond par phase (anneau vert = part vue), reliés par un trait ; la phase courante a un anneau rouge et une petite flèche vers la phrase */
 .ptab { flex: 1 0 44px; scroll-snap-align: center; position: relative; display: grid; justify-items: center; align-content: start; min-height: 44px; padding: 0; background: none; border: 0; color: var(--muted); font-size: .6875rem; line-height: 1rem; }
 .ptab::before { content: ""; position: absolute; top: calc(1.0625rem - 1px); left: 0; right: 0; height: 2px; background: var(--border); }
 .ptab:first-child::before { left: 50%; }
@@ -612,6 +612,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .ptab:focus-visible { outline-offset: -2px; }
 .ptab[aria-selected="true"] { color: var(--fg); font-weight: 700; }
 .ptab[aria-selected="true"] .pdot { background: conic-gradient(var(--ok) var(--p, 0%), var(--accent-btn) 0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+.ptab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 0; margin-left: -6px; border: 6px solid transparent; border-top-width: 0; border-bottom-color: var(--accent); } /* petite flèche vers la phrase, dans l'espace libre sous le rond : la hauteur ne change pas */
 .phase-info { display: grid; gap: 0; padding: 6px 0 6px; text-align: center; overflow-wrap: anywhere; }
 .phase-info strong { font-size: .9375rem; line-height: 1.375rem; font-weight: 500; }
 .phase-info span { font-size: .8125rem; line-height: 1.125rem; color: var(--muted); }
