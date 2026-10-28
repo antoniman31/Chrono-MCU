@@ -10,6 +10,7 @@ const VERSIONED = [
   'css/style.css',
   'js/achievements.js',
   'js/app.js',
+  'js/boot.js',
   'js/backup.js',
   'js/categories.js',
   'js/github.js',

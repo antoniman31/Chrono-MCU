@@ -387,6 +387,69 @@ await scenario('données d\'une version plus récente : ni utilisées ni écras�
   check(raw.version === 99 && raw.seen.thor === '2026-10-02', 'la copie des données plus récentes doit être intacte');
 }, { rawSeed: JSON.stringify({ version: 99, order: 'chrono', seen: { thor: '2026-10-02' } }) });
 
+// Filet de sécurité (js/boot.js, <noscript>, message du catalogue) : on provoque chaque panne et on lit ce que voit l'utilisateur
+async function brokenPage(name, { javaScriptEnabled = true, setup = async () => {}, run }) {
+  scenarios += 1;
+  const context = await browser.newContext({ viewport: { width: 360, height: 740 }, javaScriptEnabled, reducedMotion: 'reduce' });
+  try {
+    await context.addInitScript(() => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true })); } catch { /* ignore */ } });
+    await setup(context);
+    const page = await context.newPage();
+    await page.goto(base);
+    await run(page);
+  } catch (e) {
+    failures.push(`${name} : ${e.message.split('\n')[0]}`);
+  } finally {
+    await context.close();
+  }
+}
+const visibleMessage = (page) => page.locator('#message:not([hidden])').innerText();
+
+await brokenPage('catalogue indisponible : message en français, sans texte technique du navigateur', {
+  setup: (context) => context.route('**/data/mcu.json*', (route) => route.abort()),
+  run: async (page) => {
+    await page.waitForSelector('#message:not([hidden])');
+    const text = await visibleMessage(page);
+    check(/Impossible de charger le catalogue\. Vérifie ta connexion/.test(text) && !/fetch/i.test(text), `message du catalogue inattendu : ${text}`);
+  },
+});
+
+await brokenPage('script de l\'application introuvable : message « n\'a pas pu démarrer » au lieu d\'un écran blanc', {
+  setup: (context) => context.route('**/js/app.js*', (route) => route.abort()),
+  run: async (page) => {
+    await page.waitForSelector('#message:not([hidden])');
+    check(/n'a pas pu démarrer/.test(await visibleMessage(page)), `message de démarrage attendu : ${await visibleMessage(page)}`);
+  },
+});
+
+await brokenPage('erreur inattendue après le démarrage : message discret, l\'application reste utilisable', {
+  run: async (page) => {
+    await page.waitForSelector('body[data-ready]', { state: 'attached' });
+    await page.evaluate(() => setTimeout(() => { throw new Error('panne simulée'); }));
+    await page.waitForSelector('#message:not([hidden])');
+    check(/erreur inattendue/.test(await visibleMessage(page)), `message d'erreur attendu : ${await visibleMessage(page)}`);
+    await page.click('[data-fk="cb:captain-america-first-avenger"]');
+    check(await page.locator('[data-fk="cb:captain-america-first-avenger"]').isChecked(), 'l\'application doit rester utilisable');
+  },
+});
+
+await brokenPage('une affiche qui ne charge pas ne déclenche aucun message d\'erreur', {
+  setup: (context) => context.route(/image\.tmdb\.org/, (route) => route.abort()),
+  run: async (page) => {
+    await page.waitForSelector('body[data-ready]', { state: 'attached' });
+    await page.waitForTimeout(800);
+    check(await page.locator('#message:not([hidden])').count() === 0, 'les affiches absentes ne doivent pas afficher d\'erreur');
+  },
+});
+
+await brokenPage('JavaScript désactivé : le message <noscript> explique quoi faire', {
+  javaScriptEnabled: false,
+  run: async (page) => {
+    const text = await page.locator('noscript').first().evaluate((el) => el.textContent);
+    check(/besoin de JavaScript/.test(text), `message noscript attendu : ${text}`);
+  },
+});
+
 // Hors-ligne : on « construit » une copie (marqueur __BUILD__ remplacé comme au déploiement), on la sert,
 // on laisse le service worker s'installer, puis on coupe le réseau et on recharge.
 {

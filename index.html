@@ -71,6 +71,7 @@
       </header>
 
       <main id="main" tabindex="-1">
+        <noscript><p class="noscript">Chrono-MCU a besoin de JavaScript pour fonctionner. Active-le dans ton navigateur, puis recharge la page.</p></noscript>
         <p id="message" role="status" hidden></p>
 
         <section id="screen-voir" class="screen" aria-labelledby="h-voir">
@@ -145,6 +146,7 @@
 
   <input type="file" id="import-file" accept="application/json,.json" hidden>
 
+  <script src="js/boot.js?v=__BUILD__"></script>
   <script type="module" src="js/app.js?v=__BUILD__"></script>
 </body>
 </html>
