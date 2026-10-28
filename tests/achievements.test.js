@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluate, mergeUnlocked, unlockMessage, metrics, TOTAL_MEDALS } from '../js/achievements.js';
+import { evaluate, mergeUnlocked, unlockMessage, metrics, totalMedals } from '../js/achievements.js';
 import { normalizeView } from '../js/prefs.js';
 
 const film = (id, releaseDate, extra = {}) => ({ id, title: id, type: 'film', phase: 1, saga: 'infinity', releaseDate, chronoOrder: 1, runtimeMin: 100, verified: true, ...extra });
@@ -13,7 +13,7 @@ const get = (list, id) => list.find((a) => a.id === id);
 
 test('catalogue : médailles totales cohérentes', () => {
   const list = evaluate(base({ titles: [film('a', '2008-01-01')], seen: {} }));
-  assert.equal(list.reduce((sum, a) => sum + a.tiers.length, 0), TOTAL_MEDALS);
+  assert.equal(totalMedals(list), list.reduce((sum, a) => sum + a.tiers.length, 0));
   assert.equal(list.filter((a) => a.hidden).length, 8);
 });
 
@@ -205,5 +205,7 @@ test('succès de saga : le nom vient de data/sagas.json, sans article dans le ti
   assert.equal(get(list, 'sagaFast').name, 'Saga express');
   assert.equal(get(list, 'sagaFast').desc, "Terminer la Saga de l'Infini en 30 jours");
   // identifiants inchangés : les déblocages déjà enregistrés restent valables
-  assert.equal(TOTAL_MEDALS, list.reduce((sum, a) => sum + a.tiers.length, 0));
+  const more = evaluate(base({ titles, sagas: [...sagas, { id: 'cosmos', name: 'La Saga du Cosmos' }], seen: {} }));
+  assert.equal(get(more, 'cosmos').desc, 'Voir tout ce qui est sorti de la Saga du Cosmos');
+  assert.equal(totalMedals(more), totalMedals(list) + 1);
 });

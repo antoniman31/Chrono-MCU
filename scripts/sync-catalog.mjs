@@ -53,6 +53,7 @@ export function newCandidates({ movies = [], shows = [], catalog, ignored = [], 
   const until = addDays(today, HORIZON_DAYS);
   let order = Math.max(0, ...catalog.map((t) => t.chronoOrder));
   const phase = Math.max(1, ...catalog.map((t) => t.phase));
+  const saga = catalog.find((t) => t.phase === phase)?.saga ?? 'multiverse'; // un nouveau titre rejoint la saga de la dernière phase
   const drafts = [];
   const consider = (r, type) => {
     const title = (r.title ?? r.name ?? '').trim();
@@ -65,7 +66,7 @@ export function newCandidates({ movies = [], shows = [], catalog, ignored = [], 
     ids.add(id);
     known.add(r.id);
     order += 1;
-    drafts.push({ id, title, type, phase, saga: 'multiverse', releaseDate: date, chronoOrder: order, upcoming: true, tmdbId: r.id, verified: false });
+    drafts.push({ id, title, type, phase, saga, releaseDate: date, chronoOrder: order, upcoming: true, tmdbId: r.id, verified: false });
   };
   movies.forEach((r) => consider(r, 'film'));
   shows.forEach((r) => consider(r, 'serie'));

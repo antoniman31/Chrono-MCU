@@ -251,7 +251,7 @@ test('catégories coupées : les titres concernés sont ignorés, pas les autres
   assert.equal(isIgnored(s, multi1), false);
   assert.equal(setTitleSeen(s, serie1, true, D1), s, 'un titre ignoré par catégorie ne se coche pas');
   assert.equal(setSkip(s, 'series', true, all3), s, 'couper une catégorie déjà coupée ne change rien');
-  assert.throws(() => setSkip(s, 'nimporte', true, all3));
+  assert.throws(() => setSkip(s, '', true, all3));
   const two = setSkip(s, 'shorts', true, all3);
   assert.equal(isIgnored(two, short1), true);
   assert.equal(isIgnored(setSkip(two, 'series', false, all3), serie1), false);
@@ -287,7 +287,7 @@ test('skip et included : validés, exportés, importés', () => {
   s = setTitleIgnored(s, serie1, false);
   assert.deepEqual(validateState(s), []);
   assert.deepEqual(importState(exportState(s)).state, s);
-  assert.ok(validateState({ ...s, skip: ['inconnue'] }).length > 0);
+  assert.ok(validateState({ ...s, skip: [''] }).length > 0);
   assert.ok(validateState({ ...s, skip: 'series' }).length > 0);
   assert.ok(validateState({ ...s, included: { x: false } }).length > 0);
   assert.equal(migrate({ version: 2, order: 'chrono', seen: {}, lastSeenKey: null }).state.skip.length, 0);
@@ -324,7 +324,7 @@ test('données saines : aucun rapport, aucune copie', () => {
 });
 
 test('une date invalide parmi des coches valides : on garde le reste, on prévient et on garde une copie', () => {
-  const bad = { ...valid(), seen: { a: D1, b: 'pas-une-date', c: D2 }, skip: ['inconnue'] };
+  const bad = { ...valid(), seen: { a: D1, b: 'pas-une-date', c: D2 }, skip: [''] };
   const raw = JSON.stringify(bad);
   const st = withRemove({ [STORAGE_KEY]: raw });
   const { state, report } = loadStateWithReport(st);
