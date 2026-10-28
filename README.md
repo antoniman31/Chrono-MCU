@@ -57,7 +57,7 @@ Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à 
 
 ## Synchronisation automatique du catalogue
 
-Le workflow `.github/workflows/catalog-sync.yml` tourne chaque lundi (et à la demande dans l'onglet Actions) et lance `node scripts/sync-catalog.mjs --write`. Il prépare une pull request en brouillon, à relire ; rien n'est fusionné tout seul :
+Le workflow `.github/workflows/catalog-sync.yml` tourne le 1er de chaque mois, et à la demande (onglet Actions > Synchronisation du catalogue > Run workflow) et lance `node scripts/sync-catalog.mjs --write`. Il prépare une pull request en brouillon, à relire ; rien n'est fusionné tout seul :
 
 - un titre « à venir » dont la date est passée devient un titre sorti : durée et date France du film (TMDB), épisodes et durées de la série (TVmaze). Il reste « à vérifier » tant que tout n'est pas recoupé ;
 - une annonce ou sortie Marvel Studios / Marvel Animation absente du catalogue est ajoutée comme brouillon « à venir » (phase la plus récente, ordre chronologique en dernier), avec affiche et résumé. Sont ignorés : documentaires, « making of », titres « Untitled », sorties à plus de 18 mois ou vieilles de plus de 60 jours ;
@@ -68,7 +68,7 @@ La partie TMDB demande un secret de dépôt `TMDB_API_KEY` (Settings > Secrets a
 
 ## Contrôle automatique des durées
 
-Chaque série porte un `tvmazeId`. `node scripts/check-data.mjs` compare les durées et le nombre d'épisodes de `data/mcu.json` à TVmaze et sort en erreur s'il y a un écart ; avec `--write`, il met à jour les durées et passe `verified` à `true` quand tous les épisodes ont une durée TVmaze. Le workflow `.github/workflows/data-check.yml` le lance chaque lundi (et à la demande dans l'onglet Actions) : un échec est signalé par GitHub. Il ne tourne pas sur les PR, pour qu'une panne de TVmaze ne bloque pas un merge.
+Chaque série porte un `tvmazeId`. `node scripts/check-data.mjs` compare les durées et le nombre d'épisodes de `data/mcu.json` à TVmaze et sort en erreur s'il y a un écart ; avec `--write`, il met à jour les durées et passe `verified` à `true` quand tous les épisodes ont une durée TVmaze. Le workflow `.github/workflows/data-check.yml` le lance le 1er de chaque mois (et à la demande dans l'onglet Actions) : un échec est signalé par GitHub. Il ne tourne pas sur les PR, pour qu'une panne de TVmaze ne bloque pas un merge.
 
 ## Titre et police
 Le titre « Chrono-MCU » s'affiche en capitales condensées blanches sur un bloc rouge au coin chanfreiné, dans l'esprit d'un logo de franchise (un style, pas le logo Marvel ; l'application n'est pas officielle). La police est [Bebas Neue](https://github.com/dharmatype/Bebas-Neue) de Dharma Type (SIL Open Font License, texte dans `fonts/OFL.txt`), réduite aux caractères utiles et servie depuis le site (`fonts/bebas-neue-subset.woff2`, autorisée par la CSP `font-src 'self'`).
