@@ -57,6 +57,15 @@ const go = async (page, route) => {
   await page.waitForSelector(`#screen-${route}:not([hidden])`);
 };
 
+// Interrupteur ou choix de Réglages : on clique son libellé (visible, donc Playwright attend que la mise en page soit stable),
+// puis on attend l'état voulu sur l'élément rendu de nouveau. Un clic « forcé » sur la case cachée tombait parfois à côté pendant l'ouverture de la section.
+const flip = async (page, key, on = true) => {
+  const input = page.locator(`[data-fk="${key}"]`);
+  if ((await input.isChecked()) === on) return;
+  await input.locator('xpath=ancestor::label[1]').click();
+  await page.waitForFunction(([k, v]) => document.querySelector(`[data-fk="${k}"]`)?.checked === v, [key, on]);
+};
+
 // Réglages : sections repliables, une seule ouverte à la fois
 const openSec = async (page, id) => {
   if (!(await page.locator(`[data-sec="${id}"]`).evaluate((d) => d.open))) await page.click(`[data-sec="${id}"] summary`);
@@ -394,7 +403,7 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
   await openSec(page, 'follow');
   const summary = await page.locator('.follow-total').innerText();
   check(/titres suivis/.test(summary), `résumé du suivi inattendu : ${summary}`);
-  await page.locator('[data-fk="follow:series"]').uncheck({ force: true });
+  await flip(page, 'follow:series', false);
   check((await page.locator('.follow-total').innerText()) !== summary, 'le résumé devrait changer après avoir coupé les séries');
   const filmsOnly = await progressTotal(page);
   check(filmsOnly.total === films, `seuls les films devraient rester (${filmsOnly.total} au lieu de ${films})`);
@@ -416,7 +425,7 @@ await scenario('catégories : couper les séries, réintégrer un titre, tout pe
 
   await go(page, 'reglages');
   await openSec(page, 'follow');
-  await page.locator('[data-fk="follow:series"]').check({ force: true });
+  await flip(page, 'follow:series', true);
   const back = await stored(page);
   check(back.skip.length === 0 && Object.keys(back.included).length === 0, 'suivre à nouveau la catégorie doit effacer la réintégration');
   check((await progressTotal(page)).total === full.total, 'tout le catalogue devrait être de retour');
@@ -493,10 +502,10 @@ await scenario('réglages : une seule section ouverte, conservée quand on chang
   await page.click('[data-sec="follow"] summary');
   await page.waitForTimeout(100);
   check(JSON.stringify(await open()) === '["follow"]', `une seule section à la fois : ${await open()}`);
-  await page.locator('[data-fk="follow:shorts"]').uncheck({ force: true });
+  await flip(page, 'follow:shorts', false);
   check(JSON.stringify(await open()) === '["follow"]', `la section doit rester ouverte après un changement : ${await open()}`);
   await openSec(page, 'look');
-  await page.locator('[data-fk="theme:light"]').check({ force: true });
+  await flip(page, 'theme:light', true);
   check((await page.evaluate(() => document.documentElement.dataset.theme)) === 'light', 'le thème Clair devrait s\'appliquer');
   check(JSON.stringify(await open()) === '["look"]', `Apparence doit rester ouverte après le changement de thème : ${await open()}`);
   check(/Clair/.test(await page.locator('[data-sec="look"] .desc').first().innerText()), 'le résumé devrait indiquer le thème choisi');
@@ -566,7 +575,7 @@ await scenario('résumé de la fiche : 3 lignes, « Voir plus » seulement si le
 await scenario('mode sans spoiler : résumé, image et titres d\'épisodes floutés, un bouton révèle et re-floute', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');
-  await page.locator('[data-fk="s-spoiler"]').check({ force: true });
+  await flip(page, 's-spoiler', true);
   await go(page, 'voir');
   await page.click('[data-fk="open:wandavision"]');
   const blurs = () => page.locator('#sheet .spoiler-blur').count();
@@ -696,7 +705,7 @@ await scenario('Prochain à voir : un épisode ouvre la série, défile jusqu\'�
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');
-  await page.locator('[data-fk="s-oled"]').check({ force: true });
+  await flip(page, 's-oled', true);
   check(await page.evaluate(() => document.documentElement.dataset.oled !== undefined), 'data-oled absent après activation');
   await reload(page);
   check(await page.evaluate(() => document.documentElement.dataset.oled !== undefined), 'data-oled absent après rechargement');
