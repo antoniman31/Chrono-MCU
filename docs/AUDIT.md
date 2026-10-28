@@ -35,10 +35,10 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 | # | Sujet | Effort | Statut |
 |---|---|---|---|
 | 12 | **Couverture** : l'interface (`app.js`, `ui/*`) n'est vérifiée que par les e2e, non mesurés ; scripts réseau à 33–59 %. | M | à faire |
-| 13 | **CSP** : `style-src-attr 'unsafe-inline'` ne sert qu'à 3 attributs `style`, remplaçables. | S | à faire |
+| 13 | **CSP** : `style-src-attr 'unsafe-inline'` ne sert qu'à 3 attributs `style`, remplaçables. | S | fait (#71) |
 | 14 | **Vie privée** : affiches TMDB chargées par défaut (l'IP part chez TMDB) ; un réglage permet de les couper. | S | à faire |
 | 15 | **Performance de 1re visite** : chaîne d'imports de 7 niveaux, sans `modulepreload` (le total est petit : 82 Ko gzip). | S | à faire |
-| 16 | **Mise à jour du service worker silencieuse** : pas d'annonce « nouvelle version ». | S | à faire |
+| 16 | **Mise à jour du service worker silencieuse** : pas d'annonce « nouvelle version ». | S | fait (#71) |
 | 17 | **Jeton GitHub** en `localStorage` : limité au dépôt et protégé par la CSP stricte, acceptable ; à documenter. | S | à faire |
 
 ## Faible
@@ -65,4 +65,4 @@ Vrais iPhone et Android, lecteurs d'écran, Lighthouse, exactitude des dates et 
 
 ## Ordre retenu
 
-1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #68), puis 8 à 11 (PR #69). Restent les points 4 (action de Antoni) et 12 à 23.
+1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #68), puis 8 à 11 (PR #69). Puis 13 et 16 (PR #71) et les personnages (PR #70). Restent les points 4 (action de Antoni), 12, 14, 15, 17 à 23.
