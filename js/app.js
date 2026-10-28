@@ -457,6 +457,8 @@ async function main() {
     if (Object.keys(ctx.state.seen).length) ctx.setView({ welcomed: true });
     else ctx.openWelcome(null);
   }
+  // Hors-ligne : seulement sur un build déployé (sw.js porte alors un identifiant de version)
+  if ('serviceWorker' in navigator && !BUILD.startsWith('__')) navigator.serviceWorker.register('sw.js').catch(() => {});
   document.getElementById('app')?.setAttribute('data-ready', 'true');
   document.body.dataset.ready = 'true';
 }
