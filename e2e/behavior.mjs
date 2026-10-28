@@ -143,6 +143,7 @@ await scenario('export puis import : aller-retour, fichier invalide sans effet',
   const exported = JSON.parse(readFileSync(path, 'utf8'));
   check(exported.version === 2 && exported.seen['iron-man'], 'l\'export est incomplet');
   check(!('notes' in exported), 'l\'export ne devrait plus contenir de notes');
+  check(exported.prefs && 'theme' in exported.prefs && 'goalDate' in exported.prefs && !('lastBackup' in exported.prefs), 'l\'export doit contenir les réglages portables (thème, objectif) mais pas ceux de l\'appareil');
   check((await stored(page)) && true, 'état absent');
   const view = await page.evaluate(() => JSON.parse(localStorage.getItem('chrono-mcu:view')));
   check(view.lastBackup && view.lastBackup.seenCount === 1, 'la date de sauvegarde n\'est pas enregistrée après l\'export');
@@ -158,6 +159,8 @@ await scenario('export puis import : aller-retour, fichier invalide sans effet',
   await page.click('[data-fk="b-confirm"]');
   await go(page, 'voir');
   check(await checked(page, 'cb:iron-man'), 'l\'import n\'a pas restauré la coche');
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('chrono-mcu:view')));
+  check(after.goalDate === exported.prefs.goalDate && after.theme === exported.prefs.theme, 'l\'import doit restaurer les réglages du fichier');
 
   // Un fichier invalide ne change rien et affiche un message
   await go(page, 'reglages');
@@ -659,7 +662,7 @@ await scenario('barre des phases : sous la barre d\'outils, appui = défilement,
   check((await selected()) === '1', 'en haut de la liste, la phase 1 devrait être suivie');
 
   await page.click('[data-fk="ptab:4"]');
-  await page.waitForTimeout(150);
+  await page.waitForFunction(() => document.querySelector('#phase-tabs [aria-selected="true"]')?.dataset.phase === '4');
   check((await page.locator('#result-count').innerText()) === total, 'un appui sur un onglet ne doit rien masquer');
   check((await selected()) === '4' && /Saga du Multivers/.test(await info()), `phase 4 attendue : ${await info()}`);
   const gap = await page.evaluate(() => {
@@ -669,15 +672,15 @@ await scenario('barre des phases : sous la barre d\'outils, appui = défilement,
   check(gap >= -2 && gap <= 40, `le premier titre de la phase 4 devrait être juste sous la barre (écart ${Math.round(gap)} px)`);
 
   await page.click('[data-fk="ptab:2"]');
-  await page.waitForTimeout(150);
+  await page.waitForFunction(() => document.querySelector('#phase-tabs [aria-selected="true"]')?.dataset.phase === '2');
   check(/Saga de l'Infini/.test(await info()), 'la phase 2 appartient à la Saga de l\'Infini');
 
   // Suivi : on défile à la main vers la phase 5 puis vers le haut
   await page.evaluate(() => { document.querySelector('#list [data-phase="5"]').scrollIntoView({ block: 'start' }); });
-  await page.waitForTimeout(400);
+  await page.waitForFunction(() => document.querySelector('#phase-tabs [aria-selected="true"]')?.dataset.phase === '5', null, { timeout: 4000 });
   check((await selected()) === '5', `en défilant vers la phase 5, l'onglet devrait suivre (${await selected()})`);
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(400);
+  await page.waitForFunction(() => document.querySelector('#phase-tabs [aria-selected="true"]')?.dataset.phase === '1', null, { timeout: 4000 });
   check((await selected()) === '1', `en haut de la page, l'onglet devrait revenir à la phase 1 (${await selected()})`);
 
   await page.locator('[data-fk="ptab:3"]').focus();
@@ -797,14 +800,14 @@ await scenario('mode sans spoiler : résumé, image et titres d\'épisodes flout
   check(/Masquer les spoilers/.test(await page.locator('[data-fk="spoilers:wandavision"]').innerText()), 'un bouton « Masquer les spoilers » doit apparaître');
   await page.click('[data-fk="spoilers:wandavision"]');
   check((await page.locator('#sheet .overview.spoiler-blur').count()) === 1 && (await page.locator('#sheet-hero .hero-img.spoiler-blur').count()) === 1, 'le second appui doit tout re-flouter');
-  // Un clic « forcé » ignore ce qui recouvre la case : on la centre d'abord pour qu'elle ne passe pas sous le pied de fiche épinglé
+  // On centre la case pour qu'elle ne passe pas sous le pied de fiche épinglé ; le clic normal vérifie qu'elle n'est pas recouverte
   const epBox = page.locator('[data-fk="ep:wandavision/1"]');
   await epBox.evaluate((el) => el.closest('li').scrollIntoView({ block: 'center' }));
-  await epBox.check({ force: true });
+  await epBox.check();
   const rows = await page.evaluate(() => [...document.querySelectorAll('#sheet .episodes .item')].slice(0, 2).map((li) => li.querySelectorAll('.spoiler-blur').length));
   check(rows[0] === 0 && rows[1] === 1, `le titre de l\'épisode vu n\'est plus flou, le suivant le reste : ${rows}`);
   await epBox.evaluate((el) => el.closest('li').scrollIntoView({ block: 'center' }));
-  await epBox.uncheck({ force: true });
+  await epBox.uncheck();
 });
 
 await scenario('objectif : carte sur Progression, date modifiable, retirable', async (page) => {

@@ -1,6 +1,6 @@
 import { FILTER_DEFAULTS, countedTitles, releasedView, sortTitles, stepId, withVersions } from './logic.js?v=__BUILD__';
 import { clearCorruptCopy, corruptCopy, exportState, importState, isTitleSeen, loadStateWithReport, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
-import { loadView, saveView } from './prefs.js?v=__BUILD__';
+import { exportPrefs, importedPrefs, loadView, saveView } from './prefs.js?v=__BUILD__';
 import { dispatchSync, isDone, latestRun, loadToken, runLabel, saveToken } from './github.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
 import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
@@ -49,6 +49,7 @@ const ctx = {
   sheetDetailId: null,
   route: 'voir',
   pendingImport: null,
+  pendingPrefs: null, // réglages du fichier à importer, appliqués avec la progression
   backupError: '',
   persisted: null,
   versionLabel: BUILD.startsWith('__') ? 'Version locale' : `Version ${BUILD}`,
@@ -417,7 +418,7 @@ ctx.dismissRecovery = () => {
   render({ detail: false });
 };
 ctx.exportProgress = () => {
-  const url = URL.createObjectURL(new Blob([exportState(ctx.state)], { type: 'application/json' }));
+  const url = URL.createObjectURL(new Blob([exportState(ctx.state, exportPrefs(ctx.view))], { type: 'application/json' }));
   const a = h('a', { href: url, download: `chrono-mcu-${today()}.json` });
   document.body.append(a);
   a.click();
@@ -445,9 +446,12 @@ ctx.cancelImport = () => {
 };
 ctx.confirmImport = () => {
   const next = ctx.pendingImport;
+  const prefs = importedPrefs(ctx.view, ctx.pendingPrefs);
   ctx.pendingImport = null;
+  ctx.pendingPrefs = null;
   closeSheet();
   update(next, 'Progression importée');
+  if (Object.keys(prefs).length) ctx.setView(prefs);
   ctx.markBackedUp();
 };
 
@@ -521,6 +525,7 @@ async function main() {
     const result = importState(await file.text());
     ctx.backupError = result.ok ? '' : result.error;
     ctx.pendingImport = result.ok ? result.state : null;
+    ctx.pendingPrefs = result.ok ? result.prefs : null;
     refreshSheet();
   });
 

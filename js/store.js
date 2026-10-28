@@ -248,8 +248,9 @@ export function setPhaseSeen(state, titles, phase, value, today) {
     .reduce((acc, t) => setTitleSeen(acc, t, value, today), state);
 }
 
-export function exportState(state) {
-  return JSON.stringify(state, null, 2);
+// `prefs` : réglages portables (thème, objectif, succès…), ajoutés à côté de l'état sans en faire partie
+export function exportState(state, prefs = null) {
+  return JSON.stringify(prefs ? { ...state, prefs } : state, null, 2);
 }
 
 export function importState(text) {
@@ -263,7 +264,7 @@ export function importState(text) {
   if (!migrated.ok) return { ok: false, error: `Fichier invalide: ${migrated.error}` };
   const errors = validateState(migrated.state);
   if (errors.length) return { ok: false, error: `Fichier invalide: ${errors[0]}` };
-  return { ok: true, state: migrated.state };
+  return { ok: true, state: migrated.state, prefs: parsed?.prefs ?? null };
 }
 
 // Rattrapage : unités non vues, non ignorées et sorties, de la première jusqu'à la fin du titre `id` (incluse), dans l'ordre actif.

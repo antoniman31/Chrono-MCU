@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { VIEW_KEY, THEMES, loadView, normalizeView, saveView } from '../js/prefs.js';
+import { VIEW_KEY, THEMES, exportPrefs, importedPrefs, loadView, normalizeView, saveView } from '../js/prefs.js';
+import { defaultState, exportState, importState } from '../js/store.js';
 
 const memory = (initial = {}) => {
   const data = { ...initial };
@@ -69,4 +70,31 @@ test('retour tactile actif par défaut, accueil jamais vu par défaut', () => {
   assert.equal(normalizeView(null).welcomed, false);
   assert.equal(normalizeView({ welcomed: true }).welcomed, true);
   assert.equal(normalizeView({ welcomed: 'oui' }).welcomed, false);
+});
+
+test('sauvegarde : thème, objectif et succès voyagent, les réglages propres à l\'appareil restent', () => {
+  const view = normalizeView({ theme: 'dark', oled: true, goalDate: '2027-01-01', spoilerFree: true, nudgeDays: 14, lastBackup: { day: '2026-10-01', seenCount: 3 }, welcomed: true, achv: { first: { level: 1, date: '2026-10-02' } } });
+  const file = exportState(defaultState(), exportPrefs(view));
+  const parsed = JSON.parse(file);
+  assert.deepEqual(Object.keys(parsed.prefs).sort(), ['achv', 'feedback', 'goalDate', 'groupByPhase', 'nudgeDays', 'oled', 'showPosters', 'spoilerFree', 'theme']);
+  assert.equal('lastBackup' in parsed.prefs || 'welcomed' in parsed.prefs, false);
+  const back = importState(file);
+  assert.equal(back.ok, true);
+  assert.deepEqual(back.state, defaultState());
+  const patch = importedPrefs(normalizeView({ achv: { first: { level: 2, date: '2026-09-01' }, hours: { level: 1, date: null } } }), back.prefs);
+  assert.equal(patch.theme, 'dark');
+  assert.equal(patch.goalDate, '2027-01-01');
+  assert.equal(patch.achv.first.level, 2, 'un palier déjà obtenu ici n\'est pas rétrogradé');
+  assert.equal(patch.achv.hours.level, 1);
+});
+
+test('sauvegarde sans réglages (ancien export) ou avec des réglages invalides : rien n\'est cassé', () => {
+  const old = importState(exportState(defaultState()));
+  assert.equal(old.prefs, null);
+  assert.deepEqual(importedPrefs(normalizeView(null), old.prefs), {});
+  const bad = importedPrefs(normalizeView(null), { theme: 'rose', goalDate: 'demain', achv: 'x' });
+  assert.equal(bad.theme, 'auto');
+  assert.equal(bad.goalDate, null);
+  assert.equal('achv' in bad, false);
+  assert.deepEqual(importedPrefs(normalizeView(null), [1]), {});
 });

@@ -709,3 +709,33 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 @keyframes slide-from-left { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
 @keyframes bounce-left { 40% { transform: translateX(-12px); } }
 @keyframes bounce-right { 40% { transform: translateX(12px); } }
+
+/* Contraste renforcé demandé au système : texte secondaire et contours au maximum de contraste */
+@media (prefers-contrast: more) {
+  :root:root { --muted: var(--fg); --outline: var(--fg); --border: color-mix(in srgb, var(--fg) 65%, transparent); }
+  .seg button[aria-pressed="true"] .face, .chip[aria-pressed="true"] .face, .stab[aria-selected="true"] { box-shadow: inset 0 0 0 2px currentColor; }
+}
+
+/* Un état sélectionné ne repose pas que sur la couleur : un trait plus épais l'accompagne */
+.seg button[aria-pressed="true"] .face, .chip[aria-pressed="true"] .face, .stab[aria-selected="true"], .segopt input:checked + .face { box-shadow: inset 0 0 0 1px currentColor; }
+
+/* Mode contraste élevé de Windows : les fonds sont remplacés, les états passent par les couleurs système */
+@media (forced-colors: active) {
+  .seg button[aria-pressed="true"] .face, .chip[aria-pressed="true"] .face, .stab[aria-selected="true"], .segopt input:checked + .face { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; box-shadow: none; }
+  .nav-item[aria-current="page"] { forced-color-adjust: none; color: CanvasText; }
+  .nav-item[aria-current="page"] .nav-ind { color: HighlightText; }
+  @media (max-width: 599.98px) { .nav-item[aria-current="page"] { color: HighlightText; } }
+  .nav-item[aria-current="page"] .nav-ind, .nav-item[aria-current="page"]::before { background: Highlight; color: HighlightText; }
+  .tab[aria-selected="true"]::after { background: Highlight; }
+  .ptab[aria-selected="true"] .pnum { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .ptab[aria-selected="true"]::after { border-bottom-color: Highlight; }
+  .ptab[aria-selected="true"] .pdot { box-shadow: none; outline: 2px solid Highlight; }
+  .switch { border-color: ButtonText; }
+  .switch::after { background: ButtonText; }
+  .switch-row input:checked + .switch { background: Highlight; border-color: Highlight; }
+  .switch-row input:checked + .switch::after { background: HighlightText; }
+  .progress { border: 1px solid ButtonText; }
+  .progress > span, .bar-col i { background: Highlight; forced-color-adjust: none; }
+  .badge { border: 1px solid ButtonText; }
+  .medal { forced-color-adjust: none; }
+}

@@ -42,6 +42,29 @@ export function normalizeView(saved) {
   return view;
 }
 
+// Réglages qui voyagent avec la sauvegarde ; le reste (dernière sauvegarde, report du rappel, accueil vu, phases repliées) est propre à l'appareil
+const PORTABLE = ['groupByPhase', 'showPosters', 'theme', 'oled', 'spoilerFree', 'feedback', 'nudgeDays', 'goalDate'];
+
+export function exportPrefs(view) {
+  const out = Object.fromEntries(PORTABLE.map((k) => [k, view[k]]));
+  if (view.achv) out.achv = view.achv;
+  return out;
+}
+
+// Réglages d'un fichier de sauvegarde, validés comme ceux du stockage ; un palier de succès déjà obtenu ici n'est jamais perdu
+export function importedPrefs(view, saved) {
+  if (saved == null || typeof saved !== 'object' || Array.isArray(saved)) return {};
+  const clean = normalizeView(Object.fromEntries(PORTABLE.filter((k) => k in saved).map((k) => [k, saved[k]])));
+  const patch = Object.fromEntries(PORTABLE.filter((k) => k in saved).map((k) => [k, clean[k]]));
+  const incoming = normalizeAchv(saved.achv);
+  if (incoming) {
+    const merged = { ...(view.achv ?? {}) };
+    for (const [id, v] of Object.entries(incoming)) if (v.level > (merged[id]?.level ?? 0)) merged[id] = v;
+    patch.achv = merged;
+  }
+  return patch;
+}
+
 export function loadView(storage) {
   try {
     return normalizeView(JSON.parse(storage?.getItem(VIEW_KEY)));

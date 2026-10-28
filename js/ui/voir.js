@@ -28,6 +28,7 @@ function activeFilterCount(ctx) {
 // Barre des phases : un onglet par phase. Appuyer fait défiler la liste jusqu'à la phase (rien n'est masqué) ;
 // en défilant, l'onglet suit la phase du premier titre visible sous le bloc fixe.
 let currentPhase = null;
+let unlockTimer = 0;
 let lockUntil = 0; // pendant un défilement lancé par un appui, le suivi automatique ne reprend pas la main
 
 function paintPhaseBar(ctx, phase) {
@@ -88,8 +89,12 @@ function goToPhase(ctx, phase) {
   const target = $('list').querySelector(`[data-phase="${phase}"]`);
   if (!target) return;
   const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  lockUntil = performance.now() + (smooth ? 900 : 100);
+  const lock = smooth ? 900 : 100;
+  lockUntil = performance.now() + lock;
   target.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+  // Un défilement fait à la main pendant le verrou serait ignoré : on resynchronise l'onglet quand il se lève
+  clearTimeout(unlockTimer);
+  unlockTimer = setTimeout(() => syncPhase(ctx), lock + 50);
 }
 
 // Données enregistrées illisibles (ou réparées) : on le dit une fois, avec la copie à télécharger
