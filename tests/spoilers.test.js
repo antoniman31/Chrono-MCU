@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hideEpisodeTitle, hideSummary, isStarted } from '../js/spoilers.js';
+import { hasSpoilers, hideEpisodeTitle, hideSummary, isStarted } from '../js/spoilers.js';
 
 const film = { id: 'f', type: 'film' };
 const serie = { id: 's', type: 'serie', episodes: [{ n: 1 }, { n: 2 }] };
@@ -26,4 +26,12 @@ test('sans spoiler : le titre d\'un épisode reste caché tant qu\'il n\'est pas
   assert.equal(hideEpisodeTitle(on, state, 's', 1), false);
   assert.equal(hideEpisodeTitle(on, state, 's', 2), true);
   assert.equal(hideEpisodeTitle(off, state, 's', 2), false);
+});
+
+test('sans spoiler : le bouton « Afficher les spoilers » n\'a de sens que s\'il reste quelque chose à révéler', () => {
+  assert.equal(hasSpoilers(on, { seen: {} }, film), true);
+  assert.equal(hasSpoilers(on, { seen: { f: 'x' } }, film), false, 'film vu : rien à cacher');
+  assert.equal(hasSpoilers(on, { seen: { 's/1': 'x' } }, serie), true, 'série entamée : des titres d\'épisodes restent cachés');
+  assert.equal(hasSpoilers(on, { seen: { 's/1': 'x', 's/2': 'x' } }, serie), false, 'série finie');
+  assert.equal(hasSpoilers(off, { seen: {} }, film), false, 'mode désactivé');
 });

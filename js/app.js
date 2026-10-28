@@ -6,7 +6,6 @@ import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
 import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
-import { hideSummary } from './spoilers.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
 import { renderProgression } from './ui/progression.js?v=__BUILD__';
 import { renderBackupSheet, renderEraseSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
@@ -229,7 +228,7 @@ ctx.openDetail = (id, opener = null) => {
   ctx.sheetDetailId = id;
   openSheet({
     title: t.title, kind: 'detail', opener: opener ?? document.activeElement,
-    hero: hideSummary(ctx.view, ctx.state, t) ? null : backdropImg(t, ctx.view), // mode sans spoiler : l'image paysage peut en dire trop
+    hero: backdropImg(t, ctx.view), // mode sans spoiler : renderDetail la floute tant qu'elle n'est pas révélée
     render: (body) => renderDetail(body, ctx, id, { showTitle: false, showPoster: false }),
     onClose: () => { ctx.sheetDetailId = null; },
   });

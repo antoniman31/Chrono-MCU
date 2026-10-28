@@ -609,4 +609,17 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .danger-zone .btn { margin-top: 4px; }
 .goal-main { font-size: 1rem; line-height: 1.5rem; font-weight: 500; margin: 0 0 4px; }
 .goal-on-track .goal-main { color: var(--ok); }
-.spoiler-note { margin: 8px 0; }
+.summary-text { position: relative; }
+.detail .overview.clamp:not(.open) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.summary-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0 12px; }
+.link-btn { display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 8px; margin-inline: -8px; background: none; border: 0; border-radius: 8px; color: var(--accent-text); font: inherit; font-size: .875rem; font-weight: 500; }
+.link-btn[hidden] { display: none; }
+.link-btn:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.link-btn .icon { width: 20px; height: 20px; }
+.link-btn .chev { transition: transform .2s cubic-bezier(.2, 0, 0, 1); }
+.link-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.summary-foot > :last-child:not(:first-child) { margin-left: auto; }
+/* Mode sans spoiler : texte et image floutés, un bouton posé sur le résumé les révèle (et un second appui les re-floute) */
+.spoiler-blur { filter: blur(6px); user-select: none; }
+.sheet-hero img.spoiler-blur { filter: blur(14px); transform: scale(1.15); }
+.reveal-over { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; }

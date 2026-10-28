@@ -96,7 +96,7 @@ export function renderReglages(ctx) {
         h('input', { type: 'checkbox', role: 'switch', checked: view.oled, 'data-fk': 's-oled', onchange: (e) => ctx.setView({ oled: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       h('label', { class: 'setting switch-row' },
-        h('span', { class: 'text' }, 'Mode sans spoiler', h('span', { class: 'desc', text: 'Masque le résumé et l\'image de la fiche, et les titres d\'épisodes, tant que tu n\'as pas commencé le titre ou vu l\'épisode.' })),
+        h('span', { class: 'text' }, 'Mode sans spoiler', h('span', { class: 'desc', text: 'Floute le résumé et l\'image de la fiche, et les titres d\'épisodes, tant que tu n\'as pas commencé le titre ou vu l\'épisode. Un bouton les révèle dans la fiche.' })),
         h('input', { type: 'checkbox', role: 'switch', checked: view.spoilerFree, 'data-fk': 's-spoiler', onchange: (e) => ctx.setView({ spoilerFree: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       hasPosters
