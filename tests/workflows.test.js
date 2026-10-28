@@ -35,6 +35,17 @@ test('concurrence : un run de PR n\'interrompt jamais un déploiement de main', 
   assert.match(deploy, /group: pages\n\s+cancel-in-progress: false/);
 });
 
+test('le robot de synchronisation lance les contrôles sur sa branche (ses PR ne déclenchent pas la CI)', () => {
+  const sync = read('catalog-sync.yml');
+  assert.match(sync, /gh workflow run pages\.yml --ref "\$BRANCH"/);
+  const top = sync.split(/^jobs:/m)[0];
+  assert.doesNotMatch(top, /actions: write/, 'actions: write ne doit être accordé qu\'au job, pas au workflow');
+  assert.match(sync.split(/^jobs:/m)[1], /actions: write/);
+  assert.match(read('pages.yml'), /^\s+workflow_dispatch:/m, 'pages.yml doit accepter le lancement manuel');
+  // seul main déploie : un lancement sur la branche du robot ne publie rien
+  assert.match(read('pages.yml'), /deploy:\n\s+if: github\.ref == 'refs\/heads\/main'/);
+});
+
 test('Dependabot surveille les actions et npm', () => {
   assert.ok(existsSync(new URL('../.github/dependabot.yml', import.meta.url)));
   const d = readFileSync(new URL('../.github/dependabot.yml', import.meta.url), 'utf8');
