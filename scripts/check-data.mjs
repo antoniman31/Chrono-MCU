@@ -24,7 +24,7 @@ export function isComplete(mine, tvEpisodes) {
   return mine.length === tvEpisodes.length && mine.every((m) => tvEpisodes.find((e) => e.number === m.n)?.runtime != null);
 }
 
-async function tvmazeEpisodes(id, season) {
+export async function tvmazeEpisodes(id, season) {
   const res = await fetch(`https://api.tvmaze.com/shows/${id}/episodes`);
   if (!res.ok) throw new Error(`TVmaze ${res.status} pour la série ${id}`);
   const all = await res.json();
