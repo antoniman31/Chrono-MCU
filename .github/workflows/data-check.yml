@@ -2,7 +2,7 @@ name: Contrôle des durées (TVmaze)
 
 on:
   schedule:
-    - cron: '17 6 * * 1'
+    - cron: '17 6 1 * *'
   workflow_dispatch:
 
 permissions:

@@ -168,4 +168,4 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 
 - Synchronisation du catalogue (scripts/sync-catalog.mjs, workflow hebdomadaire) : promotion des titres « à venir » sortis (TMDB pour les films, TVmaze pour les séries), brouillons « à venir » pour les nouveautés Marvel Studios/Animation absentes, simple signalement des nouvelles saisons ; PR en brouillon à relire, jamais de fusion automatique ; ordre chronologique, post-générique et personnages restent manuels. Clé TMDB uniquement comme secret du dépôt.
 
-- Synchronisation du catalogue : mensuelle (le 1er) et manuelle plutôt qu'hebdomadaire, pour limiter le bruit des PR ; le contrôle des durées TVmaze reste hebdomadaire.
+- Synchronisation du catalogue : mensuelle (le 1er) et manuelle plutôt qu'hebdomadaire, pour limiter le bruit des PR ; le contrôle des durées TVmaze (data-check.yml) est lui aussi mensuel.
