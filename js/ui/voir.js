@@ -311,7 +311,7 @@ const FILTER_GROUPS = [
   ['status', 'Statut', [['all', 'Tous'], ['todo', 'À voir'], ['progress', 'En cours'], ['done', 'Terminés']]],
   ['ignored', 'Titres ignorés', [['show', 'Afficher'], ['hide', 'Masquer'], ['only', 'Seulement']]],
   ['post', 'Scène après le générique', [['any', 'Peu importe'], ['with', 'Avec'], ['without', 'Sans']]],
-  ['duration', 'Durée', [['any', 'Toutes'], ['short', '< 1 h 30 min'], ['mid', '1 h 30 min à 2 h'], ['long', '> 2 h']]],
+  ['duration', 'Durée', [['any', 'Toutes'], ['short', '< 1 h 30'], ['mid', '1 h 30 à 2 h'], ['long', '> 2 h']]],
 ];
 
 export function renderFiltersSheet(body, ctx) {
