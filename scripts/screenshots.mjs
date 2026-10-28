@@ -1,6 +1,6 @@
 // Génère les captures d'écran du README dans docs/screenshots (rendu par Chromium : `npm run screenshots`).
-// Données de démonstration : une progression fictive (les 40 premiers titres sortis, cochés sur le dernier mois), sans affiches
-// (elles appartiennent à leurs ayants droit et viennent d'un service externe).
+// Données de démonstration : une progression fictive (les 40 premiers titres sortis, cochés sur le dernier mois). Les affiches
+// viennent de TMDB (comme dans l'application) ; elles sont téléchargées par Node puis servies au navigateur, sans réseau côté page.
 import { createRequire } from 'node:module';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -22,17 +22,27 @@ units.forEach((u, i) => { seen[u.key] = day(Math.floor(((units.length - 1 - i) *
 const state = { version: 2, order: 'release', seen, ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: units.at(-1).key };
 
 const server = await startServer();
+const images = new Map();
+async function tmdbImage(url) {
+  if (!images.has(url)) {
+    const res = await fetch(url);
+    images.set(url, res.ok ? { status: 200, contentType: res.headers.get('content-type') ?? 'image/jpeg', body: Buffer.from(await res.arrayBuffer()) } : { status: 404, body: '' });
+  }
+  return images.get(url);
+}
 const browser = await chromium.launch();
 async function shoot(theme, name, steps) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: 'reduce', locale: 'fr-FR' });
   await context.addInitScript(([s, t, b]) => {
     localStorage.setItem('chrono-mcu:v1', JSON.stringify(s));
-    localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, theme: t, showPosters: false, feedback: false, lastBackup: b, goalDate: '2027-12-31' }));
+    localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, theme: t, showPosters: true, feedback: false, lastBackup: b, goalDate: '2027-12-31' }));
   }, [state, theme, { day: day(0), seenCount: units.length }]);
+  await context.route(/image\.tmdb\.org/, async (route) => route.fulfill(await tmdbImage(route.request().url())));
   const page = await context.newPage();
   await page.goto(server.base);
   await page.waitForSelector('body[data-ready]', { state: 'attached' });
   await steps(page);
+  await page.waitForLoadState('networkidle');
   await page.waitForTimeout(400);
   await page.evaluate(() => { document.getElementById('achv-toast').style.display = 'none'; }); // bandeau de succès éventuel
   await page.screenshot({ path: `${out}${name}.png` });

@@ -8,7 +8,7 @@ Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Applic
 |---|---|---|---|---|
 | ![À voir, thème sombre](docs/screenshots/a-voir-sombre.png) | ![À voir, thème clair](docs/screenshots/a-voir-clair.png) | ![Fiche d'un titre](docs/screenshots/fiche.png) | ![Progression](docs/screenshots/progression.png) | ![Succès](docs/screenshots/succes.png) |
 
-Données de démonstration (progression fictive, sans affiches). Pour les régénérer : `npm run screenshots`.
+Données de démonstration (progression fictive). Affiches © leurs ayants droit, fournies par [TMDB](https://www.themoviedb.org) (ce produit utilise l'API TMDB sans être approuvé ni certifié par TMDB). Pour régénérer les captures : `npm run screenshots` (réseau nécessaire pour les affiches).
 
 ## Fonctions
 
