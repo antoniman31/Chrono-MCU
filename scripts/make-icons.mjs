@@ -1,5 +1,5 @@
 // Génère les icônes PNG de l'application depuis icons/icon.svg (rendu par Chromium : `npm run icons`).
-// Le dessin tient dans la zone sûre des icônes « maskable » (cercle de 40 % de la largeur) : la même image sert aux deux usages.
+// Monogramme « CM » en Bebas Neue (police du logo), tracé en chemins dans icon.svg ; il tient dans la zone sûre des icônes « maskable » (cercle de 40 % de la largeur) : la même image sert aux deux usages.
 import { createRequire } from 'node:module';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
