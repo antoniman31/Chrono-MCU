@@ -109,6 +109,7 @@
   --amber: #a85f00;
   --blue: #1e6fd9;
   --violet: #7b4fc9;
+  --gray: #5f6368;
   --on-color: #ffffff;
   --tonal: color-mix(in srgb, var(--red) 24%, var(--surface));
   --on-tonal: var(--fg);
@@ -375,7 +376,7 @@ main:focus { outline: none; }
 .badge.alt::before, .badge.soon::before, .badge.post::before, .badge.ign::before, .badge.ver::before { content: ""; flex: none; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; }
 /* Pastilles pleines, texte blanc : même rendu dans tous les thèmes, contraste AA */
 .badge.post { --badge-bg: var(--violet); --badge-fg: var(--on-color); }
-.badge.ign { --badge-bg: var(--red); --badge-fg: var(--on-color); }
+.badge.ign { --badge-bg: var(--gray); --badge-fg: var(--on-color); }
 .badge.soon { --badge-bg: var(--blue); --badge-fg: var(--on-color); }
 .badge.alt { --badge-bg: var(--green); --badge-fg: var(--on-color); }
 .badge.ver { --badge-bg: var(--amber); --badge-fg: var(--on-color); }
