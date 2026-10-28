@@ -30,6 +30,9 @@ export function normalizeView(saved) {
     nudgeDays: NUDGE_CHOICES.includes(saved?.nudgeDays) ? saved.nudgeDays : 30,
     // Mode sans spoiler : masque résumé, image paysage et titres d'épisodes de ce qui n'est pas encore commencé
     spoilerFree: saved?.spoilerFree === true,
+    // Retour tactile à la coche (vibration + petite animation) ; accueil déjà vu ou ignoré
+    feedback: saved?.feedback !== false,
+    welcomed: saved?.welcomed === true,
     // Date cible de l'objectif : Doomsday tant que rien n'est enregistré ; null = objectif retiré par l'utilisateur
     goalDate: saved && 'goalDate' in saved ? (isDay(saved.goalDate) ? saved.goalDate : null) : DEFAULT_GOAL,
   };

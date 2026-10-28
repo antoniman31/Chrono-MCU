@@ -8,19 +8,19 @@ const memory = (initial = {}) => {
 };
 
 test('valeurs par défaut: groupé, affiches, aucune phase repliée, thème auto', () => {
-  assert.deepEqual(normalizeView(null), { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, goalDate: '2026-12-18' });
+  assert.deepEqual(normalizeView(null), { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, feedback: true, welcomed: false, goalDate: '2026-12-18' });
 });
 
 test('normalizeView: ignore les valeurs invalides', () => {
   const v = normalizeView({ groupByPhase: false, showPosters: false, collapsedPhases: [2, 'x', 3.5, 4], theme: 'rose' });
-  assert.deepEqual(v, { groupByPhase: false, showPosters: false, collapsedPhases: [2, 4], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, goalDate: '2026-12-18' });
+  assert.deepEqual(v, { groupByPhase: false, showPosters: false, collapsedPhases: [2, 4], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, feedback: true, welcomed: false, goalDate: '2026-12-18' });
   for (const theme of THEMES) assert.equal(normalizeView({ theme }).theme, theme);
 });
 
 test('loadView / saveView: aller-retour, storage absent, cassé ou corrompu', () => {
   const storage = memory();
   saveView(storage, { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true });
-  assert.deepEqual(loadView(storage), { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, goalDate: '2026-12-18' });
+  assert.deepEqual(loadView(storage), { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, feedback: true, welcomed: false, goalDate: '2026-12-18' });
   assert.equal(loadView(null).theme, 'auto');
   assert.equal(loadView(memory({ [VIEW_KEY]: '{pas du json' })).theme, 'auto');
   assert.doesNotThrow(() => saveView({ setItem() { throw new Error('QuotaExceeded'); } }, normalizeView(null)));
@@ -60,4 +60,13 @@ test('rappel de sauvegarde, sans spoiler et objectif : valeurs par défaut et va
   assert.equal(normalizeView({ goalDate: null }).goalDate, null, 'objectif retiré : pas de retour automatique à Doomsday');
   assert.equal(normalizeView({ goalDate: 'bientôt' }).goalDate, null);
   assert.equal(normalizeView({ theme: 'dark' }).goalDate, '2026-12-18', 'ancienne préférence sans objectif : Doomsday');
+});
+
+test('retour tactile actif par défaut, accueil jamais vu par défaut', () => {
+  assert.equal(normalizeView(null).feedback, true);
+  assert.equal(normalizeView({ feedback: false }).feedback, false);
+  assert.equal(normalizeView({ feedback: 'non' }).feedback, true);
+  assert.equal(normalizeView(null).welcomed, false);
+  assert.equal(normalizeView({ welcomed: true }).welcomed, true);
+  assert.equal(normalizeView({ welcomed: 'oui' }).welcomed, false);
 });

@@ -59,6 +59,10 @@ const variants = {
 };
 // Les images TMDB sont décoratives (alt vide, aucun texte posé dessus) : on les bloque pour des tests rapides et indépendants du réseau
 // axe est injecté par le mécanisme d'initialisation de Playwright (hors CSP) : la CSP du site reste active pendant les audits
+// Évite la feuille d'accueil du premier lancement dans les parcours qui ne la testent pas
+const skipWelcome = (context) => context.addInitScript(() => {
+  try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ ...JSON.parse(localStorage.getItem('chrono-mcu:view') ?? 'null'), welcomed: true })); } catch { /* ignore */ }
+});
 const withAxe = (context) => context.addInitScript({ content: axeSource });
 const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 // Pas de réseau, mais une image de 1 pixel : les affiches existent, donc la mise en page avec affiche est celle qui est auditée
@@ -76,6 +80,15 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   page.on('console', (m) => { if (/Content Security Policy/i.test(m.text())) fail(where, `violation CSP : ${m.text().slice(0, 140)}`); });
   await page.goto(base);
   await page.waitForSelector('body[data-ready]', { state: 'attached' });
+
+  // Premier lancement : la feuille d'accueil s'ouvre d'elle-même ; on audite ses deux étapes puis on la ferme
+  await page.waitForSelector('#sheet[open]');
+  await audit(page, `${where} accueil`);
+  await page.click('[data-fk="w-caught"]');
+  await page.selectOption('#w-until', 'iron-man');
+  await audit(page, `${where} accueil rattrapage`);
+  await page.keyboard.press('Escape');
+  await page.waitForSelector('#sheet:not([open])', { state: 'attached' });
 
   await audit(page, `${where} À voir`);
 
@@ -141,6 +154,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 // Parcours clavier : l'écran principal doit être entièrement atteignable sans souris
 {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  await skipWelcome(context);
   const page = await context.newPage();
   await page.goto(base);
   await page.waitForSelector('body[data-ready]');
@@ -164,9 +178,10 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 // Fiche en mode sans spoiler : contenu flouté, puis révélé (contrastes, noms accessibles), thèmes clair et sombre
 for (const scheme of ['light', 'dark']) {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+  await skipWelcome(context);
   await blockImages(context);
   await withAxe(context);
-  await context.addInitScript(() => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ spoilerFree: true })); } catch { /* ignore */ } });
+  await context.addInitScript(() => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ spoilerFree: true, welcomed: true })); } catch { /* ignore */ } });
   const page = await context.newPage();
   page.on('pageerror', (e) => fail(`spoiler/${scheme}`, `erreur JS : ${e.message}`));
   await page.goto(base);
@@ -183,6 +198,7 @@ for (const scheme of ['light', 'dark']) {
 // Rappel de sauvegarde (affiché au-delà de 20 éléments vus sans sauvegarde), thèmes clair et sombre
 for (const scheme of ['light', 'dark']) {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+  await skipWelcome(context);
   await blockImages(context);
   await withAxe(context);
   const seen = Object.fromEntries(Array.from({ length: 25 }, (_, i) => [`seed${i}`, '2026-10-01']));
@@ -201,6 +217,7 @@ for (const scheme of ['light', 'dark']) {
 // Reflow (WCAG 1.4.10) à 320 px et texte agrandi à 200 % (WCAG 1.4.4) : pas de défilement horizontal, aucune commande hors écran ni texte coupé
 for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %', '200%']]) {
   const context = await browser.newContext({ viewport: { width: 320, height: 640 }, reducedMotion: 'reduce' });
+  await skipWelcome(context);
   await blockImages(context);
   const page = await context.newPage();
   const where = `reflow ${label}`;
@@ -261,6 +278,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
 // Swipe tactile : droite = vu, gauche = ignorer, geste court = rien ; un swipe n'ouvre pas la fiche (événements tactiles réels via CDP)
 {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, reducedMotion: 'reduce' });
+  await skipWelcome(context);
   await blockImages(context);
   const page = await context.newPage();
   page.on('pageerror', (e) => fail('swipe', `erreur JS : ${e.message}`));
