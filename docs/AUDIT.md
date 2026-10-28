@@ -8,23 +8,23 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 
 | # | Sujet | Effort | Statut |
 |---|---|---|---|
-| 1 | **Perte silencieuse de la progression** si l'état enregistré est invalide : l'application repartait de zéro sans prévenir et la 1re coche écrasait tout, sans copie. À faire : réparer ce qui peut l'être, garder une copie brute, prévenir et permettre de la télécharger ; idem pour des données d'une version plus récente. | M | à faire |
+| 1 | **Perte silencieuse de la progression** (corrigé) si l'état enregistré est invalide : l'application repartait de zéro sans prévenir et la 1re coche écrasait tout, sans copie. À faire : réparer ce qui peut l'être, garder une copie brute, prévenir et permettre de la télécharger ; idem pour des données d'une version plus récente. | M | fait (#63) |
 
 ## Urgent
 
 | # | Sujet | Effort | Statut |
 |---|---|---|---|
-| 2 | **Aucun filet d'erreur global** : pas de `onerror` ni `unhandledrejection`, pas de `<noscript>` ; un module qui plante donne une page blanche. | S | à faire |
-| 3 | **Message d'erreur du catalogue** mêlant français et anglais (« Failed to fetch »). | S | à faire |
+| 2 | **Aucun filet d'erreur global** : pas de `onerror` ni `unhandledrejection`, pas de `<noscript>` ; un module qui plante donne une page blanche. | S | fait (#64) |
+| 3 | **Message d'erreur du catalogue** mêlant français et anglais (« Failed to fetch »). | S | fait (#64) |
 | 4 | **Clé TMDB** collée en clair dans une conversation : à régénérer par précaution (action de Antoni). Elle n'est pas dans le dépôt. | S | à faire (Antoni) |
-| 5 | **PR du robot de synchronisation** : la CI ne se lance pas, donc avec la protection de `main` elles sont bloquées (contournement : fermer puis rouvrir la PR). À automatiser dans le workflow. | S | à faire |
+| 5 | **PR du robot de synchronisation** : la CI ne se lance pas, donc avec la protection de `main` elles sont bloquées (contournement : fermer puis rouvrir la PR). À automatiser dans le workflow. | S | fait (#65) |
 
 ## Important
 
 | # | Sujet | Effort | Statut |
 |---|---|---|---|
-| 6 | **Sagas** : `sync-catalog.mjs` met `saga: 'multiverse'` en dur sur les brouillons ; succès et catégories de saga codés pour deux sagas. À faire avant la phase 7. | M | à faire |
-| 7 | **Les audits ne couvrent pas tous les états** (le contraste raté de « Dans les temps » n'a été vu que par hasard) : objectif en bonne voie, import en erreur, synchronisation, bandeaux, états vides. | M | à faire |
+| 6 | **Sagas** : `sync-catalog.mjs` met `saga: 'multiverse'` en dur sur les brouillons ; succès et catégories de saga codés pour deux sagas. À faire avant la phase 7. | M | fait (#66) |
+| 7 | **Les audits ne couvrent pas tous les états** (le contraste raté de « Dans les temps » n'a été vu que par hasard) : objectif en bonne voie, import en erreur, synchronisation, bandeaux, états vides. | M | fait (#67) |
 | 8 | **Tests e2e instables** : 2 échecs en une journée (clics forcés dépendant du défilement). Surveiller et fiabiliser. | S–M | à faire |
 | 9 | **Sauvegarde incomplète** : l'export oublie l'objectif de date, le thème, les dates de déblocage des succès (le jeton GitHub en est exclu volontairement). | M | à faire |
 | 10 | **Accessibilité** : rien pour le mode contraste élevé de Windows (`forced-colors`, `prefers-contrast`), états sélectionnés uniquement par la couleur ; cibles tactiles de 44 px alors que le README annonce 48 px. | M | à faire |
@@ -65,4 +65,4 @@ Vrais iPhone et Android, lecteurs d'écran, Lighthouse, exactitude des dates et 
 
 ## Ordre retenu
 
-1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; mise à jour de ce fichier à la fin.
+1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #67). Restent les points 4 (action de Antoni), 8 à 23.
