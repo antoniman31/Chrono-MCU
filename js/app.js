@@ -478,6 +478,7 @@ async function main() {
     ctx.titles = ctx.allTitles;
   } catch (e) {
     console.error('Catalogue indisponible :', e);
+    $('theme-toggle').hidden = true; // sans catalogue, le bouton n'est pas branché : on ne montre pas une commande muette
     showMessage('Impossible de charger le catalogue. Vérifie ta connexion, puis recharge la page.', true);
     return;
   }
