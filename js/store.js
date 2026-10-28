@@ -1,5 +1,5 @@
 import { ORDERS, sortTitles, toUnits } from './logic.js?v=__BUILD__';
-import { CATEGORY_IDS, ignoreInfo, matchesCategory, titleIgnored } from './categories.js?v=__BUILD__';
+import { isCategoryId, ignoreInfo, matchesCategory, titleIgnored } from './categories.js?v=__BUILD__';
 
 // Le nom de la clé reste « v1 » pour ne pas déplacer les données ; la version du contenu, elle, est dans `state.version`.
 export const STORAGE_KEY = 'chrono-mcu:v1';
@@ -32,7 +32,7 @@ export function validateState(s) {
     else if (!Object.values(s.ignored).every((v) => v === true)) errors.push('ignored: valeurs true attendues');
   }
   if ('skip' in s) {
-    if (!Array.isArray(s.skip) || !s.skip.every((id) => CATEGORY_IDS.includes(id))) errors.push('skip invalide');
+    if (!Array.isArray(s.skip) || !s.skip.every(isCategoryId)) errors.push('skip invalide');
   }
   if ('included' in s) {
     if (!isObject(s.included)) errors.push('included invalide');
@@ -118,7 +118,7 @@ export function repairState(s) {
     }
     return out;
   };
-  const skip = Array.isArray(s.skip) ? s.skip.filter((id) => CATEGORY_IDS.includes(id)) : [];
+  const skip = Array.isArray(s.skip) ? s.skip.filter(isCategoryId) : [];
   if (s.skip !== undefined) dropped += Array.isArray(s.skip) ? s.skip.length - skip.length : 1;
   if (!ORDERS.includes(s.order)) dropped += 1;
   return {
@@ -313,7 +313,7 @@ export function setTitleIgnored(state, title, value) {
 
 // Couper ou suivre à nouveau une catégorie ; la suivre à nouveau efface les réintégrations devenues sans objet.
 export function setSkip(state, categoryId, skipped, titles) {
-  if (!CATEGORY_IDS.includes(categoryId)) throw new Error(`catégorie inconnue: ${categoryId}`);
+  if (!isCategoryId(categoryId)) throw new Error(`catégorie inconnue: ${categoryId}`);
   const current = state.skip ?? [];
   if (current.includes(categoryId) === skipped) return state;
   const skip = skipped ? [...current, categoryId] : current.filter((id) => id !== categoryId);

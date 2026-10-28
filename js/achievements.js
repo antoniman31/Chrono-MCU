@@ -16,8 +16,7 @@ const CATALOG = [
   { id: 'first', family: 'progression', name: 'Premier pas', tiers: [1], metric: (m) => m.seenUnits, desc: () => 'Coche ton premier film ou épisode' },
   { id: 'percent', family: 'progression', name: 'Cap sur la fin', unit: '%', tiers: [25, 50, 100], metric: (m) => m.percent, desc: (n) => `Atteindre ${n} % du catalogue` },
   { id: 'phases', family: 'progression', name: 'Phase après phase', tiers: [1, 3, 5], metric: (m) => m.phasesDone, desc: (n) => `Terminer ${n} ${plural(n, 'phase', 'phases')} en entier` },
-  { id: 'infinity', family: 'progression', saga: 'infinity', name: 'Saga de l\'Infini', tiers: [1], metric: (m) => m.infinityDone, desc: () => 'Voir toute la Saga de l\'Infini', named: (s) => ({ name: s.short, desc: `Voir toute ${s.inText}` }) },
-  { id: 'multiverse', family: 'progression', saga: 'multiverse', name: 'Saga du Multivers', tiers: [1], metric: (m) => m.multiverseDone, desc: () => 'Voir tout ce qui est sorti de la Saga du Multivers', named: (s) => ({ name: s.short, desc: `Voir tout ce qui est sorti de ${s.inText}` }) },
+  { id: '__sagas__' }, // remplacé par un succès par saga (sagaAchievements)
   { id: 'hours', family: 'progression', name: 'Heures de vol', unit: 'h', tiers: [24, 100, 200], metric: (m) => m.hoursSeen, desc: (n) => `Cumuler ${n} h de visionnage` },
   { id: 'backup1', family: 'progression', name: 'Prévoyant', tiers: [1], metric: (m) => m.hasBackup, desc: () => 'Exporter ta progression une première fois' },
   { id: 'backup2', family: 'progression', name: 'Sauvegarde à jour', tiers: [1], metric: (m) => m.recentBackup, desc: () => 'Avoir une sauvegarde de moins de 30 jours' },
@@ -58,12 +57,30 @@ const HEROES_CATALOG = HEROES.map((hero) => {
 });
 CATALOG.push(...HEROES_CATALOG);
 
-// Nombre total de médailles (un palier = une médaille)
-export const TOTAL_MEDALS = CATALOG.reduce((sum, a) => sum + a.tiers.length, 0);
+// Sagas connues : celles de data/sagas.json ; à défaut (données absentes), les deux premières
+const sagaIdsOf = (sagas) => (sagas?.length ? sagas.map((x) => x.id) : ['infinity', 'multiverse']);
+
+// Un succès par saga (même identifiant que la saga, donc les déblocages enregistrés restent valables).
+// La première se « voit toute », les suivantes se « voient » au fil des sorties ; Saga express porte sur la première.
+function catalogFor(sagaIds) {
+  return CATALOG.flatMap((a) => {
+    if (a.id === '__sagas__') {
+      return sagaIds.map((id, i) => ({
+        id, family: 'progression', saga: id, name: id, tiers: [1], metric: (m) => m.sagaDone[id] === true,
+        desc: () => (i === 0 ? 'Voir toute la saga' : 'Voir tout ce qui est sorti de la saga'),
+        named: (s) => ({ name: s.short, desc: i === 0 ? `Voir toute ${s.inText}` : `Voir tout ce qui est sorti de ${s.inText}` }),
+      }));
+    }
+    return a.id === 'sagaFast' ? [{ ...a, saga: sagaIds[0] }] : [a];
+  });
+}
+
+// Nombre total de médailles d'une liste de succès évaluée (un palier = une médaille)
+export const totalMedals = (list) => list.reduce((sum, a) => sum + a.tiers.length, 0);
 
 const md = (day) => day.slice(5);
 
-export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, spoilerFree = false, versions = {}, ignored = {}, lastBackup = null }) {
+export function metrics({ sagas = [], titles, seen, catchUp = {}, today, goalDate = null, spoilerFree = false, versions = {}, ignored = {}, lastBackup = null }) {
   const units = toUnits(titles);
   const byId = new Map(titles.map((t) => [t.id, t]));
   const seenUnits = units.filter((u) => seen[u.key]);
@@ -132,8 +149,7 @@ export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, sp
     seenUnits: seenUnits.length,
     percent: units.length ? Math.floor((seenUnits.length / units.length) * 100) : 0,
     phasesDone,
-    infinityDone: sagaDone('infinity'),
-    multiverseDone: sagaDone('multiverse'),
+    sagaDone: Object.fromEntries(sagaIdsOf(sagas).map((id) => [id, sagaDone(id)])),
     goalDone: Boolean(goalDate) && units.length > 0 && seenUnits.length === units.length && lastSeen <= goalDate,
     bestStreak,
     maxPerDay: Math.max(0, ...Object.values(activity)),
@@ -155,7 +171,7 @@ export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, sp
     chronoRun: runIn('chrono'),
     releaseRun: runIn('release'),
     phaseFast: phases.some((p) => doneWithin(titles.filter((t) => t.phase === p), 7)),
-    sagaFast: doneWithin(titles.filter((t) => t.saga === 'infinity'), 30),
+    sagaFast: doneWithin(titles.filter((t) => t.saga === sagaIdsOf(sagas)[0]), 30),
     postAll: allDone(withPost),
     longestSeen: longest !== null && titleSeen(longest, seen),
     shortestSeen: shortest !== null && titleSeen(shortest, seen),
@@ -175,7 +191,7 @@ const num = (v) => (typeof v === 'boolean' ? Number(v) : v);
 
 export function evaluate(input) {
   const m = metrics(input);
-  return CATALOG.map((a) => {
+  return catalogFor(sagaIdsOf(input.sagas)).map((a) => {
     const value = num(a.metric(m));
     const level = a.tiers.filter((t) => value >= t).length;
     const next = a.tiers[level] ?? null;

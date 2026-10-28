@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CATEGORIES, categoryLabel, categoryTexts, effectiveIgnored, ignoreInfo, matchesCategory, titleIgnored } from '../js/categories.js';
+import { CATEGORIES, categoriesFor, categoryLabel, categoryTexts, effectiveIgnored, ignoreInfo, matchesCategory, titleIgnored } from '../js/categories.js';
 import { defaultState } from '../js/store.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../data/mcu.json', import.meta.url), 'utf8'));
@@ -49,7 +49,7 @@ test('effectiveIgnored : table des titres ignorés', () => {
 
 test('catégorie de saga : nom et description suivent data/sagas.json', () => {
   const sagas = JSON.parse(readFileSync(new URL('../data/sagas.json', import.meta.url), 'utf8'));
-  const c = CATEGORIES.find((x) => x.id === 'multiverse');
+  const c = categoriesFor(sagas).find((x) => x.id === 'multiverse');
   const texts = categoryTexts(c, sagas, catalogue);
   assert.equal(texts.label, "Saga du Multivers");
   assert.equal(texts.desc, "Phases 4 à 6 : à couper pour s'arrêter à la Saga de l'Infini");
@@ -59,4 +59,14 @@ test('catégorie de saga : nom et description suivent data/sagas.json', () => {
   const renamed = sagas.map((s) => (s.id === 'infinity' ? { ...s, name: "L'Épopée de l'Infini" } : { ...s, name: 'Le Grand Multivers' }));
   assert.equal(categoryTexts(c, renamed, catalogue).label, 'Grand Multivers');
   assert.match(categoryTexts(c, renamed, catalogue).desc, /à couper pour s'arrêter à L'Épopée de l'Infini$/);
+});
+
+test('une nouvelle saga ajoute sa catégorie, qui s\'arrête à la précédente', () => {
+  const sagas = [{ id: 'a', name: 'La Saga A' }, { id: 'b', name: 'La Saga B' }, { id: 'c', name: 'La Saga C' }];
+  const all = categoriesFor(sagas);
+  assert.deepEqual(all.map((c) => c.id), [...CATEGORIES.map((c) => c.id), 'b', 'c']);
+  const titles = [{ id: 'x', saga: 'c', phase: 7 }, { id: 'y', saga: 'b', phase: 5 }];
+  assert.equal(categoryTexts(all.at(-1), sagas, titles).desc, "Phase 7 : à couper pour s'arrêter à la Saga B");
+  assert.equal(matchesCategory('c', titles[0]), true);
+  assert.equal(matchesCategory('c', titles[1]), false);
 });

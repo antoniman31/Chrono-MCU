@@ -1,5 +1,5 @@
 import { goalPlan, progress, stats } from '../logic.js?v=__BUILD__';
-import { evaluate, FAMILIES, LEVEL_LABELS, TOTAL_MEDALS } from '../achievements.js?v=__BUILD__';
+import { evaluate, FAMILIES, LEVEL_LABELS, totalMedals } from '../achievements.js?v=__BUILD__';
 import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
 import { sagaLabel } from '../phases.js?v=__BUILD__';
 import { $, formatDay, formatShort, h, hours, icon, today } from './dom.js?v=__BUILD__';
@@ -186,6 +186,7 @@ export function achievementInput(ctx) {
 function succes(ctx) {
   const stored = ctx.view.achv ?? {};
   const list = evaluate(achievementInput(ctx)).map((a) => ({ ...a, level: Math.max(a.level, stored[a.id]?.level ?? 0), date: stored[a.id]?.date ?? null }));
+  const TOTAL_MEDALS = totalMedals(list);
   const earned = list.reduce((sum, a) => sum + a.level, 0);
   const percent = Math.round((earned / TOTAL_MEDALS) * 100);
   const item = (a) => {

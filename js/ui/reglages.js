@@ -1,6 +1,6 @@
 import { $, formatShort, h, icon, today } from './dom.js?v=__BUILD__';
 import { daysAgoLabel, daysBetween } from '../backup.js?v=__BUILD__';
-import { CATEGORIES, categoryTexts, matchesCategory } from '../categories.js?v=__BUILD__';
+import { categoriesFor, categoryTexts, matchesCategory } from '../categories.js?v=__BUILD__';
 import { stats } from '../logic.js?v=__BUILD__';
 import { formatDuration } from '../duration.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
@@ -22,7 +22,8 @@ const titleMinutes = (t) => (t.type === 'film' ? t.runtimeMin : t.episodes.reduc
 function followSection(ctx) {
   const released = ctx.allTitles.filter((t) => !t.upcoming);
   const skip = ctx.state.skip ?? [];
-  const rows = CATEGORIES.map((c) => {
+  const categories = categoriesFor(ctx.sagas);
+  const rows = categories.map((c) => {
     const inCategory = released.filter((t) => matchesCategory(c.id, t));
     const minutes = inCategory.reduce((sum, t) => sum + titleMinutes(t), 0);
     const texts = categoryTexts(c, ctx.sagas, ctx.allTitles);
@@ -34,9 +35,9 @@ function followSection(ctx) {
   const followed = ctx.counted.filter((t) => !t.upcoming);
   const s = stats(ctx.counted, ctx.state.seen, today(), ctx.state.catchUp);
   const total = `${followed.length} titre${followed.length > 1 ? 's' : ''} suivi${followed.length > 1 ? 's' : ''}, ${hoursText(s.seenMin + s.remainingMin)} au total`;
-  const active = CATEGORIES.length - skip.filter((id) => CATEGORIES.some((c) => c.id === id)).length;
+  const active = categories.length - skip.filter((id) => categories.some((c) => c.id === id)).length;
   return {
-    summary: `${active} catégorie${active > 1 ? 's' : ''} sur ${CATEGORIES.length} · ${followed.length} titre${followed.length > 1 ? 's' : ''}`,
+    summary: `${active} catégorie${active > 1 ? 's' : ''} sur ${categories.length} · ${followed.length} titre${followed.length > 1 ? 's' : ''}`,
     content: [
       h('p', { class: 'muted t-body-sm', text: 'Décoche une catégorie pour l\'exclure de ta progression, de tes statistiques et du « Prochain à voir ». Tu peux réintégrer un titre précis depuis son menu.' }),
       rows,
