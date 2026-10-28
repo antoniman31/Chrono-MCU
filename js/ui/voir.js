@@ -110,17 +110,24 @@ function renderNudge(ctx) {
       btn({ label: 'Plus tard', variant: 'text', key: 'nudge-later', onclick: () => ctx.snoozeNudge() }))));
 }
 
+// « Prochain à voir » : bandeau fin (affiche, titre, durée) ; un appui va à la ligne, ouvre la fiche (et l'épisode), le rond coche sans ouvrir
 function renderResume(ctx) {
   const { state, titles, byId } = ctx;
   const { unit, status } = suggestNext(titles, state.seen, state.order, state.lastSeenKey, ctx.ignoredMap);
   let content;
   if (unit) {
-    content = h('div', { class: 'row' },
-      posterImg(byId.get(unit.titleId), ctx.view, 'w185', 64, 96),
-      h('div', { class: 'text' }, h('div', { class: 'label', text: 'Prochain à voir' }), h('div', { class: 'name', text: unitLabel(unit, byId, ctx) })),
-      btn({ label: 'Marquer comme vu', variant: 'filled', iconName: 'check', onclick: () => ctx.toggleUnit(unit, unitLabel(unit, byId, ctx)) }));
+    const t = byId.get(unit.titleId);
+    const label = unitLabel(unit, byId, ctx);
+    content = h('div', { class: 'resume-bar' },
+      h('button', { type: 'button', class: 'resume-main', 'aria-haspopup': 'dialog', 'data-fk': 'resume-open', onclick: (e) => ctx.goToNext(unit, e.currentTarget) },
+        posterImg(t, ctx.view, 'w185', 48, 72),
+        h('span', { class: 'text' },
+          h('span', { class: 'label', text: 'Prochain à voir' }),
+          h('span', { class: 'name', text: label }),
+          h('span', { class: 'meta', text: `${unit.runtimeMin} min · phase ${t.phase}` }))),
+      iconBtn({ iconName: 'check', label: `Marquer comme vu : ${label}`, key: 'resume-check', cls: 'resume-check', onclick: () => ctx.toggleUnit(unit, label) }));
   } else {
-    content = h('div', { class: 'row' }, h('div', { class: 'name', text: status === 'done' ? 'Tout est vu. Bravo.' : 'Tu es arrivé à la fin de la liste.' }));
+    content = h('div', { class: 'resume-bar resume-done' }, h('span', { class: 'name', text: status === 'done' ? 'Tout est vu. Bravo.' : 'Tu es arrivé à la fin de la liste.' }));
   }
   // Séries commencées dont un épisode sort bientôt : on sait quand reprendre
   const day = today();
@@ -130,11 +137,8 @@ function renderResume(ctx) {
     .filter((x) => x.next)
     .sort((a, b) => a.next.airDate.localeCompare(b.next.airDate))
     .slice(0, 2);
-  const comingRows = coming.map(({ t, next }) =>
-    h('div', { class: 'row' }, h('div', { class: 'text' },
-      h('div', { class: 'label', text: 'Prochainement' }),
-      h('div', { class: 'name', text: `${t.title} : épisode ${next.n} le ${formatShort(next.airDate)}` }))));
-  $('resume').replaceChildren(h('section', { class: 'card card-tonal resume', 'aria-label': 'Suite du visionnage' }, content, comingRows));
+  const comingRows = coming.map(({ t, next }) => h('p', { class: 'coming', text: `Prochainement · ${t.title} : épisode ${next.n} le ${formatShort(next.airDate)}` }));
+  $('resume').replaceChildren(h('section', { class: 'resume', 'aria-label': 'Suite du visionnage' }, content, comingRows));
 }
 
 function itemFor(ctx, t) {
