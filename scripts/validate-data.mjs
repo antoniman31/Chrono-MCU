@@ -56,7 +56,7 @@ export function validate(data) {
     if ('versions' in t) {
       const vs = t.versions;
       const ok = t.type === 'film' && Array.isArray(vs) && vs.length > 0 && new Set(vs.map((v) => v?.id)).size === vs.length
-        && vs.every((v) => v && isText(v.id) && isText(v.label) && isText(v.badge) && isText(v.note) && isDate(v.releaseDate) && isPosInt(v.runtimeMin)
+        && vs.every((v) => v && isText(v.id) && isText(v.label) && isText(v.badge) && (!('badgeShort' in v) || isText(v.badgeShort)) && isText(v.note) && isDate(v.releaseDate) && isPosInt(v.runtimeMin)
           && (!('postCredits' in v) || (Array.isArray(v.postCredits) && new Set(v.postCredits).size === v.postCredits.length && v.postCredits.every((x) => ['mid', 'end'].includes(x)))));
       if (!ok) errors.push(`${at}: versions réservées aux films (id, label, badge, note, releaseDate, runtimeMin, postCredits optionnel)`);
     }

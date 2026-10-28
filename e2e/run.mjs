@@ -60,7 +60,9 @@ const variants = {
 // Les images TMDB sont décoratives (alt vide, aucun texte posé dessus) : on les bloque pour des tests rapides et indépendants du réseau
 // axe est injecté par le mécanisme d'initialisation de Playwright (hors CSP) : la CSP du site reste active pendant les audits
 const withAxe = (context) => context.addInitScript({ content: axeSource });
-const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => route.abort());
+const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+// Pas de réseau, mais une image de 1 pixel : les affiches existent, donc la mise en page avec affiche est celle qui est auditée
+const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: PIXEL }));
 
 async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   const where = `${theme}/${vname}`;

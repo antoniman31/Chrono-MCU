@@ -25,7 +25,8 @@ export function progressBar(percent, label) {
     h('span', { style: `width:${percent}%` }));
 }
 
-export function titleBadges(t, ignored = false) {
+// short : libellés courts pour la liste (cartes de hauteur fixe) ; la fiche garde les libellés complets
+export function titleBadges(t, ignored = false, short = false) {
   const out = [];
   if (ignored) out.push(h('span', { class: 'badge', text: 'ignoré' }));
   if (!t.verified && !t.upcoming) out.push(h('span', { class: 'badge warn', text: 'à vérifier' }));
@@ -34,12 +35,13 @@ export function titleBadges(t, ignored = false) {
   if (Array.isArray(t.versions)) {
     const v = t.versions.find((x) => x.id === t.activeVersion);
     // Version choisie : on l'affiche ; sinon on signale seulement que la version existe et ce qu'elle ajoute
-    out.push(h('span', { class: 'badge', text: v ? `version ${v.label}` : `version ${t.versions[0].label} : ${t.versions[0].badge}` }));
+    const first = t.versions[0];
+    out.push(h('span', { class: 'badge', text: v ? `version ${v.label}` : short && first.badgeShort ? `${first.label} : ${first.badgeShort}` : `version ${first.label} : ${first.badge}` }));
   }
   if (Array.isArray(t.postCredits)) {
     if (t.postCredits.length === 0) out.push(h('span', { class: 'badge', text: 'sans scène' }));
-    if (t.postCredits.includes('mid')) out.push(h('span', { class: 'badge', text: 'scène mi-générique' }));
-    if (t.postCredits.includes('end')) out.push(h('span', { class: 'badge', text: 'scène post-générique' }));
+    if (t.postCredits.includes('mid')) out.push(h('span', { class: 'badge', text: short ? 'mi-générique' : 'scène mi-générique' }));
+    if (t.postCredits.includes('end')) out.push(h('span', { class: 'badge', text: short ? 'post-générique' : 'scène post-générique' }));
   }
   return out;
 }

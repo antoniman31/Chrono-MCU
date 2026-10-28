@@ -148,7 +148,7 @@ function itemFor(ctx, t) {
         h('span', { class: 'item-text' },
           h('span', { class: 'title', text: t.title }),
           h('span', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatShort(t.releaseDate)} · phase ${t.phase}` }),
-          h('span', { class: 'badges' }, titleBadges(t)))));
+          h('span', { class: 'badges' }, titleBadges(t, false, true)))));
   }
   const seen = isTitleSeen(state, t);
   const info = ignoreInfo(state, t);
@@ -174,7 +174,7 @@ function itemFor(ctx, t) {
       h('span', { class: 'item-text' },
         h('span', { class: 'title', text: t.title }),
         h('span', { class: 'meta', text: meta }),
-        h('span', { class: 'badges' }, titleBadges(t, ignored)))),
+        h('span', { class: 'badges' }, titleBadges(t, ignored, true)))),
     iconBtn({ iconName: 'more', label: `Actions : ${t.title}`, popup: true, key: `menu:${t.id}`, cls: 'item-menu', onclick: (e) => ctx.openItemMenu(t.id, e.currentTarget) }));
   const row = h('li', { class: `item${seen ? ' seen' : ''}${ignored ? ' ignored' : ''}${selected ? ' selected' : ''}` }, bg, fg);
   attachSwipe(row, fg, bg, swipe);
