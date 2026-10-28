@@ -42,7 +42,7 @@ Les durées d'épisodes viennent de [TVmaze](https://www.tvmaze.com) (une seule 
 
 Un film peut avoir des `versions` (ressortie avec des scènes en plus) : `{ id, label, badge, note, releaseDate, runtimeMin, postCredits? }`. Le film garde une seule case ; la fiche propose « Version regardée » (Originale par défaut) et la durée comptée et les scènes post-générique suivent le choix, enregistré dans l'état (`versions`, champ optionnel, présent dans l'export). Exemple : Endgame Encore.
 
-Les titres pas encore sortis portent `"upcoming": true` (sans `runtimeMin` ni `episodes`). Ils s'affichent « à venir » et ne comptent pas dans la progression. À leur sortie : retirer `upcoming`, ajouter durée ou épisodes.
+Les titres pas encore sortis portent `"upcoming": true` (sans `runtimeMin` ni `episodes`). Ils s'affichent « à venir » (cadre pointillé) et ne comptent pas dans la progression ; ils peuvent s'ignorer (menu ⋮, fiche ou glissement vers la gauche) et le restent à leur sortie. À leur sortie : retirer `upcoming`, ajouter durée ou épisodes.
 
 Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm run validate`. Règles :
 

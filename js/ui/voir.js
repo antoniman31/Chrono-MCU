@@ -146,35 +146,32 @@ function renderResume(ctx) {
 function itemFor(ctx, t) {
   const { state, view } = ctx;
   const selected = ctx.selectedId === t.id;
-  if (t.upcoming) {
-    return h('li', { class: `item upcoming${selected ? ' selected' : ''}` },
-      h('span', { class: 'cb-gap', 'aria-hidden': 'true' }),
-      h('button', { type: 'button', class: 'item-main', 'aria-haspopup': 'dialog', 'data-fk': `open:${t.id}`, 'aria-current': selected ? 'true' : null, onclick: (e) => ctx.openDetail(t.id, e.currentTarget) },
-        posterImg(t, view),
-        h('span', { class: 'item-text' },
-          h('span', { class: 'title', text: t.title }),
-          h('span', { class: 'meta', text: `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatShort(t.releaseDate)} · phase ${t.phase}` }),
-          h('span', { class: 'badges' }, titleBadges(t, false, true)))));
-  }
-  const seen = isTitleSeen(state, t);
+  const upcoming = Boolean(t.upcoming);
+  const seen = !upcoming && isTitleSeen(state, t);
   const info = ignoreInfo(state, t);
   const ignored = info.ignored;
-  const done = t.type === 'serie' ? t.episodes.filter((e) => state.seen[`${t.id}/${e.n}`]).length : 0;
+  const done = !upcoming && t.type === 'serie' ? t.episodes.filter((e) => state.seen[`${t.id}/${e.n}`]).length : 0;
   const partial = t.type === 'serie' && done > 0 && !seen;
-  const total = t.type === 'serie' ? ctx.byId.get(t.id).episodes.length : 0;
-  const pending = t.type === 'serie' ? total - t.episodes.length : 0;
-  const meta = t.type === 'serie'
-    ? `Série · ${done}/${total} ép.${pending ? ` (${pending} à venir)` : ''} · ${hours(t.episodes.reduce((s, e) => s + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
-    : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
+  // Un titre pas encore sorti n'a ni case ni épisodes comptés, mais il peut s'ignorer (il le reste à sa sortie)
+  let meta = `${t.type === 'serie' ? 'Série' : 'Film'} · sortie prévue le ${formatShort(t.releaseDate)} · phase ${t.phase}`;
+  if (!upcoming) {
+    const total = t.type === 'serie' ? ctx.byId.get(t.id).episodes.length : 0;
+    const pending = t.type === 'serie' ? total - t.episodes.length : 0;
+    meta = t.type === 'serie'
+      ? `Série · ${done}/${total} ép.${pending ? ` (${pending} à venir)` : ''} · ${hours(t.episodes.reduce((sum, e) => sum + e.runtimeMin, 0))} · ${t.releaseDate.slice(0, 4)}`
+      : `${formatShort(filmDate(t))} · ${t.runtimeMin} min`;
+  }
   const seenSpec = { icon: 'check', label: seen ? 'Non vu' : 'Vu', run: () => ctx.toggleTitle(t) };
   const ignoreSpec = { icon: ignored ? 'visibility' : 'block', label: ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer') : 'Ignorer', run: () => ctx.toggleIgnore(t) };
-  const swipe = ignored ? { right: ignoreSpec, left: ignoreSpec } : { right: seenSpec, left: ignoreSpec };
+  const swipe = ignored ? { right: ignoreSpec, left: ignoreSpec } : { right: upcoming ? null : seenSpec, left: ignoreSpec };
   const bg = swipeBackground(swipe);
   const fg = h('div', { class: 'item-fg' },
-    checkbox({
-      checked: seen, indeterminate: partial, disabled: ignored, label: t.type === 'serie' ? `Vu : ${t.title} (série entière)` : `Vu : ${t.title}`, key: `cb:${t.id}`,
-      onchange: () => ctx.toggleTitle(t),
-    }),
+    upcoming
+      ? h('span', { class: 'cb-gap', 'aria-hidden': 'true' })
+      : checkbox({
+        checked: seen, indeterminate: partial, disabled: ignored, label: t.type === 'serie' ? `Vu : ${t.title} (série entière)` : `Vu : ${t.title}`, key: `cb:${t.id}`,
+        onchange: () => ctx.toggleTitle(t),
+      }),
     h('button', { type: 'button', class: 'item-main', 'aria-haspopup': 'dialog', 'data-fk': `open:${t.id}`, 'aria-current': selected ? 'true' : null, onclick: (e) => ctx.openDetail(t.id, e.currentTarget) },
       posterImg(t, view),
       h('span', { class: 'item-text' },
@@ -182,7 +179,7 @@ function itemFor(ctx, t) {
         h('span', { class: 'meta', text: meta }),
         h('span', { class: 'badges' }, titleBadges(t, ignored, true)))),
     iconBtn({ iconName: 'more', label: `Actions : ${t.title}`, popup: true, key: `menu:${t.id}`, cls: 'item-menu', onclick: (e) => ctx.openItemMenu(t.id, e.currentTarget) }));
-  const row = h('li', { class: `item${seen ? ' seen' : ''}${ignored ? ' ignored' : ''}${selected ? ' selected' : ''}` }, bg, fg);
+  const row = h('li', { class: `item${upcoming ? ' upcoming' : ''}${seen ? ' seen' : ''}${ignored ? ' ignored' : ''}${selected ? ' selected' : ''}` }, bg, fg);
   attachSwipe(row, fg, bg, swipe);
   return row;
 }
@@ -361,8 +358,8 @@ export function renderItemMenu(body, ctx, id) {
     }
     const pending = ignored ? 0 : ctx.pendingUntilCount(t);
     if (pending >= 2) items.push(action('check', `Tout marquer vu jusqu'ici (${pending} titres)`, () => { ctx.closeSheet(); ctx.markUntil(t); }, 'm-until'));
-    items.push(action(ignored ? 'visibility' : 'block', ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer ce titre') : 'Ignorer ce titre', () => { ctx.closeSheet(); ctx.toggleIgnore(t); }, 'm-ignore'));
   }
+  items.push(action(ignored ? 'visibility' : 'block', ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer ce titre') : 'Ignorer ce titre', () => { ctx.closeSheet(); ctx.toggleIgnore(t); }, 'm-ignore'));
   items.push(action('info', 'Voir la fiche', () => ctx.openDetail(id), 'm-detail'));
   body.append(h('p', { class: 'sheet-sub', text: metaLine(t) }), h('ul', { class: 'sheet-actions' }, items));
 }

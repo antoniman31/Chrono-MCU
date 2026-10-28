@@ -385,7 +385,7 @@ main:focus { outline: none; }
 .item.seen .title { color: var(--muted); }
 .item .meta { font-size: .875rem; line-height: 1.25rem; color: var(--muted); overflow-wrap: anywhere; }
 .item .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
-.item.upcoming { border-style: dashed; }
+.item.upcoming::after { content: ""; position: absolute; inset: 3px; border: 1px dashed var(--outline); border-radius: calc(var(--radius) - 3px); pointer-events: none; }
 .item.ignored .title { color: var(--muted); }
 .item.ignored .poster { filter: grayscale(1); }
 .item-menu { flex: none; }
