@@ -190,9 +190,39 @@ await scenario('titres d\'épisodes en français affichés dans la fiche', async
   check((await page.locator('#sheet-body').innerText()).includes(fr.titleFr), `le titre « ${fr.titleFr} » devrait s'afficher`);
   await page.keyboard.press('Escape');
   await page.fill('#search', fr.title.slice(0, 8));
-  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'la recherche par titre d\'origine devrait trouver la série');
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 0, 'sans l\'option, la recherche ne doit pas porter sur les titres d\'épisodes');
+  await page.click('#open-filters');
+  await page.click('label.switch-row:has([data-fk="f-episodes"])');
+  await page.click('[data-fk="f-done"]');
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'avec l\'option, la recherche par titre d\'origine d\'épisode devrait trouver la série');
   await page.fill('#search', fr.titleFr.slice(0, 8));
-  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'la recherche par titre français devrait trouver la série');
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'avec l\'option, la recherche par titre français d\'épisode devrait trouver la série');
+});
+
+await scenario('filtres : ignorés masqués/seuls, statut, réinitialisation, compteur', async (page) => {
+  const total = async () => parseInt((await page.locator('#result-count').innerText()), 10);
+  const all = await total();
+  await page.click('[data-fk="menu:wandavision"]');
+  await page.click('[data-fk="m-ignore"]');
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 1, 'un titre ignoré reste affiché par défaut');
+  await page.click('#open-filters');
+  await page.click('label.segopt:has([data-fk="f-ignored:hide"])');
+  check(/Afficher \d+ titres/.test(await page.locator('[data-fk="f-done"]').innerText()), 'le bouton doit annoncer le nombre de titres');
+  await page.click('[data-fk="f-done"]');
+  check(await page.locator('[data-fk="open:wandavision"]').count() === 0 && (await total()) === all - 1, 'les ignorés doivent être masqués');
+  check(/1 actif/.test(await page.locator('#open-filters').getAttribute('aria-label')), 'le bouton Filtres doit compter 1 filtre actif');
+  await page.click('#open-filters');
+  await page.click('label.segopt:has([data-fk="f-ignored:only"])');
+  await page.click('[data-fk="f-done"]');
+  check((await total()) === 1, 'seul le titre ignoré doit rester');
+  await page.click('#open-filters');
+  await page.click('[data-fk="f-reset"]');
+  await page.click('[data-fk="f-done"]');
+  check((await total()) === all, 'la réinitialisation doit tout rétablir');
+  await page.click('#open-filters');
+  await page.click('label.segopt:has([data-fk="f-status:done"])');
+  await page.click('[data-fk="f-done"]');
+  check((await total()) === 0, 'aucun titre terminé au départ');
 });
 
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {

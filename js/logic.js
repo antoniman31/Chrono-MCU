@@ -36,21 +36,49 @@ export function titleSeen(t, seen) {
   return t.episodes.every((e) => seen[`${t.id}/${e.n}`]);
 }
 
-function matchesQuery(t, query) {
+function matchesQuery(t, query, inEpisodes) {
   const q = normalizeText(query);
   if (!q) return true;
   if (normalizeText(t.title).includes(q)) return true;
-  return t.type === 'serie' && (t.episodes ?? []).some((e) => normalizeText(e.title).includes(q) || (e.titleFr && normalizeText(e.titleFr).includes(q)));
+  return inEpisodes && t.type === 'serie' && (t.episodes ?? []).some((e) => normalizeText(e.title).includes(q) || (e.titleFr && normalizeText(e.titleFr).includes(q)));
 }
 
-export function filterTitles(titles, { phase = null, type = null, query = '', hideSeen = false, seen = {} } = {}) {
-  return titles.filter(
-    (t) =>
-      (phase === null || t.phase === phase) &&
-      (type === null || t.type === type) &&
-      matchesQuery(t, query) &&
-      !(hideSeen && titleSeen(t, seen)),
-  );
+// Statut d'un titre : 'todo' (rien de vu), 'progress' (série entamée), 'done' (entièrement vu)
+export function titleStatus(t, seen) {
+  if (titleSeen(t, seen)) return 'done';
+  if (t.type === 'serie' && (t.episodes ?? []).some((e) => seen[`${t.id}/${e.n}`])) return 'progress';
+  return 'todo';
+}
+
+export const titleMinutes = (t) => (t.type === 'film' ? t.runtimeMin ?? 0 : (t.episodes ?? []).reduce((sum, e) => sum + (e.runtimeMin ?? 0), 0));
+
+export const DURATION_BOUNDS = { short: 90, long: 120 };
+
+function matchesDuration(t, duration) {
+  if (duration === 'any') return true;
+  const m = titleMinutes(t);
+  if (duration === 'short') return m < DURATION_BOUNDS.short;
+  if (duration === 'long') return m > DURATION_BOUNDS.long;
+  return m >= DURATION_BOUNDS.short && m <= DURATION_BOUNDS.long;
+}
+
+export const FILTER_DEFAULTS = { status: 'all', ignored: 'show', post: 'any', duration: 'any', inEpisodes: false };
+
+export function filterTitles(titles, { phase = null, type = null, query = '', hideSeen = false, status = 'all', ignored = 'show', post = 'any', duration = 'any', inEpisodes = false, seen = {}, ignoredMap = {} } = {}) {
+  return titles.filter((t) => {
+    if (phase !== null && t.phase !== phase) return false;
+    if (type !== null && t.type !== type) return false;
+    if (!matchesQuery(t, query, inEpisodes)) return false;
+    if (hideSeen && titleSeen(t, seen)) return false;
+    if (status !== 'all' && titleStatus(t, seen) !== status) return false;
+    const isIgnored = Boolean(ignoredMap[t.id]);
+    if (ignored === 'hide' && isIgnored) return false;
+    if (ignored === 'only' && !isIgnored) return false;
+    const hasPost = (t.postCredits ?? []).length > 0;
+    if (post === 'with' && !hasPost) return false;
+    if (post === 'without' && hasPost) return false;
+    return matchesDuration(t, duration);
+  });
 }
 
 const ratio = (seen, total) => ({

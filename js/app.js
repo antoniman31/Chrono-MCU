@@ -1,4 +1,4 @@
-import { countedTitles, releasedView, sortTitles, withVersions } from './logic.js?v=__BUILD__';
+import { FILTER_DEFAULTS, countedTitles, releasedView, sortTitles, withVersions } from './logic.js?v=__BUILD__';
 import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
@@ -37,7 +37,7 @@ const ctx = {
   availById: new Map(), // titres sortis
   state: loadState(storage),
   view: loadView(storage),
-  filters: { tab: 'all', query: '', phase: null, hideSeen: false },
+  filters: { tab: 'all', query: '', phase: null, ...FILTER_DEFAULTS },
   selectedId: null,
   sheetDetailId: null,
   route: 'voir',

@@ -1,4 +1,4 @@
-import { filterTitles, isReleased, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
+import { FILTER_DEFAULTS, filterTitles, isReleased, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
 import { phaseInfo, phaseList, phaseSummary } from '../phases.js?v=__BUILD__';
 import { isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
 import { ignoreInfo } from '../categories.js?v=__BUILD__';
@@ -19,7 +19,8 @@ function unitLabel(unit, byId, ctx) {
 }
 
 function activeFilterCount(ctx) {
-  return ctx.filters.hideSeen ? 1 : 0;
+  const f = ctx.filters;
+  return ['status', 'ignored', 'post', 'duration', 'inEpisodes'].filter((k) => f[k] !== FILTER_DEFAULTS[k]).length;
 }
 
 // Barre des phases : un onglet par phase. Appuyer fait défiler la liste jusqu'à la phase (rien n'est masqué) ;
@@ -188,7 +189,7 @@ function itemFor(ctx, t) {
 function renderList(ctx) {
   const { state, titles, filters, view } = ctx;
   const sorted = sortTitles(titles, state.order);
-  const shown = filterTitles(sorted, { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, hideSeen: filters.hideSeen, seen: state.seen });
+  const shown = filterTitles(sorted, { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, seen: state.seen, ignoredMap: ctx.ignoredMap });
   $('result-count').textContent = shown.length === 1 ? '1 titre' : `${shown.length} titres`;
   const list = $('list');
   if (!shown.length) {
@@ -303,6 +304,13 @@ export function setupVoir(ctx) {
   $('open-filters').addEventListener('click', (e) => ctx.openFilters(e.currentTarget));
 }
 
+const FILTER_GROUPS = [
+  ['status', 'Statut', [['all', 'Tous'], ['todo', 'À voir'], ['progress', 'En cours'], ['done', 'Terminés']]],
+  ['ignored', 'Titres ignorés', [['show', 'Afficher'], ['hide', 'Masquer'], ['only', 'Seulement']]],
+  ['post', 'Scène après le générique', [['any', 'Peu importe'], ['with', 'Avec'], ['without', 'Sans']]],
+  ['duration', 'Durée', [['any', 'Toutes'], ['short', '< 1 h 30'], ['mid', '1 h 30 à 2 h'], ['long', '> 2 h']]],
+];
+
 export function renderFiltersSheet(body, ctx) {
   const { filters, view } = ctx;
   const switchRow = (label, desc, checked, onchange, key) =>
@@ -310,15 +318,24 @@ export function renderFiltersSheet(body, ctx) {
       h('span', { class: 'text' }, label, desc ? h('span', { class: 'desc', text: desc }) : null),
       h('input', { type: 'checkbox', role: 'switch', checked, 'data-fk': key, onchange }),
       h('span', { class: 'switch', 'aria-hidden': 'true' }));
+  const radios = ([key, label, choices]) =>
+    h('fieldset', { class: 'theme-field' },
+      h('legend', { class: 'field-label', text: label }),
+      h('div', { class: 'seg3' }, choices.map(([value, text]) =>
+        h('label', { class: 'segopt' },
+          h('input', { type: 'radio', name: `f-${key}`, value, checked: filters[key] === value, 'data-fk': `f-${key}:${value}`, onchange: () => ctx.setFilter({ [key]: value }) }),
+          h('span', { class: 'face', text })))));
+  const count = filterTitles(sortTitles(ctx.titles, ctx.state.order), { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, seen: ctx.state.seen, ignoredMap: ctx.ignoredMap }).length;
   body.append(
+    ...FILTER_GROUPS.map(radios),
     h('div', { class: 'sheet-group' },
-      h('h3', { text: 'Affichage' }),
-      switchRow('Masquer les terminés', 'Cache les films et séries entièrement vus', filters.hideSeen, (e) => ctx.setFilter({ hideSeen: e.target.checked }), 'f-hide'),
+      h('h3', { text: 'Recherche et affichage' }),
+      switchRow('Chercher aussi dans les épisodes', 'Par défaut, seuls les titres des films et séries sont cherchés', filters.inEpisodes, (e) => ctx.setFilter({ inEpisodes: e.target.checked }), 'f-episodes'),
       // Option absente en ordre chronologique (la préférence reste mémorisée pour l'ordre de sortie)
       ctx.state.order === 'chrono' ? null : switchRow('Grouper par phase', 'Une section repliable par phase', view.groupByPhase, (e) => ctx.setView({ groupByPhase: e.target.checked }), 'f-group')),
     h('div', { class: 'sheet-footer' },
-      btn({ label: 'Réinitialiser', variant: 'text', key: 'f-reset', onclick: () => ctx.setFilter({ phase: null, hideSeen: false }) }),
-      btn({ label: 'Terminé', variant: 'filled', key: 'f-done', onclick: () => ctx.closeSheet() })));
+      btn({ label: 'Réinitialiser', variant: 'text', key: 'f-reset', onclick: () => ctx.setFilter({ phase: null, ...FILTER_DEFAULTS }) }),
+      btn({ label: count === 1 ? 'Afficher 1 titre' : `Afficher ${count} titres`, variant: 'filled', key: 'f-done', onclick: () => ctx.closeSheet() })));
 }
 
 export function renderItemMenu(body, ctx, id) {

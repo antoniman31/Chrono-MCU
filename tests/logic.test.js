@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions, goalPlan } from '../js/logic.js';
+import { titleStatus, titleMinutes, sortTitles, toUnits, filterTitles, progress, nextToWatch, withVersions, goalPlan } from '../js/logic.js';
 
 const film = (id, chronoOrder, releaseDate, phase = 1, runtimeMin = 100) => ({
   id, title: id, type: 'film', phase, saga: 'infinity', releaseDate, chronoOrder, runtimeMin, verified: true,
@@ -150,14 +150,15 @@ test('normalizeText: sans accents ni casse', () => {
   assert.equal(normalizeText('  Les Éternels '), 'les eternels');
 });
 
-test('recherche: titre, épisode, accents; vide = tout', () => {
+test('recherche: titre (épisodes seulement sur option), accents; vide = tout', () => {
   const eternels = film('eternels', 7, '2021-11-05');
   eternels.title = 'Les Éternels';
   const t = [a, eternels, s];
   s.episodes[1].title = 'Doorman';
   assert.equal(filterTitles(t, { query: '' }).length, 3);
   assert.deepEqual(filterTitles(t, { query: 'eternels' }).map((x) => x.id), ['eternels']);
-  assert.deepEqual(filterTitles(t, { query: 'DOORMAN' }).map((x) => x.id), ['s']);
+  assert.deepEqual(filterTitles(t, { query: 'DOORMAN', inEpisodes: true }).map((x) => x.id), ['s']);
+  assert.deepEqual(filterTitles(t, { query: 'DOORMAN' }), []);
   assert.deepEqual(filterTitles(t, { query: 'zzz' }), []);
 });
 
@@ -236,8 +237,8 @@ test('stats: le rattrapage compte dans les heures vues mais pas dans le rythme',
 test('titres d\'épisodes en français : unité et recherche', () => {
   const fr = [{ id: 's', title: 'S', type: 'serie', phase: 1, chronoOrder: 1, releaseDate: '2021-01-01', episodes: [{ n: 1, title: 'Pilot', titleFr: 'Le pilote', runtimeMin: 30 }] }];
   assert.equal(toUnits(fr)[0].title, 'Le pilote');
-  assert.equal(filterTitles(fr, { query: 'pilote' }).length, 1);
-  assert.equal(filterTitles(fr, { query: 'pilot' }).length, 1);
+  assert.equal(filterTitles(fr, { query: 'pilote', inEpisodes: true }).length, 1);
+  assert.equal(filterTitles(fr, { query: 'pilot', inEpisodes: true }).length, 1);
   assert.equal(filterTitles(fr, { query: 'inconnu' }).length, 0);
 });
 
@@ -322,4 +323,30 @@ test('goalPlan : heures par semaine nécessaires et comparaison au rythme', () =
   assert.equal(passed.status, 'passed');
   assert.equal(passed.daysLate, 2);
   assert.equal(goalPlan({ today: '2026-12-08', goalDate: '2026-12-08', remainingMin: 300, paceMinPerDay: 30 }).status, 'passed');
+});
+
+test('filtres: statut, ignorés, post-générique, durée', () => {
+  const f1 = { ...film('f1', 1, '2020-01-01'), runtimeMin: 80, postCredits: ['end'] };
+  const f2 = { ...film('f2', 1, '2020-02-01'), runtimeMin: 110, postCredits: [] };
+  const f3 = { ...film('f3', 1, '2020-03-01'), runtimeMin: 150 };
+  const se = { id: 'se', title: 'S', type: 'serie', phase: 1, chronoOrder: 9, releaseDate: '2020-04-01', episodes: [{ n: 1, title: 'a', runtimeMin: 40 }, { n: 2, title: 'b', runtimeMin: 40 }] };
+  const all = [f1, f2, f3, se];
+  const ids = (o) => filterTitles(all, o).map((x) => x.id);
+  const seen = { f1: 1, 'se/1': 1 };
+  assert.equal(titleStatus(se, seen), 'progress');
+  assert.equal(titleStatus(f1, seen), 'done');
+  assert.equal(titleStatus(f2, seen), 'todo');
+  assert.deepEqual(ids({ status: 'todo', seen }), ['f2', 'f3']);
+  assert.deepEqual(ids({ status: 'progress', seen }), ['se']);
+  assert.deepEqual(ids({ status: 'done', seen }), ['f1']);
+  const ignoredMap = { f2: true };
+  assert.equal(ids({ ignoredMap }).length, 4);
+  assert.deepEqual(ids({ ignored: 'hide', ignoredMap }), ['f1', 'f3', 'se']);
+  assert.deepEqual(ids({ ignored: 'only', ignoredMap }), ['f2']);
+  assert.deepEqual(ids({ post: 'with' }), ['f1']);
+  assert.deepEqual(ids({ post: 'without' }), ['f2', 'f3', 'se']);
+  assert.equal(titleMinutes(se), 80);
+  assert.deepEqual(ids({ duration: 'short' }), ['f1', 'se']);
+  assert.deepEqual(ids({ duration: 'mid' }), ['f2']);
+  assert.deepEqual(ids({ duration: 'long' }), ['f3']);
 });
