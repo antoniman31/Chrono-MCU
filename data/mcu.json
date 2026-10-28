@@ -2600,5 +2600,24 @@
     "backdrop": "/3P52oz9HPQWxcwHOwxtyrVV1LKi.jpg",
     "overview": "Deadpool se voit contraint de rejoindre les X-Men : après une tentative ratée de sauver un jeune mutant au pouvoir destructeur, il est jeté en prison anti-mutants. Arrive Cable, un soldat venant du futur et ayant pour cible le jeune mutant, en quête de vengeance. Deadpool décide de le combattre.",
     "verified": true
+  },
+  {
+    "id": "your-friendly-neighborhood-spider-man-saison-2",
+    "title": "Your Friendly Neighborhood Spider-Man (saison 2)",
+    "type": "serie",
+    "phase": 6,
+    "saga": "multiverse",
+    "releaseDate": "2027-01-13",
+    "chronoOrder": 70,
+    "upcoming": true,
+    "heroes": [
+      "spider-man"
+    ],
+    "tmdbId": 138503,
+    "tvmazeId": 58952,
+    "poster": "/rAgl03cfcLgPSzeozownXAdhDkw.jpg",
+    "backdrop": "/kkT2B2gmynoh9kZMo1gromLNeqy.jpg",
+    "overview": "Peter Parker est en passe de devenir un héros, mais le chemin pour y parvenir n'a rien d'ordinaire.",
+    "verified": false
   }
 ]
