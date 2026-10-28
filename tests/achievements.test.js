@@ -14,7 +14,7 @@ const get = (list, id) => list.find((a) => a.id === id);
 test('catalogue : médailles totales cohérentes', () => {
   const list = evaluate(base({ titles: [film('a', '2008-01-01')], seen: {} }));
   assert.equal(list.reduce((sum, a) => sum + a.tiers.length, 0), TOTAL_MEDALS);
-  assert.equal(list.filter((a) => a.hidden).length, 5);
+  assert.equal(list.filter((a) => a.hidden).length, 8);
 });
 
 test('paliers : pourcentage et premier pas', () => {
@@ -124,4 +124,73 @@ test('personnages et équipes : part des titres sortis où le héros a un rôle 
   assert.equal(get(list, 'hero:thor').value, 0);
   list = evaluate(base({ titles, seen: Object.fromEntries(titles.map((t) => [t.id, '2026-10-01'])) }));
   assert.equal(get(list, 'hero:iron-man').level, 3);
+});
+
+const filmAt = (id, chronoOrder, releaseDate, extra = {}) => ({ ...film(id, releaseDate), chronoOrder, ...extra });
+
+test('heures de vol, sauvegardes', () => {
+  const titles = Array.from({ length: 15 }, (_, i) => filmAt(`f${i}`, i + 1, `2008-01-${String(i + 1).padStart(2, '0')}`));
+  const seen = Object.fromEntries(titles.map((t) => [t.id, '2026-10-01']));
+  const hours = get(evaluate(base({ titles, seen })), 'hours');
+  assert.deepEqual([hours.value, hours.level, hours.unit], [25, 1, 'h']);
+  let list = evaluate(base({ titles, seen: {}, lastBackup: { day: '2026-10-20', seenCount: 3 } }));
+  assert.deepEqual([get(list, 'backup1').level, get(list, 'backup2').level], [1, 1]);
+  list = evaluate(base({ titles, seen: {}, lastBackup: { day: '2026-09-01', seenCount: 3 } }));
+  assert.deepEqual([get(list, 'backup1').level, get(list, 'backup2').level], [1, 0]);
+  list = evaluate(base({ titles, seen: {} }));
+  assert.deepEqual([get(list, 'backup1').level, get(list, 'backup2').level], [0, 0]);
+});
+
+test('régularité : semaines consécutives avec une coche', () => {
+  const titles = ['a', 'b', 'c', 'd', 'e'].map((id, i) => filmAt(id, i + 1, '2008-01-01'));
+  const seen = { a: '2026-10-05', b: '2026-10-14', c: '2026-10-22', d: '2026-11-04', e: '2026-12-01' };
+  // semaines du 5/10, 12/10, 19/10, 2/11 : trois d'affilée, puis une coupure
+  assert.equal(get(evaluate(base({ titles, seen })), 'weeks').value, 3);
+  seen.e = '2026-10-28';
+  assert.equal(get(evaluate(base({ titles, seen })), 'weeks').value, 5);
+  assert.equal(get(evaluate(base({ titles, seen })), 'weeks').level, 1);
+});
+
+test('chronologue et fidèle à la sortie : suites vues dans l\'ordre, sans saut, rattrapages exclus', () => {
+  // ordre chrono : a b c d e ; ordre de sortie : e d c b a
+  const titles = [filmAt('a', 1, '2012-01-01'), filmAt('b', 2, '2011-01-01'), filmAt('c', 3, '2010-01-01'), filmAt('d', 4, '2009-01-01'), filmAt('e', 5, '2008-01-01')];
+  const inOrder = { a: '2026-10-01', b: '2026-10-02', c: '2026-10-02', d: '2026-10-03', e: '2026-10-04' };
+  let m = metrics({ ...base(), titles, seen: inOrder });
+  assert.equal(m.chronoRun, 5);
+  assert.equal(m.releaseRun, 2); // presque à l'envers dans l'ordre de sortie : seuls b et c (même jour) se suivent
+  const skipped = { ...inOrder }; delete skipped.c;
+  assert.equal(metrics({ ...base(), titles, seen: skipped }).chronoRun, 2);
+  const outOfOrder = { ...inOrder, c: '2026-09-01' }; // c vu avant a et b : casse la suite
+  assert.equal(metrics({ ...base(), titles, seen: outOfOrder }).chronoRun, 3);
+  assert.equal(metrics({ ...base(), titles, seen: inOrder, catchUp: { c: true } }).chronoRun, 2);
+});
+
+test('phase et saga express', () => {
+  const titles = [filmAt('a', 1, '2008-01-01'), filmAt('b', 2, '2009-01-01'), filmAt('c', 3, '2010-01-01')]; // phase 1, Infinity Saga
+  const at = (c, extra = {}) => metrics({ ...base(), titles, seen: { a: '2026-10-01', b: '2026-10-03', c }, ...extra });
+  assert.equal(at('2026-10-07').phaseFast, true); // 7 jours, bornes comprises
+  assert.equal(at('2026-10-08').phaseFast, false);
+  assert.equal(at('2026-10-30').sagaFast, true); // 30 jours
+  assert.equal(at('2026-10-31').sagaFast, false);
+  assert.equal(at('2026-10-07', { catchUp: { a: true } }).phaseFast, false);
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2026-10-01', b: '2026-10-03' } }).phaseFast, false);
+});
+
+test('scènes complètes, film le plus long et le plus court', () => {
+  const titles = [filmAt('a', 1, '2008-01-01', { runtimeMin: 181, postCredits: ['end'] }), filmAt('b', 2, '2009-01-01', { runtimeMin: 80, postCredits: ['mid'] }), filmAt('c', 3, '2010-01-01', { runtimeMin: 100, postCredits: [] })];
+  let m = metrics({ ...base(), titles, seen: { a: '2026-10-01' } });
+  assert.deepEqual([m.postAll, m.longestSeen, m.shortestSeen], [false, true, false]);
+  m = metrics({ ...base(), titles, seen: { a: '2026-10-01', b: '2026-10-01' } });
+  assert.deepEqual([m.postAll, m.longestSeen, m.shortestSeen], [true, true, true]);
+});
+
+test('cachés : sélectif, Encore, dès la sortie', () => {
+  const titles = [filmAt('a', 1, '2008-05-02', { releaseDateFr: '2008-04-30' })];
+  assert.equal(metrics({ ...base(), titles, seen: {}, ignored: { a: true, b: true, c: true, d: true, e: true } }).ignoredCount, 5);
+  assert.equal(metrics({ ...base(), titles, seen: {}, ignored: { a: true, b: false } }).ignoredCount, 1);
+  assert.equal(metrics({ ...base(), titles, seen: {}, versions: { 'avengers-endgame': 'encore' } }).encoreChosen, true);
+  assert.equal(metrics({ ...base(), titles, seen: {}, versions: { x: 'encore' } }).encoreChosen, false);
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2008-04-30' } }).releaseDay, true);
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2008-05-02' } }).releaseDay, true);
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2008-05-03' } }).releaseDay, false);
 });
