@@ -7,7 +7,8 @@ import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
-import { renderProgression } from './ui/progression.js?v=__BUILD__';
+import { achievementInput, renderProgression, showAchievementsTab } from './ui/progression.js?v=__BUILD__';
+import { evaluate, mergeUnlocked, unlockMessage } from './achievements.js?v=__BUILD__';
 import { renderBackupSheet, renderEraseSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
 import { renderFiltersSheet, renderItemMenu, renderVoir, setupVoir } from './ui/voir.js?v=__BUILD__';
 
@@ -118,6 +119,28 @@ function showSnackbar(text, action) {
   armSnackbar();
 }
 
+/* ---------- Succès ---------- */
+let achvTimer = null;
+function hideAchievementToast() {
+  clearTimeout(achvTimer);
+  $('achv-toast').hidden = true;
+}
+
+// Recalcule les succès après un changement d'état ou de réglage ; annonce les nouveaux paliers (rien au tout premier calcul)
+function checkAchievements() {
+  if (!ctx.counted.length) return;
+  const { next, unlocked, changed } = mergeUnlocked(ctx.view.achv, evaluate(achievementInput(ctx)), today());
+  if (changed) {
+    ctx.view.achv = next;
+    saveView(storage, ctx.view);
+  }
+  if (!unlocked.length) return;
+  $('achv-text').textContent = unlockMessage(unlocked);
+  $('achv-toast').hidden = false;
+  clearTimeout(achvTimer);
+  achvTimer = setTimeout(hideAchievementToast, 9000);
+}
+
 /* ---------- Rendu ---------- */
 function renderDetailPane() {
   const pane = $('detail-pane');
@@ -163,6 +186,7 @@ function update(next, label = null, { detail = true } = {}) {
     showSnackbar(label, true);
   } else if (!label) hideSnackbar();
   render({ detail });
+  checkAchievements();
   if (detail) refreshSheet();
   requestPersistence();
 }
@@ -202,6 +226,7 @@ ctx.setView = (patch) => {
   saveView(storage, ctx.view);
   if ('theme' in patch || 'oled' in patch) applyTheme();
   render();
+  if ('spoilerFree' in patch || 'goalDate' in patch) checkAchievements();
   refreshSheet();
 };
 ctx.markBackedUp = () => ctx.setView({ lastBackup: { day: today(), seenCount: Object.keys(ctx.state.seen).length }, nudgeUntil: null });
@@ -350,6 +375,12 @@ async function main() {
     ctx.setView({ theme: next });
     $('theme-status').textContent = `Thème : ${THEME_INFO[next][1]}`;
   });
+  $('achv-view').addEventListener('click', () => {
+    hideAchievementToast();
+    showAchievementsTab();
+    if (ctx.route === 'progression') render({ detail: false });
+    else location.hash = '#progression';
+  });
   $('snackbar-action').addEventListener('click', () => {
     if (!undoSnapshot) return;
     const snapshot = undoSnapshot;
@@ -394,6 +425,7 @@ async function main() {
   navigator.storage?.persisted?.().then((ok) => { ctx.persisted = ok; }).catch(() => {});
   applyTheme();
   render();
+  checkAchievements();
   document.getElementById('app')?.setAttribute('data-ready', 'true');
   document.body.dataset.ready = 'true';
 }

@@ -1,6 +1,7 @@
 import { goalPlan, progress, stats } from '../logic.js?v=__BUILD__';
+import { evaluate, FAMILIES, LEVEL_LABELS, TOTAL_MEDALS } from '../achievements.js?v=__BUILD__';
 import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
-import { $, formatDay, formatShort, h, hours, today } from './dom.js?v=__BUILD__';
+import { $, formatDay, formatShort, h, hours, icon, today } from './dom.js?v=__BUILD__';
 import { checkbox, progressBar } from './parts.js?v=__BUILD__';
 
 // Carte « Objectif » : heures par semaine pour tout voir avant la date cible, comparées au rythme actuel
@@ -21,7 +22,7 @@ function goalCard(ctx, s) {
     lines.map((text, i) => h('p', { class: i === 0 ? 'goal-main' : 'muted t-body-md', text })));
 }
 
-const TABS = [['bilan', 'Bilan'], ['rythme', 'Rythme'], ['mcu', 'MCU']];
+const TABS = [['bilan', 'Bilan'], ['rythme', 'Rythme'], ['mcu', 'MCU'], ['succes', 'Succès']];
 let currentTab = 'bilan';
 
 const hm = (min) => `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
@@ -175,11 +176,48 @@ function mcu(ctx) {
   ];
 }
 
+// Ouvre l'onglet Succès à la prochaine visite de Progression (bouton « Voir » du bandeau)
+export function showAchievementsTab() { currentTab = 'succes'; }
+
+export function achievementInput(ctx) {
+  const { state, view } = ctx;
+  return { titles: ctx.counted, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions };
+}
+
+function succes(ctx) {
+  const stored = ctx.view.achv ?? {};
+  const list = evaluate(achievementInput(ctx)).map((a) => ({ ...a, level: Math.max(a.level, stored[a.id]?.level ?? 0), date: stored[a.id]?.date ?? null }));
+  const earned = list.reduce((sum, a) => sum + a.level, 0);
+  const percent = Math.round((earned / TOTAL_MEDALS) * 100);
+  const item = (a) => {
+    const locked = a.level === 0;
+    const secret = a.hidden && locked;
+    const single = a.tiers.length === 1;
+    const tier = single ? (locked ? 'Verrouillé' : 'Obtenu') : (locked ? 'Verrouillé' : LEVEL_LABELS[a.level]);
+    const showBar = !secret && !single && a.level < a.tiers.length;
+    return h('li', { class: `achv${locked ? ' locked' : ''}` },
+      h('span', { class: `medal l${single && !locked ? 3 : a.level}`, 'aria-hidden': 'true' }, secret ? '?' : locked ? icon('lock') : single ? icon('check') : String(a.level)),
+      h('div', { class: 'achv-body' },
+        h('div', { class: 'achv-name' }, h('span', { text: secret ? 'Succès caché' : a.name }), h('span', { class: 'tier', text: tier })),
+        h('div', { class: 'achv-desc', text: secret ? 'À découvrir en regardant.' : a.desc }),
+        a.date && !locked ? h('div', { class: 'achv-desc', text: `Débloqué le ${formatShort(a.date)}` }) : null,
+        showBar ? progressBar(Math.min(100, Math.round((Math.min(a.value, a.next) / a.next) * 100)), `${a.name} : ${Math.min(a.value, a.next)} sur ${a.next}`) : null,
+        showBar ? h('div', { class: 'achv-desc', text: `${Math.min(a.value, a.next)} / ${a.next}` }) : null));
+  };
+  return [
+    card('p-achv', 'Succès',
+      h('p', { class: 'big-number', text: `${earned} / ${TOTAL_MEDALS}` }),
+      progressBar(percent, 'Médailles obtenues'),
+      h('p', { class: 'muted t-body-md', text: 'Chaque palier (bronze, argent, or) est une médaille. Un palier obtenu n\'est jamais retiré, même si tu décoches.' })),
+    ...FAMILIES.map(([family, label]) => card(`p-f-${family}`, label, h('ul', { class: 'achv-list' }, list.filter((a) => a.family === family).map(item)))),
+  ];
+}
+
 export function renderProgression(ctx) {
   const { state } = ctx;
   const p = progress(ctx.counted, state.seen);
   const s = stats(ctx.counted, state.seen, today(), state.catchUp);
-  const panel = currentTab === 'bilan' ? bilan(ctx, p, s) : currentTab === 'rythme' ? rythme(ctx) : mcu(ctx);
+  const panel = currentTab === 'bilan' ? bilan(ctx, p, s) : currentTab === 'rythme' ? rythme(ctx) : currentTab === 'succes' ? succes(ctx) : mcu(ctx);
   $('progress-screen').replaceChildren(
     renderTabs(ctx),
     h('div', { id: 'progress-panel', role: 'tabpanel', 'aria-labelledby': `stab-${currentTab}`, class: 'ppanel' }, panel));

@@ -676,3 +676,22 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .tl-dots i { display: block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--outline); }
 .tl-dots i.serie { border-radius: 3px; }
 .tl-dots i.done { background: var(--accent-btn); border-color: var(--accent-btn); }
+
+/* Succès : bandeau, médailles et cartes */
+.achv-toast { bottom: calc(var(--nav-h) + var(--safe-bottom) + 72px); }
+@media (min-width: 600px) { .achv-toast { bottom: 84px; } }
+#achv-text { padding: 12px 0; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
+.achv-list { display: grid; gap: 4px; }
+.achv { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border); }
+.achv:first-child { border-top: 0; padding-top: 0; }
+.achv-body { flex: 1; min-width: 0; }
+.achv-name { display: flex; justify-content: space-between; gap: 8px; font-weight: 500; }
+.achv-name .tier { flex: none; font-size: .75rem; line-height: 1.25rem; color: var(--muted); font-weight: 400; }
+.achv-desc { font-size: .8125rem; line-height: 1.125rem; color: var(--muted); }
+.achv .progress { margin-top: 6px; }
+.medal { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--outline); color: var(--muted); font-weight: 700; }
+.medal svg { width: 20px; height: 20px; fill: currentColor; }
+.medal.l1 { background: #e0a46b; border: 2px solid #8a5426; color: #2b1606; }
+.medal.l2 { background: #dfe3ea; border: 2px solid #7b8494; color: #1c2230; }
+.medal.l3 { background: #f6cf55; border: 2px solid #a37b00; color: #2e2200; }
+.achv.locked .achv-name > span:first-child { color: var(--muted); }
