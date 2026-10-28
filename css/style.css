@@ -705,3 +705,11 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .welcome-tips li { margin: 6px 0; }
 .welcome-actions { display: grid; gap: 8px; margin-top: 8px; }
 .history-block { flex-wrap: wrap; border-top: 1px solid var(--border); }
+
+/* Réglages > Données : synchronisation du catalogue */
+.sync-block { padding: 12px 16px; border-top: 1px solid var(--border); display: grid; gap: 8px; justify-items: start; }
+.sync-block .field-label { padding: 0; }
+.sync-block .btn { max-width: 100%; }
+.sync-token summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--accent-text); }
+.sync-token .field { padding: 8px 0; }
+.sync-run { display: grid; gap: 8px; justify-items: start; }

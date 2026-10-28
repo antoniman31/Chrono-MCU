@@ -64,6 +64,8 @@ Le workflow `.github/workflows/catalog-sync.yml` tourne le 1er de chaque mois, e
 - une nouvelle saison d'une série suivie est seulement signalée dans le rapport : son ajout, comme l'ordre chronologique, les scènes post-générique (`postCredits`) et les personnages (`heroes`), reste manuel ;
 - pour ne plus voir un titre proposé, ajouter son identifiant TMDB dans `data/sync-ignore.json` : `{ "tmdbIds": [123] }`.
 
+Depuis l'application, Réglages > Données > Catalogue propose un lien vers la page GitHub du workflow (« Run workflow »). Avec un jeton personnel GitHub « fine-grained », limité à ce dépôt et au seul droit « Actions : lecture et écriture », collé dans la même section, l'application lance elle-même la synchronisation et suit son avancement (lien vers le journal à la fin). Le jeton reste dans ce navigateur, sous une clé à part : il n'est jamais exporté avec ta progression, et « Retirer le jeton » l'efface. La CSP autorise pour cela `api.github.com`.
+
 La partie TMDB demande un secret de dépôt `TMDB_API_KEY` (Settings > Secrets and variables > Actions) ; sans lui, seul TVmaze est interrogé. Pour que le workflow ouvre la pull request, activer « Allow GitHub Actions to create and approve pull requests » (Settings > Actions > General) ; sinon il laisse la branche et ouvre une issue. Une PR ouverte par GitHub Actions ne lance pas la CI : les tests tournent à la fusion, avant le déploiement. En local : `NODE_USE_ENV_PROXY=1 TMDB_API_KEY=… node scripts/sync-catalog.mjs` affiche le rapport sans rien écrire.
 
 ## Contrôle automatique des durées

@@ -394,6 +394,41 @@ await scenario('retour tactile : animation à la coche, réglage pour le couper'
   }
 }
 
+await scenario('synchronisation du catalogue : lien GitHub, jeton, lancement et suivi (API simulée)', async (page, context) => {
+  const calls = [];
+  await context.route('https://api.github.com/**', async (route) => {
+    const req = route.request();
+    calls.push(`${req.method()} ${new URL(req.url()).pathname}`);
+    if (req.method() === 'POST') return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*' } });
+    return route.fulfill({
+      status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' },
+      body: JSON.stringify({ workflow_runs: [{ created_at: new Date(Date.now() + 1000).toISOString(), status: 'completed', conclusion: 'success', html_url: 'https://github.com/antoniman31/Chrono-MCU/actions/runs/1' }] }),
+    });
+  });
+  await go(page, 'reglages');
+  await openSec(page, 'data');
+  const href = await page.locator('[data-fk="s-sync-link"]').getAttribute('href');
+  check(href === 'https://github.com/antoniman31/Chrono-MCU/actions/workflows/catalog-sync.yml', `lien de synchronisation inattendu : ${href}`);
+  check(await page.locator('[data-fk="s-sync-run"]').count() === 0, 'sans jeton, pas de bouton de lancement');
+  await page.click('.sync-token summary');
+  await page.fill('#gh-token', 'pas-un-jeton');
+  await page.click('[data-fk="s-sync-save"]');
+  check(/pas le bon format/.test(await page.locator('#sync-token-error').innerText()), 'un jeton invalide doit être refusé');
+  check((await page.evaluate(() => localStorage.getItem('chrono-mcu:gh-token'))) === null, 'un jeton invalide ne doit pas être enregistré');
+  await page.fill('#gh-token', `github_pat_${'A1b2C3d4E5'.repeat(4)}`);
+  await page.click('[data-fk="s-sync-save"]');
+  await page.waitForSelector('[data-fk="s-sync-run"]');
+  check(await page.evaluate(() => localStorage.getItem('chrono-mcu:gh-token') !== null), 'le jeton valide doit être enregistré sur l\'appareil');
+  check(!JSON.stringify(await stored(page) ?? {}).includes('github_pat_'), 'le jeton ne doit jamais entrer dans la progression exportable');
+  await page.click('[data-fk="s-sync-run"]');
+  await page.waitForFunction(() => /Terminée/.test(document.getElementById('sync-status')?.textContent ?? ''), null, { timeout: 20000 });
+  check(/pull request/.test(await page.locator('#sync-status').innerText()), 'le résultat doit mentionner la pull request');
+  check(await page.locator('#sync-status a').getAttribute('href') === 'https://github.com/antoniman31/Chrono-MCU/actions/runs/1', 'le lien vers le journal doit pointer sur le lancement');
+  check(calls[0].startsWith('POST') && calls[0].endsWith('/dispatches') && calls.some((c) => c.startsWith('GET')), `appels API inattendus : ${calls}`);
+  await page.click('[data-fk="s-sync-forget"]');
+  check(await page.locator('[data-fk="s-sync-run"]').count() === 0 && (await page.evaluate(() => localStorage.getItem('chrono-mcu:gh-token'))) === null, 'retirer le jeton doit effacer le bouton et le jeton');
+});
+
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
   const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;
