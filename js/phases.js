@@ -2,11 +2,17 @@
 import { progress, toUnits } from './logic.js?v=__BUILD__';
 import { formatDuration } from './duration.js?v=__BUILD__';
 
-// Marvel ne nomme officiellement que les deux sagas ; les phases n'ont pas de nom propre.
-const SAGAS = { infinity: 'Infinity Saga', multiverse: 'Saga du Multivers' };
-export const sagaLabel = (saga) => SAGAS[saga] ?? saga;
-
 export const phaseList = (titles) => [...new Set(titles.map((t) => t.phase))].sort((a, b) => a - b);
+
+// Les sagas viennent de data/sagas.json : { id, name }. Marvel ne nomme officiellement que deux sagas et les phases n'ont pas
+// de nom propre : une saga sans nom (`name: null`) s'affiche « Phases 7 à 9 » d'après les phases du catalogue, sans nom inventé.
+export function sagaLabel(saga, sagas = [], titles = []) {
+  const name = sagas.find((s) => s.id === saga)?.name;
+  if (name) return name;
+  const phases = phaseList(titles.filter((t) => t.saga === saga));
+  if (!phases.length) return saga;
+  return phases.length === 1 ? `Phase ${phases[0]}` : `Phases ${phases[0]} à ${phases.at(-1)}`;
+}
 
 const mostFrequent = (values) => {
   const counts = new Map();
@@ -15,14 +21,14 @@ const mostFrequent = (values) => {
 };
 
 // phase : numéro, ou null pour « toutes ». allTitles : catalogue complet ; counted : titres suivis (ni ignorés ni pas sortis).
-export function phaseSummary(allTitles, counted, seen, phase) {
+export function phaseSummary(allTitles, counted, seen, phase, sagas = []) {
   const inPhase = (t) => phase === null || t.phase === phase;
   const years = allTitles.filter(inPhase).map((t) => Number(t.releaseDate.slice(0, 4)));
   const followed = counted.filter((t) => inPhase(t) && !t.upcoming);
   const saga = phase === null ? null : mostFrequent(allTitles.filter(inPhase).map((t) => t.saga));
   return {
     phase,
-    saga: saga ? sagaLabel(saga) : null,
+    saga: saga ? sagaLabel(saga, sagas, allTitles) : null,
     from: years.length ? Math.min(...years) : null,
     to: years.length ? Math.max(...years) : null,
     titles: followed.length,

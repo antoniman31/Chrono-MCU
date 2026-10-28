@@ -1,6 +1,7 @@
 import { goalPlan, progress, stats } from '../logic.js?v=__BUILD__';
 import { evaluate, FAMILIES, LEVEL_LABELS, TOTAL_MEDALS } from '../achievements.js?v=__BUILD__';
 import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
+import { sagaLabel } from '../phases.js?v=__BUILD__';
 import { $, formatDay, formatShort, h, hours, icon, today } from './dom.js?v=__BUILD__';
 import { checkbox, progressBar } from './parts.js?v=__BUILD__';
 
@@ -149,7 +150,6 @@ function mcu(ctx) {
   const line = (t) => (t ? `${t.title} · ${hours(t.min)}` : 'n/a');
   const timeline = releaseTimeline(counted, state.seen);
   const formatLabel = { film: 'Films', serie: 'Séries', short: 'Courts formats' };
-  const sagaLabel = { infinity: 'Infinity Saga', multiverse: 'Saga du Multivers' };
   return [
     card('p-facts', 'Le MCU en chiffres',
       h('dl', { class: 'facts' },
@@ -163,7 +163,7 @@ function mcu(ctx) {
         fact('Année la plus chargée', r.topYear ? `${r.topYear.year} · ${plural(r.topYear.n, 'titre', 'titres')}` : 'n/a'),
         fact('Scènes post-générique', `${r.postCredits.with} titres sur ${r.postCredits.total} · ${r.postCredits.seen} déjà vus`))),
     breakdownCard('p-by-phase', 'Temps vu par phase', b.byPhase, (k) => `Phase ${k}`),
-    breakdownCard('p-by-saga', 'Temps vu par saga', b.bySaga, (k) => sagaLabel[k] ?? k),
+    breakdownCard('p-by-saga', 'Temps vu par saga', b.bySaga, (k) => sagaLabel(k, ctx.sagas, ctx.allTitles)),
     breakdownCard('p-by-format', 'Temps vu par format', b.byFormat, (k) => formatLabel[k] ?? k),
     card('p-timeline', 'Frise des sorties',
       h('ul', { class: 'timeline' }, timeline.map((row) =>

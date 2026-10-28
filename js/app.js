@@ -33,6 +33,7 @@ const isExpanded = () => expandedQuery.matches;
 
 const ctx = {
   rawTitles: [], // catalogue tel que dans data/mcu.json
+  sagas: [], // data/sagas.json : { id, name }
   allTitles: [], // catalogue complet (fiches, épisodes à venir), versions choisies appliquées
   titles: [], // catalogue « sorti » à la date du jour : tout ce qui se compte (voir releasedView)
   ignoredMap: {}, // titres ignorés (explicitement ou par catégorie) : { id: true }
@@ -445,9 +446,11 @@ function onRouteChange() {
 async function main() {
   setupSheet();
   try {
-    const res = await fetch('data/mcu.json?v=__BUILD__');
+    const [res, sagasRes] = await Promise.all([fetch('data/mcu.json?v=__BUILD__'), fetch('data/sagas.json?v=__BUILD__')]);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!sagasRes.ok) throw new Error(`HTTP ${sagasRes.status} (sagas)`);
     ctx.rawTitles = await res.json();
+    ctx.sagas = await sagasRes.json();
     ctx.allTitles = withVersions(ctx.rawTitles, ctx.state.versions);
     ctx.titles = ctx.allTitles;
   } catch (e) {

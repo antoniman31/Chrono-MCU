@@ -20,7 +20,7 @@ test('sw.js : marqueur de build, cache nommé par build, aucun marqueur oublié 
 
 test('sw.js précharge tout js/, la feuille de style et le catalogue (sinon l\'app casse hors ligne)', () => {
   const versioned = list('VERSIONED');
-  for (const file of [...jsFiles('js'), 'css/style.css', 'data/mcu.json']) assert.ok(versioned.includes(file), `${file} manque dans VERSIONED`);
+  for (const file of [...jsFiles('js'), 'css/style.css', 'data/mcu.json', 'data/sagas.json']) assert.ok(versioned.includes(file), `${file} manque dans VERSIONED`);
   for (const file of versioned) assert.ok(existsSync(join(root, file)), `${file} n'existe pas`);
   assert.equal(new Set(versioned).size, versioned.length, 'doublon dans VERSIONED');
 });

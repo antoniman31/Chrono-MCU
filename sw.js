@@ -31,6 +31,7 @@ const VERSIONED = [
   'js/ui/voir.js',
   'js/ui/welcome.js',
   'data/mcu.json',
+  'data/sagas.json',
 ];
 // Fichiers demandés sans version
 const STATIC = [
