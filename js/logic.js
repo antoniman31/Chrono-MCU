@@ -26,6 +26,13 @@ export function toUnits(titles) {
   });
 }
 
+// Titre voisin dans une liste d'identifiants : dir = +1 (suivant) ou -1 (précédent) ; null au bout de la liste ou si l'identifiant n'y est pas
+export function stepId(ids, id, dir) {
+  const i = ids.indexOf(id);
+  if (i === -1) return null;
+  return ids[i + dir] ?? null;
+}
+
 export function normalizeText(s) {
   return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }

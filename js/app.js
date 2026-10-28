@@ -1,4 +1,4 @@
-import { FILTER_DEFAULTS, countedTitles, releasedView, sortTitles, withVersions } from './logic.js?v=__BUILD__';
+import { FILTER_DEFAULTS, countedTitles, releasedView, sortTitles, stepId, withVersions } from './logic.js?v=__BUILD__';
 import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { dispatchSync, isDone, latestRun, loadToken, runLabel, saveToken } from './github.js?v=__BUILD__';
@@ -8,6 +8,7 @@ import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
+import { attachPageSwipe } from './ui/swipe.js?v=__BUILD__';
 import { renderWelcomeSheet } from './ui/welcome.js?v=__BUILD__';
 import { achievementInput, renderProgression, showAchievementsTab } from './ui/progression.js?v=__BUILD__';
 import { evaluate, mergeUnlocked, unlockMessage } from './achievements.js?v=__BUILD__';
@@ -318,7 +319,9 @@ ctx.openDetail = (id, opener = null) => {
       if (ctx.flashOnClose) {
         const id2 = ctx.flashOnClose;
         ctx.flashOnClose = null;
-        flashRow(document.querySelector(`#list [data-fk="open:${id2}"]`)?.closest('li'));
+        const row2 = document.querySelector(`#list [data-fk="open:${id2}"]`)?.closest('li');
+        row2?.scrollIntoView({ block: 'nearest' });
+        flashRow(row2);
       }
     },
   });
@@ -355,6 +358,30 @@ ctx.goToNext = (unit, opener) => {
     ep?.scrollIntoView({ block: 'center' });
     flashRow(ep);
   }
+};
+// Fiche suivante (+1) ou précédente (-1) dans la liste affichée ; au bout de la liste, un petit rebond
+ctx.stepDetail = (dir, focusKey = null) => {
+  const current = isExpanded() ? ctx.selectedId : ctx.sheetDetailId;
+  const target = stepId(ctx.navIds ?? [], current, dir);
+  const zone = () => (isExpanded() ? $('detail-pane') : $('sheet-body'));
+  const animate = (cls) => {
+    const el = zone().querySelector('.detail');
+    if (!el) return;
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 400);
+  };
+  if (!target) return animate(dir > 0 ? 'bounce-next' : 'bounce-prev');
+  if (isExpanded()) {
+    ctx.selectedId = target;
+    render();
+    document.querySelector(`#list [data-fk="open:${target}"]`)?.closest('li')?.scrollIntoView({ block: 'nearest' });
+  } else {
+    ctx.flashOnClose = target;
+    ctx.openDetail(target);
+  }
+  zone().scrollTop = 0;
+  animate(dir > 0 ? 'slide-next' : 'slide-prev');
+  if (focusKey) document.querySelector(`[data-fk="${focusKey}"]:not(:disabled)`)?.focus({ preventScroll: true });
 };
 ctx.openItemMenu = (id, opener) => openSheet({ title: ctx.byId.get(id).title, kind: 'menu', opener, render: (body) => renderItemMenu(body, ctx, id) });
 ctx.openFilters = (opener) => openSheet({ title: 'Filtres', kind: 'filters', opener, render: (body) => renderFiltersSheet(body, ctx) });
@@ -435,6 +462,16 @@ async function main() {
     const next = THEME_CYCLE[(THEME_CYCLE.indexOf(ctx.view.theme) + 1) % THEME_CYCLE.length];
     ctx.setView({ theme: next });
     $('theme-status').textContent = `Thème : ${THEME_INFO[next][1]}`;
+  });
+  attachPageSwipe($('sheet-hero'), (dir) => { if (sheetKind() === 'detail') ctx.stepDetail(dir); });
+  // Flèches gauche / droite : fiche précédente / suivante (sauf dans un champ, un onglet ou un choix où elles ont déjà un rôle)
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    if (e.target instanceof Element && e.target.closest('input, textarea, select, [role="tab"], [role="tablist"]')) return;
+    const open = sheetKind() === 'detail' || (isExpanded() && ctx.selectedId && ctx.route === 'voir' && !sheetKind());
+    if (!open) return;
+    e.preventDefault();
+    ctx.stepDetail(e.key === 'ArrowRight' ? 1 : -1);
   });
   $('achv-view').addEventListener('click', () => {
     hideAchievementToast();

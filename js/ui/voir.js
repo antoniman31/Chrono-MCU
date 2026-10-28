@@ -189,6 +189,12 @@ function renderList(ctx) {
   const sorted = sortTitles(titles, state.order);
   const shown = filterTitles(sorted, { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, hero: filters.hero, seen: state.seen, ignoredMap: ctx.ignoredMap });
   $('result-count').textContent = shown.length === 1 ? '1 titre' : `${shown.length} titres`;
+  // Ordre dans lequel la fiche se feuillette : celui de la liste affichée (sections repliées exclues)
+  const searching = filters.query.trim() !== '';
+  const grouped = view.groupByPhase && state.order !== 'chrono';
+  ctx.navIds = (grouped
+    ? [...new Set(shown.map((t) => t.phase))].sort((a, b) => a - b).filter((p) => searching || !view.collapsedPhases.includes(p)).flatMap((p) => shown.filter((t) => t.phase === p))
+    : shown).map((t) => t.id);
   const list = $('list');
   if (!shown.length) {
     list.replaceChildren(h('p', { class: 'empty', text: 'Aucun titre pour ces filtres.' }));
@@ -205,7 +211,6 @@ function renderList(ctx) {
   }
   const { byPhase } = progress(ctx.counted, state.seen);
   const phases = [...new Set(shown.map((t) => t.phase))].sort((a, b) => a - b);
-  const searching = filters.query.trim() !== '';
   list.replaceChildren(...phases.map((phase) => {
     const ratio = byPhase[phase] ?? { seen: 0, total: 0, percent: 0 };
     const collapsed = view.collapsedPhases.includes(phase) && !searching;

@@ -86,3 +86,29 @@ export function attachSwipe(row, fg, bg, { right = null, left = null }) {
     }
   }, true);
 }
+
+// Passer d'une fiche à l'autre en glissant sur l'en-tête : au moins 60 px (ou 20 % de la largeur), nettement plus horizontal que vertical.
+// Glisser vers la gauche montre le titre suivant, vers la droite le précédent. Renvoie 'next', 'prev' ou null.
+export const PAGE_MIN_PX = 60;
+export function pageSwipe(dx, dy, width) {
+  const min = Math.max(PAGE_MIN_PX, (width || 0) * 0.2);
+  if (Math.abs(dx) < min || Math.abs(dx) < Math.abs(dy) * 1.5) return null;
+  return dx < 0 ? 'next' : 'prev';
+}
+
+// onStep(+1 | -1). Tactile seulement (la souris a les boutons) ; les bords de l'écran restent aux gestes du système.
+export function attachPageSwipe(el, onStep) {
+  let start = null;
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' || (e.button !== undefined && e.button > 0)) return;
+    if (e.clientX < EDGE_PX || e.clientX > window.innerWidth - EDGE_PX) return;
+    start = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  });
+  el.addEventListener('pointerup', (e) => {
+    if (!start || e.pointerId !== start.id) return;
+    const dir = pageSwipe(e.clientX - start.x, e.clientY - start.y, el.clientWidth || window.innerWidth);
+    start = null;
+    if (dir) onStep(dir === 'next' ? 1 : -1);
+  });
+  el.addEventListener('pointercancel', () => { start = null; });
+}
