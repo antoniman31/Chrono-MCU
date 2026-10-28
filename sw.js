@@ -12,6 +12,7 @@ const VERSIONED = [
   'js/app.js',
   'js/backup.js',
   'js/categories.js',
+  'js/github.js',
   'js/heroes.js',
   'js/insights.js',
   'js/logic.js',

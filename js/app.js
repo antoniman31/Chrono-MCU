@@ -1,6 +1,7 @@
 import { FILTER_DEFAULTS, countedTitles, releasedView, sortTitles, withVersions } from './logic.js?v=__BUILD__';
 import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
+import { dispatchSync, isDone, latestRun, loadToken, runLabel, saveToken } from './github.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
 import { categoryLabel, effectiveIgnored } from './categories.js?v=__BUILD__';
 import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
@@ -120,6 +121,35 @@ function showSnackbar(text, action) {
   $('snackbar').hidden = false;
   armSnackbar();
 }
+
+/* ---------- Synchronisation du catalogue ---------- */
+let syncPolling = 0;
+const setSyncStatus = (text, url = null) => {
+  const el = $('sync-status');
+  if (!el) return;
+  el.replaceChildren(text, ...(url ? [' ', h('a', { href: url, target: '_blank', rel: 'noopener', text: 'Voir le journal' })] : []));
+};
+ctx.hasGithubToken = () => loadToken(storage) !== null;
+ctx.saveGithubToken = (token) => { if (saveToken(storage, token)) render({ detail: false }); };
+ctx.forgetGithubToken = () => { saveToken(storage, null); syncPolling += 1; render({ detail: false }); };
+ctx.runSync = async () => {
+  const token = loadToken(storage);
+  if (!token) return;
+  const since = Date.now();
+  const mine = (syncPolling += 1);
+  setSyncStatus('Envoi de la demande à GitHub…');
+  const sent = await dispatchSync(token);
+  if (!sent.ok) return setSyncStatus(sent.message);
+  setSyncStatus(runLabel(null));
+  // GitHub met quelques secondes à créer le lancement : on interroge toutes les 6 s, pendant 5 minutes au plus
+  for (let i = 0; i < 50 && syncPolling === mine; i += 1) {
+    await new Promise((r) => setTimeout(r, ctx.syncPollMs ?? 6000));
+    if (syncPolling !== mine) return;
+    const run = await latestRun(token, since);
+    if (run) setSyncStatus(runLabel(run), isDone(run) ? run.url : null);
+    if (isDone(run)) return;
+  }
+};
 
 /* ---------- Succès ---------- */
 let achvTimer = null;

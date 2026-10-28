@@ -26,9 +26,10 @@ test('scripts : site seul + hash du script de thème, jamais unsafe-inline ni un
   assert.ok(script.includes(hash), `le hash du script de thème a changé : mets ${hash} dans la CSP`);
 });
 
-test('images : site, TMDB et data: seulement ; connexions et manifeste : site seul ; pas de base ni de formulaire', () => {
+test('images : site, TMDB et data: seulement ; connexions : site et API GitHub ; manifeste : site seul ; pas de base ni de formulaire', () => {
   assert.deepEqual([...directives['img-src']].sort(), ["'self'", 'data:', 'https://image.tmdb.org']);
-  assert.deepEqual(directives['connect-src'], ["'self'"]);
+  // api.github.com : lancement de la synchronisation du catalogue depuis Réglages (jeton personnel facultatif)
+  assert.deepEqual([...directives['connect-src']].sort(), ["'self'", 'https://api.github.com']);
   assert.deepEqual(directives['font-src'], ["'self'"]);
   assert.deepEqual(directives['manifest-src'], ["'self'"]);
   assert.deepEqual(directives['base-uri'], ["'none'"]);

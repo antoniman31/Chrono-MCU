@@ -4,6 +4,7 @@ import { CATEGORIES, matchesCategory } from '../categories.js?v=__BUILD__';
 import { stats } from '../logic.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
 import { DEFAULT_GOAL, NUDGE_CHOICES } from '../prefs.js?v=__BUILD__';
+import { ACTIONS_URL, validToken } from '../github.js?v=__BUILD__';
 
 const THEME_LABELS = [
   ['auto', 'Auto', 'Suit le réglage de ton appareil (clair ou sombre)'],
@@ -43,6 +44,33 @@ function followSection(ctx) {
 }
 
 const hoursText = (min) => `${(min / 60).toFixed(1).replace('.', ',')} h`;
+
+// Synchronisation du catalogue : lien vers GitHub, et vrai bouton si un jeton personnel est enregistré sur cet appareil
+function syncBlock(ctx) {
+  const hasToken = ctx.hasGithubToken();
+  const input = h('input', { type: 'password', id: 'gh-token', class: 'date-input', autocomplete: 'off', spellcheck: 'false', placeholder: 'github_pat_…', 'data-fk': 'gh-token' });
+  return h('div', { class: 'sync-block' },
+    h('p', { class: 'field-label', text: 'Catalogue' }),
+    h('p', { class: 'desc', text: 'Cherche les nouveaux titres, les sorties et les durées (TMDB, TVmaze). Le résultat arrive en pull request à relire ; la synchronisation tourne aussi seule le 1er de chaque mois.' }),
+    h('a', { class: 'btn btn-outlined', href: ACTIONS_URL, target: '_blank', rel: 'noopener', 'data-fk': 's-sync-link' }, h('span', { class: 'face' }, 'Ouvrir la synchronisation sur GitHub')),
+    hasToken
+      ? h('div', { class: 'sync-run' },
+        btn({ label: 'Lancer la synchronisation', variant: 'filled', iconName: 'backup', key: 's-sync-run', onclick: () => ctx.runSync() }),
+        h('p', { id: 'sync-status', class: 'muted t-body-sm', role: 'status', 'aria-live': 'polite', text: '' }),
+        btn({ label: 'Retirer le jeton', variant: 'text', key: 's-sync-forget', onclick: () => ctx.forgetGithubToken() }))
+      : h('details', { class: 'sync-token' },
+        h('summary', { text: 'Lancer depuis l\'application (jeton personnel)' }),
+        h('p', { class: 'muted t-body-sm', text: 'Crée sur GitHub un jeton « fine-grained » limité à ce dépôt, avec le seul droit « Actions : lecture et écriture ». Il reste dans ce navigateur et n\'est jamais exporté avec ta progression.' }),
+        h('div', { class: 'field' },
+          h('label', { class: 'field-label', for: 'gh-token', text: 'Jeton GitHub' }),
+          input),
+        h('p', { id: 'sync-token-error', class: 'muted t-body-sm', role: 'status', 'aria-live': 'polite', text: '' }),
+        btn({ label: 'Enregistrer le jeton', variant: 'tonal', key: 's-sync-save', onclick: () => {
+          const ok = validToken(input.value);
+          $('sync-token-error').textContent = ok ? '' : 'Ce jeton n\'a pas le bon format (il commence par github_pat_ ou ghp_).';
+          if (ok) ctx.saveGithubToken(input.value);
+        } })));
+}
 
 // Section ouverte (une seule à la fois) : conservée d'un affichage à l'autre, sinon chaque réglage la refermerait
 let openSection = 'look';
@@ -132,6 +160,7 @@ export function renderReglages(ctx) {
             h('span', { class: 'face', text: n === 0 ? 'Jamais' : `${n} jours` })))),
         h('p', { class: 'desc theme-desc', text: view.nudgeDays === 0 ? 'Aucun rappel : pense à exporter toi-même.' : `Rappel après ${view.nudgeDays} jours sans sauvegarde (ou 20 nouvelles coches).` })),
       persistNote ? h('p', { class: 'muted t-body-sm', text: persistNote }) : null,
+      syncBlock(ctx),
       h('div', { class: 'setting history-block' },
         h('span', { class: 'text' }, 'Annuler une action',
           h('span', { class: 'desc', role: 'status', text: ctx.historyInfo().count ? `Dernière : ${ctx.historyInfo().last} · ${ctx.historyInfo().count} action${ctx.historyInfo().count > 1 ? 's' : ''} annulable${ctx.historyInfo().count > 1 ? 's' : ''} jusqu\'au rechargement` : 'Aucune action à annuler pour l\'instant (la liste se vide au rechargement).' })),
