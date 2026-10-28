@@ -20,6 +20,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      actions: write # lancer les contrôles (pages.yml) sur la branche du robot
     env:
       TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
       GH_TOKEN: ${{ github.token }}
@@ -63,3 +64,7 @@ jobs:
             # Réglage « Autoriser GitHub Actions à créer des pull requests » désactivé : on laisse la branche et on prévient par une issue
             gh issue create --title "Catalogue : modifications prêtes sur $BRANCH" --body-file "$RUNNER_TEMP/pr-body.md"
           fi
+          # Une PR ouverte avec le jeton du workflow ne lance pas la CI (règle de GitHub) : sans les contrôles `test` et `e2e`,
+          # la protection de main empêcherait de la fusionner. Un lancement manuel (workflow_dispatch) est, lui, autorisé ;
+          # ses résultats s'affichent sur la PR (même commit). Le job `deploy` ne tourne que sur main.
+          gh workflow run pages.yml --ref "$BRANCH"
