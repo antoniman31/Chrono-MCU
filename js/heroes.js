@@ -14,6 +14,9 @@ export const HEROES = [
   { id: 'captain-marvel', label: 'Captain Marvel' },
   { id: 'loki', label: 'Loki' },
   { id: 'scarlet-witch', label: 'Scarlet Witch' },
+  { id: 'bucky-barnes', label: 'Bucky Barnes' },
+  { id: 'daredevil', label: 'Daredevil' },
+  { id: 'deadpool', label: 'Deadpool' },
   { id: 'avengers', label: 'Les Avengers', team: true },
   { id: 'guardians', label: 'Les Gardiens de la Galaxie', team: true },
 ];

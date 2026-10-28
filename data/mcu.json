@@ -223,7 +223,8 @@
     ],
     "heroes": [
       "captain-america",
-      "black-widow"
+      "black-widow",
+      "bucky-barnes"
     ],
     "tmdbId": 100402,
     "poster": "/n3Xa8g1sWrUVUal6zk0OoC9ARo1.jpg",
@@ -1198,6 +1199,9 @@
         "airDate": "2021-04-23",
         "runtimeMin": 49
       }
+    ],
+    "heroes": [
+      "bucky-barnes"
     ]
   },
   {
@@ -1876,6 +1880,9 @@
     "releaseDateFr": "2024-07-24",
     "chronoOrder": 54,
     "runtimeMin": 128,
+    "heroes": [
+      "deadpool"
+    ],
     "postCredits": [
       "end"
     ],
@@ -2065,6 +2072,9 @@
         "airDate": "2025-04-15",
         "runtimeMin": 57
       }
+    ],
+    "heroes": [
+      "daredevil"
     ]
   },
   {
@@ -2077,6 +2087,9 @@
     "releaseDateFr": "2025-04-30",
     "chronoOrder": 58,
     "runtimeMin": 127,
+    "heroes": [
+      "bucky-barnes"
+    ],
     "postCredits": [
       "mid",
       "end"
@@ -2422,6 +2435,9 @@
         "airDate": "2026-05-05",
         "runtimeMin": 51
       }
+    ],
+    "heroes": [
+      "daredevil"
     ]
   },
   {
@@ -2575,6 +2591,9 @@
     "releaseDateFr": "2016-02-10",
     "chronoOrder": 52,
     "runtimeMin": 108,
+    "heroes": [
+      "deadpool"
+    ],
     "postCredits": [
       "end"
     ],
@@ -2595,6 +2614,9 @@
     "releaseDateFr": "2018-05-16",
     "chronoOrder": 53,
     "runtimeMin": 119,
+    "heroes": [
+      "deadpool"
+    ],
     "postCredits": [
       "mid"
     ],
