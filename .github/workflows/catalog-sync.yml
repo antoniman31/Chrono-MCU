@@ -2,7 +2,7 @@ name: Synchronisation du catalogue (TMDB et TVmaze)
 
 on:
   schedule:
-    - cron: '41 5 * * 1'
+    - cron: '41 5 1 * *'
   workflow_dispatch:
 
 # Une seule synchronisation à la fois ; une exécution en cours n'est jamais annulée

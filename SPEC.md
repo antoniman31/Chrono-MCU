@@ -167,3 +167,5 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 - Succès ajoutés : Heures de vol, Prévoyant et Sauvegarde à jour, Régulier (semaines), Chronologue et Fidèle à la sortie (suites d'unités vues dans l'ordre, rattrapages exclus), Phase et Saga express, Complétiste des scènes, Film fleuve et Film éclair, et trois cachés (Sélectif, Encore !, Dès la sortie). Les sauvegardes s'appuient sur `lastBackup` des préférences d'affichage.
 
 - Synchronisation du catalogue (scripts/sync-catalog.mjs, workflow hebdomadaire) : promotion des titres « à venir » sortis (TMDB pour les films, TVmaze pour les séries), brouillons « à venir » pour les nouveautés Marvel Studios/Animation absentes, simple signalement des nouvelles saisons ; PR en brouillon à relire, jamais de fusion automatique ; ordre chronologique, post-générique et personnages restent manuels. Clé TMDB uniquement comme secret du dépôt.
+
+- Synchronisation du catalogue : mensuelle (le 1er) et manuelle plutôt qu'hebdomadaire, pour limiter le bruit des PR ; le contrôle des durées TVmaze reste hebdomadaire.

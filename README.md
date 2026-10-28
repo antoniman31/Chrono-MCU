@@ -57,7 +57,7 @@ Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à 
 
 ## Synchronisation automatique du catalogue
 
-Le workflow `.github/workflows/catalog-sync.yml` tourne chaque lundi (et à la demande dans l'onglet Actions) et lance `node scripts/sync-catalog.mjs --write`. Il prépare une pull request en brouillon, à relire ; rien n'est fusionné tout seul :
+Le workflow `.github/workflows/catalog-sync.yml` tourne le 1er de chaque mois, et à la demande (onglet Actions > Synchronisation du catalogue > Run workflow) et lance `node scripts/sync-catalog.mjs --write`. Il prépare une pull request en brouillon, à relire ; rien n'est fusionné tout seul :
 
 - un titre « à venir » dont la date est passée devient un titre sorti : durée et date France du film (TMDB), épisodes et durées de la série (TVmaze). Il reste « à vérifier » tant que tout n'est pas recoupé ;
 - une annonce ou sortie Marvel Studios / Marvel Animation absente du catalogue est ajoutée comme brouillon « à venir » (phase la plus récente, ordre chronologique en dernier), avec affiche et résumé. Sont ignorés : documentaires, « making of », titres « Untitled », sorties à plus de 18 mois ou vieilles de plus de 60 jours ;
