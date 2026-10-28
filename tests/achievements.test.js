@@ -194,3 +194,16 @@ test('cachés : sélectif, Encore, dès la sortie', () => {
   assert.equal(metrics({ ...base(), titles, seen: { a: '2008-05-02' } }).releaseDay, true);
   assert.equal(metrics({ ...base(), titles, seen: { a: '2008-05-03' } }).releaseDay, false);
 });
+
+test('succès de saga : le nom vient de data/sagas.json, sans article dans le titre', () => {
+  const titles = [film('a', '2008-01-01')];
+  const sagas = [{ id: 'infinity', name: "La Saga de l'Infini" }, { id: 'multiverse', name: 'La Saga du Multivers' }];
+  const list = evaluate(base({ titles, sagas, seen: {} }));
+  assert.equal(get(list, 'infinity').name, "Saga de l'Infini");
+  assert.equal(get(list, 'infinity').desc, "Voir toute la Saga de l'Infini");
+  assert.equal(get(list, 'multiverse').desc, 'Voir tout ce qui est sorti de la Saga du Multivers');
+  assert.equal(get(list, 'sagaFast').name, 'Saga express');
+  assert.equal(get(list, 'sagaFast').desc, "Terminer la Saga de l'Infini en 30 jours");
+  // identifiants inchangés : les déblocages déjà enregistrés restent valables
+  assert.equal(TOTAL_MEDALS, list.reduce((sum, a) => sum + a.tiers.length, 0));
+});

@@ -180,7 +180,7 @@ export function showAchievementsTab() { currentTab = 'succes'; }
 
 export function achievementInput(ctx) {
   const { state, view } = ctx;
-  return { titles: ctx.counted, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions, ignored: state.ignored, lastBackup: view.lastBackup };
+  return { titles: ctx.counted, sagas: ctx.sagas, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions, ignored: state.ignored, lastBackup: view.lastBackup };
 }
 
 function succes(ctx) {
