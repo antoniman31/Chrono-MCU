@@ -143,7 +143,13 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
     if (t.type === 'film' && Array.isArray(t.versions)) children.push(versionSection(ctx, t));
     if (t.type === 'serie') children.push(episodesSection(ctx, t, ignored));
   } else {
-    children.push(h('p', { class: 'muted', text: 'Ce titre n\'est pas encore sorti : il ne compte pas dans ta progression.' }));
+    children.push(h('p', { class: 'muted', text: ignored
+      ? 'Ce titre n\'est pas encore sorti et tu l\'ignores : il ne comptera pas dans ta progression à sa sortie.'
+      : 'Ce titre n\'est pas encore sorti : il ne compte pas dans ta progression.' }));
+    children.push(h('div', { class: 'actions' }, btn({
+      label: ignored ? (info.explicit ? 'Ne plus ignorer' : 'Réintégrer ce titre') : 'Ignorer', iconName: ignored ? 'visibility' : 'block', variant: ignored ? 'filled' : 'text',
+      key: `detail-ignore:${t.id}`, onclick: () => ctx.toggleIgnore(t),
+    })));
   }
   container.replaceChildren(h('div', { class: 'detail' }, children));
 }

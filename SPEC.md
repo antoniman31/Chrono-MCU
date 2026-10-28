@@ -171,3 +171,5 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 - Synchronisation du catalogue : mensuelle (le 1er) et manuelle plutôt qu'hebdomadaire, pour limiter le bruit des PR ; le contrôle des durées TVmaze (data-check.yml) est lui aussi mensuel.
 
 - Lancement de la synchronisation depuis Réglages (js/github.js) : lien vers la page Actions du workflow, et, si l'utilisateur colle un jeton fine-grained (Actions : lecture/écriture, ce dépôt seulement), vrai bouton qui appelle l'API `workflow_dispatch` puis suit le lancement. Jeton dans une clé localStorage séparée, jamais exporté ; CSP `connect-src` élargie à `https://api.github.com` ; sw.js ignore déjà les requêtes d'autres origines.
+
+- Titres « à venir » : menu ⋮, glissement à gauche et bouton de la fiche pour ignorer / ne plus ignorer (sans case à cocher) ; l'état « ignoré » est conservé à la sortie ; cadre pointillé fin par pseudo-élément.

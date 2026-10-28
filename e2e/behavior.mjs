@@ -429,6 +429,30 @@ await scenario('synchronisation du catalogue : lien GitHub, jeton, lancement et 
   check(await page.locator('[data-fk="s-sync-run"]').count() === 0 && (await page.evaluate(() => localStorage.getItem('chrono-mcu:gh-token'))) === null, 'retirer le jeton doit effacer le bouton et le jeton');
 });
 
+await scenario('titre à venir : menu, ignorer / ne plus ignorer, badge, filtre, fiche', async (page) => {
+  const id = 'avengers-doomsday';
+  const row = () => page.locator(`li.item:has([data-fk="open:${id}"])`);
+  check(await row().locator('.item-menu').count() === 1, 'un titre à venir doit avoir un menu d\'actions');
+  check(await row().locator('[data-fk^="cb:"]').count() === 0, 'un titre à venir n\'a pas de case à cocher');
+  await page.click(`[data-fk="menu:${id}"]`);
+  check(await page.locator('[data-fk="m-seen"]').count() === 0, 'pas de « marquer comme vu » pour un titre à venir');
+  await page.click('[data-fk="m-ignore"]');
+  check((await stored(page)).ignored[id] === true, 'le titre à venir doit être ignoré dans l\'état');
+  check(/ignoré/.test(await row().innerText()) && await row().evaluate((el) => el.classList.contains('ignored') && el.classList.contains('upcoming')), 'badge « ignoré » et ligne grisée attendus');
+  await page.click('#open-filters');
+  await page.click('label.segopt:has([data-fk="f-ignored:hide"])');
+  await page.click('[data-fk="f-done"]');
+  check(await page.locator(`[data-fk="open:${id}"]`).count() === 0, 'le filtre « Masquer les ignorés » doit cacher le titre à venir ignoré');
+  await page.click('#open-filters');
+  await page.click('[data-fk="f-reset"]');
+  await page.click('[data-fk="f-done"]');
+  await page.click(`[data-fk="open:${id}"]`);
+  check(/Ne plus ignorer/.test(await page.locator(`[data-fk="detail-ignore:${id}"]`).innerText()), 'la fiche doit proposer « Ne plus ignorer »');
+  check(/tu l'ignores/.test(await page.locator('#sheet-body').innerText()), 'la fiche doit expliquer que le titre est ignoré');
+  await page.click(`[data-fk="detail-ignore:${id}"]`);
+  check(!(await stored(page)).ignored[id], 'ne plus ignorer doit retirer le titre des ignorés');
+});
+
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
   const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;
