@@ -161,3 +161,5 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 - Personnages et équipes : champ optionnel `heroes` dans data/mcu.json (identifiants de js/heroes.js, rôle principal ou co-principal seulement, validé par scripts/validate-data.mjs). 13 personnages et 2 équipes (Avengers, Gardiens), à compléter à la main. Servent au filtre « Personnage ou équipe » (feuille Filtres) et à un succès « Tout sur X » par héros (paliers 50 / 75 / 100 % des titres sortis).
 
 - Accueil (feuille `welcome`, une fois, préférence `welcomed`), historique d'annulation en mémoire (20 actions, Réglages > Données), retour tactile à la coche (`feedback`, vibration + rebond, désactivable). « Tout marquer vu jusqu'ici » existait déjà (menu ⋮) : l'accueil le réutilise.
+
+- Hors-ligne : service worker `sw.js` (cache `chrono-mcu-<build>`, fichiers ?v= en cache d'abord, navigation réseau d'abord avec repli, affiches TMDB jamais conservées pour ne pas stocker de réponses opaques). Enregistré seulement sur un build déployé. Précache de js/, css/, data/ vérifié par tests/sw.test.js ; test e2e hors ligne sur une copie « buildée ».

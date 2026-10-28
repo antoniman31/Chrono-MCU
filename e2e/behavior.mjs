@@ -341,6 +341,50 @@ await scenario('retour tactile : animation à la coche, réglage pour le couper'
   check((await page.evaluate(() => window.__vibrations.length)) === 1, 'le réglage coupé doit supprimer la vibration');
 });
 
+// Hors-ligne : on « construit » une copie (marqueur __BUILD__ remplacé comme au déploiement), on la sert,
+// on laisse le service worker s'installer, puis on coupe le réseau et on recharge.
+{
+  const { mkdtempSync, cpSync, readdirSync, readFileSync, statSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { startServer: startBuilt } = await import('./server.mjs');
+  const dir = mkdtempSync(join(tmpdir(), 'chrono-built-'));
+  for (const f of ['index.html', 'manifest.webmanifest', 'sw.js', 'css', 'js', 'data', 'icons', 'fonts']) cpSync(new URL(`../${f}`, import.meta.url), join(dir, f), { recursive: true });
+  const stamp = (d) => readdirSync(d).forEach((f) => {
+    const p = join(d, f);
+    if (statSync(p).isDirectory()) return stamp(p);
+    if (/\.(html|js|css|json|webmanifest)$/.test(f)) writeFileSync(p, readFileSync(p, 'utf8').replaceAll('__BUILD__', 'e2ebuild'));
+  });
+  stamp(dir);
+  const built = await startBuilt(dir);
+  scenarios += 1;
+  const context = await browser.newContext({ viewport: { width: 360, height: 740 }, reducedMotion: 'reduce' });
+  await context.route(/image\.tmdb\.org/, (route) => route.abort());
+  await context.addInitScript(() => { try { localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true })); } catch { /* ignore */ } });
+  const page = await context.newPage();
+  try {
+    await page.goto(built.base);
+    await page.waitForSelector('body[data-ready]', { state: 'attached' });
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload();
+    await page.waitForSelector('body[data-ready]', { state: 'attached' });
+    check(await page.evaluate(() => Boolean(navigator.serviceWorker.controller)), 'le service worker doit contrôler la page après rechargement');
+    const online = await page.locator('#list .item, #list li').count();
+    await context.setOffline(true);
+    await page.reload();
+    await page.waitForSelector('body[data-ready]', { state: 'attached' });
+    const offline = await page.locator('#list .item, #list li').count();
+    check(online > 10 && offline === online, `hors ligne, la liste doit s'afficher comme en ligne (${offline} / ${online})`);
+    await page.click('[data-fk="cb:iron-man"]');
+    check(Object.keys(JSON.parse(await page.evaluate(() => localStorage.getItem('chrono-mcu:v1')))?.seen ?? {}).length === 1, 'cocher doit fonctionner hors ligne');
+  } catch (e) {
+    failures.push(`hors-ligne : ${e.message.split('\n')[0]}`);
+  } finally {
+    await context.close();
+    built.close();
+  }
+}
+
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
   const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;
