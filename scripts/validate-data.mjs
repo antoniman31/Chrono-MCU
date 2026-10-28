@@ -92,6 +92,23 @@ export function validate(data) {
   return errors;
 }
 
+// sagas : data/sagas.json (tableau de { id, name }, name nul pour une saga sans nom officiel) ; catalog : titres, dont chaque saga doit exister
+export function validateSagas(sagas, catalog = []) {
+  if (!Array.isArray(sagas)) return ['les sagas doivent être un tableau'];
+  const errors = [];
+  const ids = new Set();
+  sagas.forEach((s, i) => {
+    const at = `saga #${i} (${s?.id ?? '?'})`;
+    if (!s || typeof s !== 'object') return errors.push(`${at}: entrée invalide`);
+    if (!isText(s.id)) errors.push(`${at}: id manquant`);
+    else if (ids.has(s.id)) errors.push(`${at}: id en double`);
+    else ids.add(s.id);
+    if (s.name !== null && !isText(s.name)) errors.push(`${at}: name doit être un texte ou null`);
+  });
+  for (const t of catalog) if (isText(t?.saga) && !ids.has(t.saga)) errors.push(`${t.id}: saga « ${t.saga} » absente de data/sagas.json`);
+  return errors;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const path = process.argv[2] ?? new URL('../data/mcu.json', import.meta.url);
   let data;
@@ -102,6 +119,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const errors = validate(data);
+  try {
+    errors.push(...validateSagas(JSON.parse(readFileSync(new URL('sagas.json', new URL(path, `file://${process.cwd()}/`)), 'utf8')), data));
+  } catch (e) {
+    errors.push(`data/sagas.json illisible: ${e.message}`);
+  }
   if (errors.length) {
     errors.forEach((e) => console.error(e));
     process.exit(1);

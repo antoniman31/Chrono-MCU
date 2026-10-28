@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validate } from '../scripts/validate-data.mjs';
+import { validate, validateSagas } from '../scripts/validate-data.mjs';
 
 const film = (o = {}) => ({
   id: 'f1', title: 'F1', type: 'film', phase: 1, saga: 'infinity',
@@ -125,4 +125,19 @@ test('heroes : liste non vide d\'identifiants connus, sans doublon', () => {
   assert.ok(validate([film({ heroes: ['inconnu'] })]).some((e) => e.includes('heroes')));
   assert.ok(validate([film({ heroes: ['thor', 'thor'] })]).some((e) => e.includes('heroes')));
   assert.ok(validate([film({ heroes: 'thor' })]).some((e) => e.includes('heroes')));
+});
+
+test('sagas : le fichier réel est valide et couvre toutes les sagas du catalogue', () => {
+  const data = JSON.parse(readFileSync(new URL('../data/mcu.json', import.meta.url), 'utf8'));
+  const sagas = JSON.parse(readFileSync(new URL('../data/sagas.json', import.meta.url), 'utf8'));
+  assert.deepEqual(validateSagas(sagas, data), []);
+});
+
+test('sagas : id manquant ou en double, nom invalide, saga du catalogue inconnue', () => {
+  assert.deepEqual(validateSagas([{ id: 'a', name: null }, { id: 'b', name: 'B' }], [film({ saga: 'a' })]), []);
+  assert.equal(validateSagas([{ id: 'a', name: 'A' }, { id: 'a', name: 'A2' }]).length, 1);
+  assert.equal(validateSagas([{ id: '', name: 'A' }]).length, 1);
+  assert.equal(validateSagas([{ id: 'a', name: '' }]).length, 1);
+  assert.equal(validateSagas([{ id: 'a', name: 'A' }], [film({ saga: 'zzz' })]).length, 1);
+  assert.equal(validateSagas({}).length, 1);
 });

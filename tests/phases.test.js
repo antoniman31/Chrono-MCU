@@ -6,9 +6,20 @@ import { countedTitles } from '../js/logic.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../data/mcu.json', import.meta.url), 'utf8'));
 
+const sagas = JSON.parse(readFileSync(new URL('../data/sagas.json', import.meta.url), 'utf8'));
+
 test('sagaLabel : seules les deux sagas ont un nom officiel', () => {
-  assert.equal(sagaLabel('infinity'), 'Infinity Saga');
-  assert.equal(sagaLabel('multiverse'), 'Saga du Multivers');
+  assert.equal(sagaLabel('infinity', sagas), 'Infinity Saga');
+  assert.equal(sagaLabel('multiverse', sagas), 'Saga du Multivers');
+});
+
+test('sagaLabel : une saga sans nom officiel s\'affiche « Phases 7 à 9 », sans nom inventé', () => {
+  const titles = [{ phase: 7, saga: 'next' }, { phase: 9, saga: 'next' }, { phase: 8, saga: 'next' }, { phase: 6, saga: 'multiverse' }];
+  const list = [...sagas, { id: 'next', name: null }];
+  assert.equal(sagaLabel('next', list, titles), 'Phases 7 à 9');
+  assert.equal(sagaLabel('next', list, [{ phase: 7, saga: 'next' }]), 'Phase 7');
+  assert.equal(sagaLabel('inconnue', list, titles), 'inconnue');
+  assert.equal(sagaLabel('multiverse', list, titles), 'Saga du Multivers');
 });
 
 test('phaseList : phases triées, sans doublon', () => {
@@ -17,13 +28,13 @@ test('phaseList : phases triées, sans doublon', () => {
 
 test('phaseSummary : saga, années, titres, heures et progression d\'une phase', () => {
   const counted = countedTitles(catalogue, {});
-  const phase4 = phaseSummary(catalogue, counted, {}, 4);
+  const phase4 = phaseSummary(catalogue, counted, {}, 4, sagas);
   assert.equal(phase4.saga, 'Saga du Multivers');
   assert.equal(phase4.from, 2021);
   assert.equal(phase4.titles, catalogue.filter((t) => t.phase === 4 && !t.upcoming).length);
   assert.ok(phase4.minutes > 0);
   assert.equal(phase4.percent, 0);
-  assert.equal(phaseSummary(catalogue, counted, {}, 1).saga, 'Infinity Saga');
+  assert.equal(phaseSummary(catalogue, counted, {}, 1, sagas).saga, 'Infinity Saga');
 });
 
 test('phaseSummary : les titres ignorés ne comptent pas, la progression suit les coches', () => {

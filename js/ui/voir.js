@@ -36,7 +36,7 @@ function paintPhaseBar(ctx, phase) {
     tab.setAttribute('aria-selected', String(on));
     tab.tabIndex = on ? 0 : -1;
   });
-  const info = phaseInfo(phaseSummary(ctx.allTitles, ctx.counted, ctx.state.seen, phase));
+  const info = phaseInfo(phaseSummary(ctx.allTitles, ctx.counted, ctx.state.seen, phase, ctx.sagas));
   const [title, details] = $('phase-info').children;
   title.textContent = info.title;
   details.textContent = info.details;
