@@ -8,6 +8,7 @@ import { filmDate, metaLine } from './detail.js?v=__BUILD__';
 import { attachSwipe, swipeBackground } from './swipe.js?v=__BUILD__';
 import { backupStatus, NUDGE_AFTER_CHECKS } from '../backup.js?v=__BUILD__';
 import { hideEpisodeTitle } from '../spoilers.js?v=__BUILD__';
+import { recoveryText } from '../recovery.js?v=__BUILD__';
 import { btn, checkbox, iconBtn, posterImg, titleBadges } from './parts.js?v=__BUILD__';
 
 const TABS = ['all', 'film', 'serie'];
@@ -91,11 +92,24 @@ function goToPhase(ctx, phase) {
   target.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
 }
 
+// Données enregistrées illisibles (ou réparées) : on le dit une fois, avec la copie à télécharger
+function recoveryCard(ctx) {
+  const text = recoveryText(ctx.recovery);
+  if (!text) return null;
+  return h('section', { class: 'card card-nudge', role: 'alert', 'aria-label': 'Données enregistrées' },
+    h('p', { class: 'nudge-title', text: text.title }),
+    h('p', { class: 'muted', text: text.body }),
+    h('div', { class: 'row-actions' },
+      ctx.recovery.saved ? btn({ label: 'Télécharger la copie', variant: 'filled', iconName: 'download', key: 'recovery-download', onclick: () => ctx.downloadCorruptCopy() }) : null,
+      btn({ label: 'Compris', variant: 'text', key: 'recovery-dismiss', onclick: () => ctx.dismissRecovery() })));
+}
+
 function renderNudge(ctx) {
   const el = $('nudge');
+  const recovery = recoveryCard(ctx);
   const st = backupStatus({ lastBackup: ctx.view.lastBackup, snoozeUntil: ctx.view.nudgeUntil }, Object.keys(ctx.state.seen).length, today(), ctx.view.nudgeDays);
   if (!st.due) {
-    el.replaceChildren();
+    el.replaceChildren(...(recovery ? [recovery] : []));
     return;
   }
   const message = st.neverBackedUp
@@ -103,7 +117,7 @@ function renderNudge(ctx) {
     : st.sinceChecks >= NUDGE_AFTER_CHECKS
       ? `${st.sinceChecks} nouveaux éléments vus depuis ta dernière sauvegarde.`
       : `Ta dernière sauvegarde remonte à ${st.days} jours.`;
-  el.replaceChildren(h('section', { class: 'card card-nudge', 'aria-label': 'Rappel de sauvegarde' },
+  el.replaceChildren(...(recovery ? [recovery] : []), h('section', { class: 'card card-nudge', 'aria-label': 'Rappel de sauvegarde' },
     h('p', { class: 'nudge-title', text: message }),
     h('p', { class: 'muted', text: 'Ta progression n\'est stockée que dans ce navigateur : si les données du site sont effacées, elle est perdue.' }),
     h('div', { class: 'row-actions' },

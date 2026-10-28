@@ -1,5 +1,5 @@
 import { FILTER_DEFAULTS, countedTitles, releasedView, sortTitles, stepId, withVersions } from './logic.js?v=__BUILD__';
-import { exportState, importState, isTitleSeen, loadState, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
+import { clearCorruptCopy, corruptCopy, exportState, importState, isTitleSeen, loadStateWithReport, markUntil, pendingUntil, saveState, setPhaseSeen, setSkip, setTitleIgnored, setTitleVersion, setTitleSeen, toggleUnit } from './store.js?v=__BUILD__';
 import { loadView, saveView } from './prefs.js?v=__BUILD__';
 import { dispatchSync, isDone, latestRun, loadToken, runLabel, saveToken } from './github.js?v=__BUILD__';
 import { addDays, SNOOZE_DAYS } from './backup.js?v=__BUILD__';
@@ -31,6 +31,7 @@ const ROUTE_TITLES = { voir: 'À voir', progression: 'Progression', reglages: 'R
 const expandedQuery = window.matchMedia('(min-width: 840px)');
 const isExpanded = () => expandedQuery.matches;
 
+const loaded = loadStateWithReport(storage);
 const ctx = {
   rawTitles: [], // catalogue tel que dans data/mcu.json
   sagas: [], // data/sagas.json : { id, name }
@@ -40,7 +41,8 @@ const ctx = {
   counted: [],
   byId: new Map(), // titres complets
   availById: new Map(), // titres sortis
-  state: loadState(storage),
+  state: loaded.state,
+  recovery: loaded.report, // null, ou { kind, saved, dropped? } si les données enregistrées n'ont pas pu être lues telles quelles
   view: loadView(storage),
   filters: { tab: 'all', query: '', phase: null, ...FILTER_DEFAULTS },
   selectedId: null,
@@ -393,6 +395,27 @@ ctx.openBackup = (opener) => {
 };
 
 /* ---------- Export / import ---------- */
+ctx.hasCorruptCopy = () => corruptCopy(storage) !== null;
+ctx.downloadCorruptCopy = () => {
+  const raw = corruptCopy(storage);
+  if (raw === null) return;
+  const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+  const a = h('a', { href: url, download: `chrono-mcu-donnees-illisibles-${today()}.json` });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+ctx.deleteCorruptCopy = () => {
+  clearCorruptCopy(storage);
+  ctx.recovery = null;
+  render({ detail: false });
+  showSnackbar('Copie supprimée', false);
+};
+ctx.dismissRecovery = () => {
+  ctx.recovery = null;
+  render({ detail: false });
+};
 ctx.exportProgress = () => {
   const url = URL.createObjectURL(new Blob([exportState(ctx.state)], { type: 'application/json' }));
   const a = h('a', { href: url, download: `chrono-mcu-${today()}.json` });

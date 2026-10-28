@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BACKUP_KEY, STATE_VERSION, migrate, STORAGE_KEY, defaultState, validateState, loadState, saveState, setOrder,
-  toggleUnit, setTitleSeen, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil, setTitleIgnored, setSkip, setTitleVersion,
+  toggleUnit, setTitleSeen, CORRUPT_KEY, loadStateWithReport, repairState, corruptCopy, clearCorruptCopy, isTitleSeen, exportState, importState, setIgnored, isIgnored, setPhaseSeen, markUntil, pendingUntil, setTitleIgnored, setSkip, setTitleVersion,
 } from '../js/store.js';
 
 const film = { id: 'f', type: 'film' };
@@ -306,4 +306,78 @@ test('versions d\'un film : choix mémorisé, retiré en revenant à l\'original
   assert.deepEqual(setTitleVersion(s, 'eg', null).versions, {});
   assert.deepEqual(migrate({ version: 2, order: 'chrono', seen: {}, lastSeenKey: null }).state.versions, {}, 'un ancien état n\'a pas de versions');
   assert.equal(s.versions.eg, 'encore', 'l\'état d\'origine n\'est pas modifié');
+});
+
+const withRemove = (initial = {}) => {
+  const st = memoryStorage(initial);
+  st.removeItem = (k) => { delete st.data[k]; };
+  return st;
+};
+const valid = () => ({ version: 2, order: 'release', seen: { a: D1, b: D2 }, ignored: { c: true }, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: 'b' });
+
+test('données saines : aucun rapport, aucune copie', () => {
+  const st = withRemove({ [STORAGE_KEY]: JSON.stringify(valid()) });
+  const { state, report } = loadStateWithReport(st);
+  assert.equal(report, null);
+  assert.deepEqual(state.seen, valid().seen);
+  assert.equal(corruptCopy(st), null);
+});
+
+test('une date invalide parmi des coches valides : on garde le reste, on prévient et on garde une copie', () => {
+  const bad = { ...valid(), seen: { a: D1, b: 'pas-une-date', c: D2 }, skip: ['inconnue'] };
+  const raw = JSON.stringify(bad);
+  const st = withRemove({ [STORAGE_KEY]: raw });
+  const { state, report } = loadStateWithReport(st);
+  assert.deepEqual(Object.keys(state.seen), ['a', 'c']);
+  assert.deepEqual(validateState(state), []);
+  assert.equal(report.kind, 'repaired');
+  assert.equal(report.dropped, 2);
+  assert.equal(report.saved, true);
+  assert.equal(corruptCopy(st), raw);
+});
+
+test('contenu illisible : départ à vide, copie gardée, rapport « unreadable »', () => {
+  for (const raw of ['{pas du json', '[]', '"texte"', '{"version":"x"}', '{"version":0}']) {
+    const st = withRemove({ [STORAGE_KEY]: raw });
+    const { state, report } = loadStateWithReport(st);
+    assert.deepEqual(state, defaultState());
+    assert.equal(report.kind, 'unreadable', raw);
+    assert.equal(corruptCopy(st), raw);
+  }
+});
+
+test('données d\'une version plus récente : rapport « newer », copie gardée', () => {
+  const raw = JSON.stringify({ ...valid(), version: STATE_VERSION + 1 });
+  const st = withRemove({ [STORAGE_KEY]: raw });
+  const { state, report } = loadStateWithReport(st);
+  assert.deepEqual(state, defaultState());
+  assert.equal(report.kind, 'newer');
+  assert.equal(corruptCopy(st), raw);
+});
+
+test('la copie n\'est jamais écrasée par un second problème, et peut être supprimée', () => {
+  const st = withRemove({ [STORAGE_KEY]: '{pas du json' });
+  loadStateWithReport(st);
+  st.data[STORAGE_KEY] = '{autre souci';
+  const second = loadStateWithReport(st);
+  assert.equal(second.report.kind, 'unreadable');
+  assert.equal(corruptCopy(st), '{pas du json');
+  assert.equal(clearCorruptCopy(st), true);
+  assert.equal(corruptCopy(st), null);
+  assert.equal(st.data[CORRUPT_KEY], undefined);
+});
+
+test('stockage plein : le rapport dit que la copie n\'a pas pu être gardée', () => {
+  const full = { getItem: (k) => (k === STORAGE_KEY ? '{pas du json' : null), setItem() { throw new Error('QuotaExceeded'); } };
+  const { report } = loadStateWithReport(full);
+  assert.equal(report.kind, 'unreadable');
+  assert.equal(report.saved, false);
+});
+
+test('repairState : ordre inconnu ramené à « chrono », champs absents ignorés sans compter', () => {
+  const { state, dropped } = repairState({ version: 2, order: 'nope', seen: { a: D1 } });
+  assert.equal(state.order, 'chrono');
+  assert.deepEqual(state.seen, { a: D1 });
+  assert.equal(dropped, 1);
+  assert.deepEqual(validateState(state), []);
 });
