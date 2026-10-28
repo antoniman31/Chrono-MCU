@@ -25,10 +25,10 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 |---|---|---|---|
 | 6 | **Sagas** : `sync-catalog.mjs` met `saga: 'multiverse'` en dur sur les brouillons ; succès et catégories de saga codés pour deux sagas. À faire avant la phase 7. | M | fait (#66) |
 | 7 | **Les audits ne couvrent pas tous les états** (le contraste raté de « Dans les temps » n'a été vu que par hasard) : objectif en bonne voie, import en erreur, synchronisation, bandeaux, états vides. | M | fait (#67) |
-| 8 | **Tests e2e instables** : 2 échecs en une journée (clics forcés dépendant du défilement). Surveiller et fiabiliser. | S–M | à faire |
-| 9 | **Sauvegarde incomplète** : l'export oublie l'objectif de date, le thème, les dates de déblocage des succès (le jeton GitHub en est exclu volontairement). | M | à faire |
-| 10 | **Accessibilité** : rien pour le mode contraste élevé de Windows (`forced-colors`, `prefers-contrast`), états sélectionnés uniquement par la couleur ; cibles tactiles de 44 px alors que le README annonce 48 px. | M | à faire |
-| 11 | **Données** : 27 titres sur 67 sans personnages ; 26 épisodes sans titre français ; The Punisher sans info sur les scènes post-générique ; VisionQuest à vérifier (tâche planifiée le 11/11). | M | à faire |
+| 8 | **Tests e2e instables** : 2 échecs en une journée (clics forcés dépendant du défilement). Surveiller et fiabiliser. Fiabilisé : attentes sur l'état, plus de clics forcés ; un vrai défaut de resynchronisation de l'onglet de phase corrigé. | S–M | fait (#69) |
+| 9 | **Sauvegarde incomplète** : l'export oublie l'objectif de date, le thème, les dates de déblocage des succès (le jeton GitHub en est exclu volontairement). | M | fait (#69) |
+| 10 | **Accessibilité** : rien pour le mode contraste élevé de Windows (`forced-colors`, `prefers-contrast`), états sélectionnés uniquement par la couleur ; cibles tactiles de 44 px alors que le README annonce 48 px. | M | fait (#69) |
+| 11 | **Données** : 27 titres sur 67 sans personnages ; 26 épisodes sans titre français ; The Punisher sans info sur les scènes post-générique ; VisionQuest à vérifier (tâche planifiée le 11/11). Résultat : les 27 titres sans personnage sont presque tous normaux (la liste de `heroes.js` ne couvre que 13 personnages et 2 équipes) ; seul Captain America : Brave New World recevait un personnage. Titres français d'épisodes : aucune source fiable trouvée, ils restent affichés en anglais. The Punisher : One Last Kill n'a aucune scène post-générique (3 sources concordantes). | M | fait (#69) |
 
 ## Moyen
 
@@ -65,4 +65,4 @@ Vrais iPhone et Android, lecteurs d'écran, Lighthouse, exactitude des dates et 
 
 ## Ordre retenu
 
-1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #67). Restent les points 4 (action de Antoni), 8 à 23.
+1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #68), puis 8 à 11 (PR #69). Restent les points 4 (action de Antoni) et 12 à 23.

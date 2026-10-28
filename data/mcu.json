@@ -1978,6 +1978,9 @@
     "postCredits": [
       "end"
     ],
+    "heroes": [
+      "captain-america"
+    ],
     "tmdbId": 822119,
     "poster": "/wDRXmiAEJdhNIcuetM4016fOCx8.jpg",
     "backdrop": "/ce3prrjh9ZehEl5JinNqr4jIeaB.jpg",
@@ -2430,6 +2433,7 @@
     "releaseDate": "2026-05-12",
     "chronoOrder": 65,
     "runtimeMin": 51,
+    "postCredits": [],
     "tmdbId": 1439930,
     "poster": "/74VbBYHmpjgeES1zkRo1DwHkWnE.jpg",
     "backdrop": "/qO55CD8tgVL1T4WKn6zYFFiD6lL.jpg",

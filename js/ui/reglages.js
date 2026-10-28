@@ -199,7 +199,7 @@ export function renderReglages(ctx) {
 export function renderBackupSheet(body, ctx) {
   if (ctx.pendingImport) {
     body.append(
-      h('p', { text: 'Remplacer ta progression actuelle par ce fichier ? Cette action ne peut pas être annulée.' }),
+      h('p', { text: 'Remplacer ta progression et tes réglages (thème, objectif, succès) par ceux de ce fichier ? Cette action ne peut pas être annulée.' }),
       h('div', { class: 'sheet-footer' },
         btn({ label: 'Annuler', variant: 'text', key: 'b-cancel', onclick: () => ctx.cancelImport() }),
         btn({ label: 'Remplacer', variant: 'filled', key: 'b-confirm', onclick: () => ctx.confirmImport() })));
