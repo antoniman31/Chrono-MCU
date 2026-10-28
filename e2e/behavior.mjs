@@ -469,6 +469,40 @@ await scenario('affiches de la liste : toutes de la même taille, même avec des
   check(layout.every((x) => x.menuAbove && x.atRight), 'le menu doit être en haut à droite et la case en bas à droite');
 });
 
+await scenario('Prochain à voir : bandeau fin, un appui retire la recherche, va à la ligne et ouvre la fiche', async (page) => {
+  const bar = await page.locator('#resume .resume-bar').boundingBox();
+  check(bar.height <= 96, `le bandeau doit rester fin (${Math.round(bar.height)} px)`);
+  await page.fill('#search', 'thor');
+  await page.waitForTimeout(200);
+  const found = await page.locator('#list li.item').count();
+  check(found >= 1 && found < 10, `la recherche doit réduire la liste (${found} titres)`);
+  await page.click('[data-fk="resume-open"]');
+  check((await page.inputValue('#search')) === '', 'la recherche doit être retirée pour retrouver la ligne');
+  check((await page.locator('#list li.item').count()) > 10, 'la liste complète doit être revenue');
+  check(/Captain America/.test(await page.locator('#sheet-title').innerText()), 'la fiche du prochain titre doit s\'ouvrir');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(100);
+  check((await page.locator('#list li.flash').count()) === 1, 'la ligne doit être mise en évidence à la fermeture de la fiche');
+  const box = await page.locator('#list li.flash').boundingBox();
+  check(box.y >= 0 && box.y + box.height <= 740, 'la ligne doit être visible à l\'écran');
+});
+
+await scenario('Prochain à voir : un épisode ouvre la série, défile jusqu\'à lui et le met en évidence ; le rond coche', async (page) => {
+  check(/WandaVision · ép\. 2/.test(await page.locator('#resume .name').innerText()), `l'épisode suivant doit être proposé : ${await page.locator('#resume .name').innerText()}`);
+  await page.click('[data-fk="resume-open"]');
+  check(/WandaVision/.test(await page.locator('#sheet-title').innerText()), 'la fiche de la série doit s\'ouvrir');
+  const ep = page.locator('#sheet li.item', { has: page.locator('[data-fk="ep:wandavision/2"]') });
+  check((await ep.count()) === 1 && (await ep.getAttribute('class')).includes('flash'), 'l\'épisode doit être mis en évidence');
+  const inView = await page.evaluate(() => { const li = document.querySelector('[data-fk="ep:wandavision/2"]').closest('li').getBoundingClientRect(); const body = document.querySelector('#sheet-body').getBoundingClientRect(); return li.top >= body.top - 1 && li.bottom <= body.bottom + 1; });
+  check(inView, 'la fiche doit défiler jusqu\'à l\'épisode');
+  await page.keyboard.press('Escape');
+  const before = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('chrono-mcu:v1')).seen).length);
+  await page.click('[data-fk="resume-check"]');
+  const after = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('chrono-mcu:v1')).seen).length);
+  check(after === before + 1, 'le rond « coche » doit marquer l\'épisode vu sans ouvrir la fiche');
+  check(!(await page.locator('#sheet').evaluate((d) => d.open)), 'le rond « coche » ne doit pas ouvrir la fiche');
+}, { seed: { version: 2, order: 'chrono', seen: { 'wandavision/1': '2026-10-01' }, ignored: {}, lastSeenKey: 'wandavision/1' } });
+
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
   await go(page, 'reglages');
   await openSec(page, 'look');

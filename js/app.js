@@ -230,8 +230,49 @@ ctx.openDetail = (id, opener = null) => {
     title: t.title, kind: 'detail', opener: opener ?? document.activeElement,
     hero: backdropImg(t, ctx.view), // mode sans spoiler : renderDetail la floute tant qu'elle n'est pas révélée
     render: (body) => renderDetail(body, ctx, id, { showTitle: false, showPoster: false }),
-    onClose: () => { ctx.sheetDetailId = null; },
+    onClose: () => {
+      ctx.sheetDetailId = null;
+      // Venu de « Prochain à voir » : la ligne se met en évidence quand la fiche se referme
+      if (ctx.flashOnClose) {
+        const id2 = ctx.flashOnClose;
+        ctx.flashOnClose = null;
+        flashRow(document.querySelector(`#list [data-fk="open:${id2}"]`)?.closest('li'));
+      }
+    },
   });
+};
+
+/* ---------- « Prochain à voir » : aller à la ligne, ouvrir la fiche ---------- */
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Mise en évidence brève (halo qui s'éteint ; anneau fixe si l'animation est réduite)
+function flashRow(li) {
+  if (!li) return;
+  li.classList.add('flash');
+  setTimeout(() => li.classList.remove('flash'), 1600);
+}
+
+ctx.goToNext = (unit, opener) => {
+  const id = unit.titleId;
+  const t = ctx.byId.get(id);
+  if (!t) return;
+  // On retire ce qui cacherait la ligne : recherche et onglet Films / Séries ; un groupe de phase replié est déplié
+  ctx.filters.query = '';
+  $('search').value = '';
+  ctx.filters.tab = 'all';
+  if (ctx.view.collapsedPhases.includes(t.phase) && ctx.view.groupByPhase && ctx.state.order !== 'chrono') ctx.toggleCollapse(t.phase);
+  render();
+  const row = () => document.querySelector(`#list [data-fk="open:${id}"]`)?.closest('li');
+  row()?.scrollIntoView({ block: 'center', behavior: isExpanded() && !reducedMotion() ? 'smooth' : 'auto' });
+  ctx.openDetail(id, row()?.querySelector('[data-fk^="open:"]') ?? opener);
+  if (isExpanded()) flashRow(row());
+  else ctx.flashOnClose = id;
+  // Épisode : la fiche défile jusqu'à lui et le met en évidence
+  if (unit.kind === 'episode') {
+    const ep = document.querySelector(`[data-fk="ep:${id}/${unit.n}"]`)?.closest('li');
+    ep?.scrollIntoView({ block: 'center' });
+    flashRow(ep);
+  }
 };
 ctx.openItemMenu = (id, opener) => openSheet({ title: ctx.byId.get(id).title, kind: 'menu', opener, render: (body) => renderItemMenu(body, ctx, id) });
 ctx.openFilters = (opener) => openSheet({ title: 'Filtres', kind: 'filters', opener, render: (body) => renderFiltersSheet(body, ctx) });
