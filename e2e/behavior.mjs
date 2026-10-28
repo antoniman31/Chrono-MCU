@@ -570,7 +570,7 @@ await scenario('barre des phases : sous la barre d\'outils, appui = défilement,
 
   await page.click('[data-fk="ptab:2"]');
   await page.waitForTimeout(150);
-  check(/Infinity Saga/.test(await info()), 'la phase 2 appartient à l\'Infinity Saga');
+  check(/Saga de l'Infini/.test(await info()), 'la phase 2 appartient à la Saga de l\'Infini');
 
   // Suivi : on défile à la main vers la phase 5 puis vers le haut
   await page.evaluate(() => { document.querySelector('#list [data-phase="5"]').scrollIntoView({ block: 'start' }); });

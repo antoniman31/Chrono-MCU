@@ -8,9 +8,12 @@ const catalogue = JSON.parse(readFileSync(new URL('../data/mcu.json', import.met
 
 const sagas = JSON.parse(readFileSync(new URL('../data/sagas.json', import.meta.url), 'utf8'));
 
-test('sagaLabel : seules les deux sagas ont un nom officiel', () => {
-  assert.equal(sagaLabel('infinity', sagas), 'Infinity Saga');
-  assert.equal(sagaLabel('multiverse', sagas), 'Saga du Multivers');
+// Les noms viennent de data/sagas.json (modifiables sans toucher au code) : les tests lisent le fichier au lieu de les recopier
+const sagaName = (id) => sagas.find((s) => s.id === id).name;
+
+test('sagaLabel : les deux sagas actuelles ont le nom du fichier data/sagas.json', () => {
+  assert.equal(sagaLabel('infinity', sagas), sagaName('infinity'));
+  assert.equal(sagaLabel('multiverse', sagas), sagaName('multiverse'));
 });
 
 test('sagaLabel : une saga sans nom officiel s\'affiche « Phases 7 à 9 », sans nom inventé', () => {
@@ -19,7 +22,7 @@ test('sagaLabel : une saga sans nom officiel s\'affiche « Phases 7 à 9 », san
   assert.equal(sagaLabel('next', list, titles), 'Phases 7 à 9');
   assert.equal(sagaLabel('next', list, [{ phase: 7, saga: 'next' }]), 'Phase 7');
   assert.equal(sagaLabel('inconnue', list, titles), 'inconnue');
-  assert.equal(sagaLabel('multiverse', list, titles), 'Saga du Multivers');
+  assert.equal(sagaLabel('multiverse', list, titles), sagaName('multiverse'));
 });
 
 test('phaseList : phases triées, sans doublon', () => {
@@ -29,12 +32,12 @@ test('phaseList : phases triées, sans doublon', () => {
 test('phaseSummary : saga, années, titres, heures et progression d\'une phase', () => {
   const counted = countedTitles(catalogue, {});
   const phase4 = phaseSummary(catalogue, counted, {}, 4, sagas);
-  assert.equal(phase4.saga, 'Saga du Multivers');
+  assert.equal(phase4.saga, sagaName('multiverse'));
   assert.equal(phase4.from, 2021);
   assert.equal(phase4.titles, catalogue.filter((t) => t.phase === 4 && !t.upcoming).length);
   assert.ok(phase4.minutes > 0);
   assert.equal(phase4.percent, 0);
-  assert.equal(phaseSummary(catalogue, counted, {}, 1, sagas).saga, 'Infinity Saga');
+  assert.equal(phaseSummary(catalogue, counted, {}, 1, sagas).saga, sagaName('infinity'));
 });
 
 test('phaseSummary : les titres ignorés ne comptent pas, la progression suit les coches', () => {
