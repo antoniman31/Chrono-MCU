@@ -169,6 +169,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
     { name: 'données réparées', raw: withBad, view: {}, route: null },
     { name: 'données illisibles', raw: '{pas du json', view: {}, route: null },
     { name: 'données d\'une version plus récente', raw: JSON.stringify({ version: 99, order: 'chrono', seen: {} }), view: {}, route: null },
+    { name: 'bandeau de nouvelle version', state: some, view: {}, route: null, reveal: '#update-toast' },
     { name: 'bandeau de succès', state: stateOf(['iron-man']), view: { achv: {} }, route: null, wait: '#achv-toast:not([hidden])' },
   ];
   for (const scheme of ['light', 'dark']) {
@@ -190,6 +191,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
       await page.goto(base);
       await page.waitForSelector('body[data-ready]', { state: 'attached' });
       if (c.wait) await page.waitForSelector(c.wait);
+      if (c.reveal) await page.evaluate((sel) => { document.querySelector(sel).hidden = false; }, c.reveal);
       if (c.route) {
         await page.click(`.nav-item[data-route="${c.route}"]`);
         await page.waitForSelector(`#screen-${c.route}:not([hidden])`);

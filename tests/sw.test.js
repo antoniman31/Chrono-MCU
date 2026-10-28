@@ -36,7 +36,7 @@ test('sw.js : fichiers statiques présents, dont ceux déclarés par le manifest
 });
 
 test('sw.js : enregistré seulement sur un build déployé, copié au déploiement, scripts autorisés par la CSP', () => {
-  assert.match(read('js/app.js'), /!BUILD\.startsWith\('__'\)\) navigator\.serviceWorker\.register\('sw\.js'\)/);
+  assert.match(read('js/app.js'), /!BUILD\.startsWith\('__'\)\) \{[\s\S]*?navigator\.serviceWorker\.register\('sw\.js'\)/);
   assert.match(read('.github/workflows/pages.yml'), /cp -r [^\n]*\bsw\.js\b[^\n]* _site\//);
   assert.match(read('index.html'), /script-src 'self'/);
 });

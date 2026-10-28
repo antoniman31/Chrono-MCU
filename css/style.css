@@ -644,6 +644,12 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .tl-dots i.done { background: var(--red); border-color: var(--red); }
 
 /* Succès : bandeau, médailles et cartes */
+.sprite { position: absolute; }
+.update-toast { flex-wrap: wrap; justify-content: flex-end; }
+#update-text { flex: 1 1 12rem; padding: 12px 0; font-size: .875rem; line-height: 1.25rem; }
+.update-toast .btn { white-space: nowrap; }
+.update-toast { bottom: calc(var(--nav-h) + var(--safe-bottom) + 136px); }
+@media (min-width: 600px) { .update-toast { bottom: 148px; } }
 .achv-toast { bottom: calc(var(--nav-h) + var(--safe-bottom) + 72px); }
 @media (min-width: 600px) { .achv-toast { bottom: 84px; } }
 #achv-text { padding: 12px 0; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
