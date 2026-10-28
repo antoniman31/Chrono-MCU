@@ -32,9 +32,9 @@ export function phaseSummary(allTitles, counted, seen, phase) {
 }
 
 
-// Deux lignes sous la barre : le titre (« Phase 4 · Saga du Multivers ») et les chiffres
+// Deux lignes sous la barre : le titre (« Saga du Multivers ») et les chiffres
 export function phaseInfo(s) {
-  const title = s.phase === null ? 'Toutes les phases' : `Phase ${s.phase} · ${s.saga}`;
+  const title = s.phase === null ? 'Toutes les phases' : (s.saga ?? `Phase ${s.phase}`);
   const years = s.from === null ? null : s.from === s.to ? String(s.from) : `${s.from}–${s.to}`;
   const details = [years, `${s.titles} titre${s.titles > 1 ? 's' : ''}`, formatDuration(s.minutes), `${s.percent} % vu`].filter(Boolean).join(' · ');
   return { title, details };

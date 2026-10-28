@@ -561,7 +561,7 @@ await scenario('barre des phases : sous la barre d\'outils, appui = défilement,
   await page.click('[data-fk="ptab:4"]');
   await page.waitForTimeout(150);
   check((await page.locator('#result-count').innerText()) === total, 'un appui sur un onglet ne doit rien masquer');
-  check((await selected()) === '4' && /Phase 4 · Saga du Multivers/.test(await info()), `phase 4 attendue : ${await info()}`);
+  check((await selected()) === '4' && /Saga du Multivers/.test(await info()), `phase 4 attendue : ${await info()}`);
   const gap = await page.evaluate(() => {
     const first = document.querySelector('#list [data-phase="4"]').getBoundingClientRect().top;
     return first - Math.max(document.querySelector('.appbar').getBoundingClientRect().bottom, document.querySelector('#phasebar').getBoundingClientRect().bottom);
@@ -570,7 +570,7 @@ await scenario('barre des phases : sous la barre d\'outils, appui = défilement,
 
   await page.click('[data-fk="ptab:2"]');
   await page.waitForTimeout(150);
-  check(/Phase 2 · Infinity Saga/.test(await info()), 'la phase 2 appartient à l\'Infinity Saga');
+  check(/Infinity Saga/.test(await info()), 'la phase 2 appartient à l\'Infinity Saga');
 
   // Suivi : on défile à la main vers la phase 5 puis vers le haut
   await page.evaluate(() => { document.querySelector('#list [data-phase="5"]').scrollIntoView({ block: 'start' }); });

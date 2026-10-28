@@ -611,6 +611,12 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .ptab:hover .pdot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--fg) 12%, transparent); }
 .ptab:focus-visible { outline-offset: -2px; }
 .ptab[aria-selected="true"] { color: var(--fg); font-weight: 700; }
+.pword { display: none; }
+/* Phase sélectionnée : pastille rouge « Phase N » (les autres restent des ronds numérotés) */
+.ptab[aria-selected="true"] { flex: 0 0 auto; padding-inline: 4px; }
+.ptab[aria-selected="true"] .pdot { width: auto; border-radius: 1.0625rem; padding: 3px; }
+.ptab[aria-selected="true"] .pnum { display: block; line-height: calc(2.125rem - 6px); width: auto; height: 100%; padding-inline: 11px; border-radius: 14px; background: var(--accent-btn); color: #fff; font-size: .8125rem; white-space: nowrap; }
+.ptab[aria-selected="true"] .pword { display: inline; }
 .ptab[aria-selected="true"] .pdot { background: conic-gradient(var(--ok) var(--p, 0%), var(--accent-btn) 0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
 .ptab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 0; margin-left: -6px; border: 6px solid transparent; border-top-width: 0; border-bottom-color: var(--accent); } /* petite flèche vers la phrase, dans l'espace libre sous le rond : la hauteur ne change pas */
 .phase-info { display: grid; gap: 0; padding: 6px 0 6px; text-align: center; overflow-wrap: anywhere; }

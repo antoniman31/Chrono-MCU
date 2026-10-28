@@ -45,7 +45,7 @@ test('phaseSummary : « toutes » couvre tout le catalogue, sans saga', () => {
 
 test('phaseInfo : libellés lisibles, année unique et pluriels', () => {
   assert.deepEqual(phaseInfo({ phase: 4, saga: 'Saga du Multivers', from: 2021, to: 2022, titles: 18, minutes: 852, percent: 12 }),
-    { title: 'Phase 4 · Saga du Multivers', details: '2021–2022 · 18 titres · 14 h 12 min · 12 % vu' });
+    { title: 'Saga du Multivers', details: '2021–2022 · 18 titres · 14 h 12 min · 12 % vu' });
   assert.equal(phaseInfo({ phase: null, saga: null, from: 2025, to: 2025, titles: 1, minutes: 60, percent: 0 }).title, 'Toutes les phases');
   assert.equal(phaseInfo({ phase: null, saga: null, from: 2025, to: 2025, titles: 1, minutes: 60, percent: 0 }).details, '2025 · 1 titre · 1 h · 0 % vu');
 });
