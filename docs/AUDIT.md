@@ -16,7 +16,7 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 |---|---|---|---|
 | 2 | **Aucun filet d'erreur global** : pas de `onerror` ni `unhandledrejection`, pas de `<noscript>` ; un module qui plante donne une page blanche. | S | fait (#64) |
 | 3 | **Message d'erreur du catalogue** mêlant français et anglais (« Failed to fetch »). | S | fait (#64) |
-| 4 | **Clé TMDB** collée en clair dans une conversation : à régénérer par précaution (action de Antoni). Elle n'est pas dans le dépôt. | S | à faire (Antoni) |
+| 4 | **Clé TMDB** collée en clair dans une conversation : à régénérer par précaution (action de Antoni). Elle n'est pas dans le dépôt. | S | fait (Antoni, 28/10/2026) |
 | 5 | **PR du robot de synchronisation** : la CI ne se lance pas, donc avec la protection de `main` elles sont bloquées (contournement : fermer puis rouvrir la PR). À automatiser dans le workflow. | S | fait (#65) |
 
 ## Important
@@ -65,4 +65,4 @@ Vrais iPhone et Android, lecteurs d'écran, Lighthouse, exactitude des dates et 
 
 ## Ordre retenu
 
-1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #68), puis 8 à 11 (PR #69). Puis 13 et 16 (PR #71) et les personnages (PR #70). Restent les points 4 (action de Antoni), 12, 14, 15, 17 à 23.
+1, puis 2 et 3 ensemble, puis 5, 6 et 7 ; terminé (PR #63 à #68), puis 8 à 11 (PR #69). Puis 13 et 16 (PR #71) et les personnages (PR #70). Restent les points 12, 14, 15, 17 à 23.
