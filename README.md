@@ -55,6 +55,17 @@ Pour corriger : éditer l'entrée, passer `verified` à `true`, puis lancer `npm
 
 Les sorties annoncées après octobre 2026 ne sont pas listées : à ajouter à la main.
 
+## Synchronisation automatique du catalogue
+
+Le workflow `.github/workflows/catalog-sync.yml` tourne chaque lundi (et à la demande dans l'onglet Actions) et lance `node scripts/sync-catalog.mjs --write`. Il prépare une pull request en brouillon, à relire ; rien n'est fusionné tout seul :
+
+- un titre « à venir » dont la date est passée devient un titre sorti : durée et date France du film (TMDB), épisodes et durées de la série (TVmaze). Il reste « à vérifier » tant que tout n'est pas recoupé ;
+- une annonce ou sortie Marvel Studios / Marvel Animation absente du catalogue est ajoutée comme brouillon « à venir » (phase la plus récente, ordre chronologique en dernier), avec affiche et résumé. Sont ignorés : documentaires, « making of », titres « Untitled », sorties à plus de 18 mois ou vieilles de plus de 60 jours ;
+- une nouvelle saison d'une série suivie est seulement signalée dans le rapport : son ajout, comme l'ordre chronologique, les scènes post-générique (`postCredits`) et les personnages (`heroes`), reste manuel ;
+- pour ne plus voir un titre proposé, ajouter son identifiant TMDB dans `data/sync-ignore.json` : `{ "tmdbIds": [123] }`.
+
+La partie TMDB demande un secret de dépôt `TMDB_API_KEY` (Settings > Secrets and variables > Actions) ; sans lui, seul TVmaze est interrogé. Pour que le workflow ouvre la pull request, activer « Allow GitHub Actions to create and approve pull requests » (Settings > Actions > General) ; sinon il laisse la branche et ouvre une issue. Une PR ouverte par GitHub Actions ne lance pas la CI : les tests tournent à la fusion, avant le déploiement. En local : `NODE_USE_ENV_PROXY=1 TMDB_API_KEY=… node scripts/sync-catalog.mjs` affiche le rapport sans rien écrire.
+
 ## Contrôle automatique des durées
 
 Chaque série porte un `tvmazeId`. `node scripts/check-data.mjs` compare les durées et le nombre d'épisodes de `data/mcu.json` à TVmaze et sort en erreur s'il y a un écart ; avec `--write`, il met à jour les durées et passe `verified` à `true` quand tous les épisodes ont une durée TVmaze. Le workflow `.github/workflows/data-check.yml` le lance chaque lundi (et à la demande dans l'onglet Actions) : un échec est signalé par GitHub. Il ne tourne pas sur les PR, pour qu'une panne de TVmaze ne bloque pas un merge.

@@ -71,7 +71,7 @@ export function frenchRelease(results) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function tmdb(path, params, key) {
+export async function tmdb(path, params, key) {
   const url = new URL(`${API}${path}`);
   url.search = new URLSearchParams({ api_key: key, language: 'fr-FR', ...params });
   const res = await fetch(url);
