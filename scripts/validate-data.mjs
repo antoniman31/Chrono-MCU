@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { HERO_IDS } from '../js/heroes.js';
 
 const isDate = (s) =>
   typeof s === 'string' &&
@@ -36,6 +37,12 @@ export function validate(data) {
     if ('upcoming' in t && t.upcoming !== true) errors.push(`${at}: upcoming doit valoir true ou être absent`);
 
     if ('altUniverse' in t && t.altUniverse !== true) errors.push(`${at}: altUniverse doit valoir true ou être absent`);
+    if ('heroes' in t) {
+      const hs = t.heroes;
+      if (!Array.isArray(hs) || hs.length === 0 || !hs.every((id) => HERO_IDS.includes(id)) || new Set(hs).size !== hs.length) {
+        errors.push(`${at}: heroes doit être une liste non vide d'identifiants connus (js/heroes.js), sans doublon`);
+      }
+    }
     if ('poster' in t && !(typeof t.poster === 'string' && /^\/[A-Za-z0-9_-]+\.(jpg|png)$/.test(t.poster))) {
       errors.push(`${at}: poster doit être un chemin TMDB du type "/abc123.jpg"`);
     }

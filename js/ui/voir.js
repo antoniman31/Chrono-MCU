@@ -1,3 +1,4 @@
+import { HEROES } from '../heroes.js?v=__BUILD__';
 import { FILTER_DEFAULTS, filterTitles, isReleased, progress, sortTitles, suggestNext } from '../logic.js?v=__BUILD__';
 import { phaseInfo, phaseList, phaseSummary } from '../phases.js?v=__BUILD__';
 import { isTitleSeen, setOrder } from '../store.js?v=__BUILD__';
@@ -20,7 +21,7 @@ function unitLabel(unit, byId, ctx) {
 
 function activeFilterCount(ctx) {
   const f = ctx.filters;
-  return ['status', 'ignored', 'post', 'duration', 'inEpisodes'].filter((k) => f[k] !== FILTER_DEFAULTS[k]).length;
+  return ['status', 'ignored', 'post', 'duration', 'inEpisodes', 'hero'].filter((k) => f[k] !== FILTER_DEFAULTS[k]).length;
 }
 
 // Barre des phases : un onglet par phase. Appuyer fait défiler la liste jusqu'à la phase (rien n'est masqué) ;
@@ -189,7 +190,7 @@ function itemFor(ctx, t) {
 function renderList(ctx) {
   const { state, titles, filters, view } = ctx;
   const sorted = sortTitles(titles, state.order);
-  const shown = filterTitles(sorted, { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, seen: state.seen, ignoredMap: ctx.ignoredMap });
+  const shown = filterTitles(sorted, { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, hero: filters.hero, seen: state.seen, ignoredMap: ctx.ignoredMap });
   $('result-count').textContent = shown.length === 1 ? '1 titre' : `${shown.length} titres`;
   const list = $('list');
   if (!shown.length) {
@@ -325,9 +326,16 @@ export function renderFiltersSheet(body, ctx) {
         h('label', { class: 'segopt' },
           h('input', { type: 'radio', name: `f-${key}`, value, checked: filters[key] === value, 'data-fk': `f-${key}:${value}`, onchange: () => ctx.setFilter({ [key]: value }) }),
           h('span', { class: 'face', text })))));
-  const count = filterTitles(sortTitles(ctx.titles, ctx.state.order), { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, seen: ctx.state.seen, ignoredMap: ctx.ignoredMap }).length;
+  const count = filterTitles(sortTitles(ctx.titles, ctx.state.order), { phase: filters.phase, type: filters.tab === 'all' ? null : filters.tab, query: filters.query, status: filters.status, ignored: filters.ignored, post: filters.post, duration: filters.duration, inEpisodes: filters.inEpisodes, hero: filters.hero, seen: ctx.state.seen, ignoredMap: ctx.ignoredMap }).length;
+  const heroSelect = h('div', { class: 'field' },
+    h('label', { class: 'field-label', for: 'f-hero', text: 'Personnage ou équipe' }),
+    h('select', { id: 'f-hero', class: 'date-input', 'data-fk': 'f-hero', onchange: (e) => ctx.setFilter({ hero: e.target.value || null }) },
+      h('option', { value: '', text: 'Tous' }),
+      HEROES.map((hero) => h('option', { value: hero.id, selected: filters.hero === hero.id, text: `${hero.label} (${ctx.titles.filter((t) => (t.heroes ?? []).includes(hero.id)).length})` }))));
   body.append(
-    ...FILTER_GROUPS.map(radios),
+    ...FILTER_GROUPS.slice(0, 2).map(radios),
+    heroSelect,
+    ...FILTER_GROUPS.slice(2).map(radios),
     h('div', { class: 'sheet-group' },
       h('h3', { text: 'Recherche et affichage' }),
       switchRow('Chercher aussi dans les épisodes', 'Par défaut, seuls les titres des films et séries sont cherchés', filters.inEpisodes, (e) => ctx.setFilter({ inEpisodes: e.target.checked }), 'f-episodes'),

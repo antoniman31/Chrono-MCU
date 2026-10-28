@@ -110,6 +110,8 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   await audit(page, `${where} Progression Rythme`);
   await page.click('[data-fk="stab:mcu"]');
   await audit(page, `${where} Progression MCU`);
+  await page.click('[data-fk="stab:succes"]');
+  await audit(page, `${where} Progression Succès`);
   await page.click('[data-fk="stab:bilan"]');
 
   await page.click('.nav-item[data-route="reglages"]');

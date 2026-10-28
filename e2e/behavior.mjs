@@ -225,7 +225,7 @@ await scenario('filtres : ignorés masqués/seuls, statut, réinitialisation, co
   check((await total()) === 0, 'aucun titre terminé au départ');
 });
 
-await scenario('progression : sous-onglets Bilan / Rythme / MCU, clavier, chiffres', async (page) => {
+await scenario('progression : sous-onglets Bilan / Rythme / MCU / Succès, clavier, chiffres', async (page) => {
   await page.click('.nav-item[data-route="progression"]');
   await page.waitForSelector('#screen-progression:not([hidden])');
   check(await page.locator('#stab-bilan').getAttribute('aria-selected') === 'true', 'Bilan doit être sélectionné au départ');
@@ -243,8 +243,50 @@ await scenario('progression : sous-onglets Bilan / Rythme / MCU, clavier, chiffr
   check(/Film le plus long/.test(mcuTxt) && /Frise des sorties/.test(mcuTxt) && /Temps vu par phase/.test(mcuTxt), 'l\'onglet MCU doit montrer records, répartition et frise');
   check(await page.locator('.tl-row').count() >= 10, 'la frise doit avoir une ligne par année');
   await page.keyboard.press('ArrowRight');
+  check(await page.locator('#stab-succes').getAttribute('aria-selected') === 'true', 'flèche droite : onglet Succès');
+  await page.keyboard.press('ArrowRight');
   check(await page.locator('#stab-bilan').getAttribute('aria-selected') === 'true', 'retour au premier onglet en bouclant');
 }, { seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+
+await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, palier conservé', async (page) => {
+  check(await page.locator('#achv-toast').isHidden(), 'aucun bandeau de succès au départ');
+  await page.click('[data-fk="cb:iron-man"]');
+  await page.waitForSelector('#achv-toast:not([hidden])');
+  const text = await page.locator('#achv-text').innerText();
+  check(/Succès débloqué : Premier pas/.test(text), `bandeau attendu : ${text}`);
+  await page.click('#achv-view');
+  await page.waitForSelector('#screen-progression:not([hidden])');
+  check(await page.locator('#stab-succes').getAttribute('aria-selected') === 'true', 'le bouton Voir doit ouvrir l\'onglet Succès');
+  const panel = await page.locator('#progress-panel').innerText();
+  check(/Premier pas/.test(panel) && /Obtenu/.test(panel) && /Succès caché/.test(panel), `onglet Succès incomplet : ${panel.slice(0, 200)}`);
+  check(await page.locator('#achv-toast').isHidden(), 'le bandeau doit disparaître après Voir');
+  check(/^1 \/ \d+/.test(await page.locator('#p-achv ~ .big-number, .big-number').first().innerText()), 'le compteur doit afficher 1 médaille');
+  await page.click('.nav-item[data-route="voir"]');
+  await page.click('[data-fk="cb:iron-man"]'); // décoche
+  await page.click('.nav-item[data-route="progression"]');
+  check(/Obtenu/.test(await page.locator('#progress-panel').innerText()), 'un succès obtenu n\'est pas retiré quand on décoche');
+}, { prefs: { achv: {} } });
+
+await scenario('filtre par personnage : liste, compteur, succès par personnage', async (page) => {
+  const total = async () => parseInt((await page.locator('#result-count').innerText()), 10);
+  const all = await total();
+  await page.click('#open-filters');
+  await page.selectOption('#f-hero', 'guardians');
+  await page.click('[data-fk="f-done"]');
+  const n = await total();
+  check(n >= 3 && n < all, `le filtre Gardiens doit réduire la liste (${n} sur ${all})`);
+  check(/1 actif/.test(await page.locator('#open-filters').getAttribute('aria-label')), 'le filtre personnage compte comme filtre actif');
+  check(await page.locator('[data-fk="open:les-gardiens-de-la-galaxie"]').count() === 1, 'Les Gardiens de la Galaxie doit rester');
+  check(await page.locator('[data-fk="open:iron-man"]').count() === 0, 'Iron Man ne doit plus apparaître');
+  await page.click('#open-filters');
+  await page.click('[data-fk="f-reset"]');
+  await page.click('[data-fk="f-done"]');
+  check((await total()) === all, 'la réinitialisation doit effacer le filtre personnage');
+  await page.click('.nav-item[data-route="progression"]');
+  await page.click('[data-fk="stab:succes"]');
+  const txt = await page.locator('#progress-panel').innerText();
+  check(/Personnages et équipes/.test(txt) && /Tout sur Iron Man/.test(txt) && /Tout sur les Avengers/.test(txt), 'les succès par personnage doivent apparaître');
+});
 
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());

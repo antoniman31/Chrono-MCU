@@ -350,3 +350,14 @@ test('filtres: statut, ignorés, post-générique, durée', () => {
   assert.deepEqual(ids({ duration: 'mid' }), ['f2']);
   assert.deepEqual(ids({ duration: 'long' }), ['f3']);
 });
+
+test('filtre par personnage ou équipe', () => {
+  const x = { ...film('x', 1, '2008-01-01'), heroes: ['iron-man', 'avengers'] };
+  const y = { ...film('y', 2, '2009-01-01'), heroes: ['thor'] };
+  const z = film('z', 3, '2010-01-01');
+  const ids = (hero) => filterTitles([x, y, z], { hero }).map((t) => t.id);
+  assert.deepEqual(ids(null), ['x', 'y', 'z']);
+  assert.deepEqual(ids('avengers'), ['x']);
+  assert.deepEqual(ids('thor'), ['y']);
+  assert.deepEqual(ids('hulk'), []);
+});

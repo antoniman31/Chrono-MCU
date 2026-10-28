@@ -62,13 +62,14 @@ function matchesDuration(t, duration) {
   return m >= DURATION_BOUNDS.short && m <= DURATION_BOUNDS.long;
 }
 
-export const FILTER_DEFAULTS = { status: 'all', ignored: 'show', post: 'any', duration: 'any', inEpisodes: false };
+export const FILTER_DEFAULTS = { status: 'all', ignored: 'show', post: 'any', duration: 'any', inEpisodes: false, hero: null };
 
-export function filterTitles(titles, { phase = null, type = null, query = '', hideSeen = false, status = 'all', ignored = 'show', post = 'any', duration = 'any', inEpisodes = false, seen = {}, ignoredMap = {} } = {}) {
+export function filterTitles(titles, { phase = null, type = null, query = '', hideSeen = false, status = 'all', ignored = 'show', post = 'any', duration = 'any', inEpisodes = false, hero = null, seen = {}, ignoredMap = {} } = {}) {
   return titles.filter((t) => {
     if (phase !== null && t.phase !== phase) return false;
     if (type !== null && t.type !== type) return false;
     if (!matchesQuery(t, query, inEpisodes)) return false;
+    if (hero !== null && !(t.heroes ?? []).includes(hero)) return false;
     if (hideSeen && titleSeen(t, seen)) return false;
     if (status !== 'all' && titleStatus(t, seen) !== status) return false;
     const isIgnored = Boolean(ignoredMap[t.id]);

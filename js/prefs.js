@@ -5,8 +5,17 @@ export const DEFAULT_GOAL = '2026-12-18'; // sortie annoncée d'Avengers : Dooms
 
 const isDay = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`));
 
+function normalizeAchv(saved) {
+  if (saved == null || typeof saved !== 'object' || Array.isArray(saved)) return undefined;
+  const out = {};
+  for (const [id, v] of Object.entries(saved)) {
+    if (Number.isInteger(v?.level) && v.level >= 1 && v.level <= 3) out[id] = { level: v.level, date: isDay(v.date) ? v.date : null };
+  }
+  return out;
+}
+
 export function normalizeView(saved) {
-  return {
+  const view = {
     groupByPhase: saved?.groupByPhase !== false,
     showPosters: saved?.showPosters !== false,
     collapsedPhases: Array.isArray(saved?.collapsedPhases) ? saved.collapsedPhases.filter(Number.isInteger) : [],
@@ -24,6 +33,10 @@ export function normalizeView(saved) {
     // Date cible de l'objectif : Doomsday tant que rien n'est enregistré ; null = objectif retiré par l'utilisateur
     goalDate: saved && 'goalDate' in saved ? (isDay(saved.goalDate) ? saved.goalDate : null) : DEFAULT_GOAL,
   };
+  // Succès débloqués : { id: { level 1 à 3, date } } ; absent = jamais calculé (le premier calcul est silencieux), propre à cet appareil
+  const achv = normalizeAchv(saved?.achv);
+  if (achv) view.achv = achv;
+  return view;
 }
 
 export function loadView(storage) {
