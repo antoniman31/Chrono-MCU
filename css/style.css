@@ -594,7 +594,7 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .danger-zone { margin-top: 16px; padding: 12px 16px 0; border-top: 1px solid var(--border); }
 .danger-zone .btn { margin-top: 4px; }
 .goal-main { font-size: 1rem; line-height: 1.5rem; font-weight: 500; margin: 0 0 4px; }
-.goal-on-track .goal-main { color: var(--green); }
+.goal-on-track .goal-main { color: var(--fg); border-left: 4px solid var(--green); padding-left: 8px; } /* le vert seul ne serait pas assez contrasté comme texte */
 .summary-text { position: relative; }
 .detail .overview.clamp:not(.open) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .summary-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0 12px; }

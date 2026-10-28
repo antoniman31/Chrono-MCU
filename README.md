@@ -2,11 +2,19 @@
 
 Suivi de visionnage du MCU (films et séries Disney+), façon Chronogeek. Application web statique : pas de compte, pas de serveur. Ta progression reste dans ton navigateur (`localStorage`).
 
+## Captures d'écran
+
+| À voir (sombre) | À voir (clair) | Fiche d'un titre | Progression | Succès |
+|---|---|---|---|---|
+| ![À voir, thème sombre](docs/screenshots/a-voir-sombre.png) | ![À voir, thème clair](docs/screenshots/a-voir-clair.png) | ![Fiche d'un titre](docs/screenshots/fiche.png) | ![Progression](docs/screenshots/progression.png) | ![Succès](docs/screenshots/succes.png) |
+
+Données de démonstration (progression fictive, sans affiches). Pour les régénérer : `npm run screenshots`.
+
 ## Fonctions
 
 L'interface suit Material 3 : une barre de navigation compacte en bas sur téléphone (48 px, nom visible seulement sur la page active ; rail latéral dès 600 px), et dès 840 px un panneau de détail fixe à droite de la liste.
 
-- **À voir** : onglets Tout / Films / Séries, recherche (titres de films et séries, sans accents ; les titres d'épisodes sur option), bouton « Filtres » (statut, personnage ou équipe, afficher/masquer les ignorés, scène après le générique, durée, chercher dans les épisodes, grouper par phase proposé seulement en ordre de sortie), barre des phases (en ordre de sortie seulement, car en ordre chronologique les phases se mélangent ; frise de six ronds reliés (anneau vert = part vue, anneau rouge = phase courante, libellé sous la phase courante) : un appui fait défiler la liste jusqu'à la phase sans rien masquer, et l'onglet suit les titres visibles quand tu défiles ; dessous, la saga et les chiffres de la phase ; elle reste collée sous le titre, sauf sur un écran de moins de 560 px de haut), ordre chronologique ou de sortie. En haut, « Prochain à voir » (bandeau fin) : le titre (ou l'épisode) qui suit **le dernier que tu as coché** dans l'ordre choisi. Un appui sur le bandeau retire la recherche et l'onglet qui cacheraient la ligne, y défile, ouvre la fiche (pour un épisode, la fiche défile jusqu'à lui et le surligne) ; le rond à droite coche sans ouvrir. Ce que tu as sauté avant n'est jamais rappelé ; sans historique, il propose le tout premier titre.
+- **À voir** : onglets Tout / Films / Séries, recherche (titres de films et séries, sans accents ; les titres d'épisodes sur option), bouton « Filtres » (statut, personnage ou équipe, afficher/masquer les ignorés, scène après le générique, durée, chercher dans les épisodes, grouper par phase proposé seulement en ordre de sortie), barre des phases (en ordre de sortie seulement, car en ordre chronologique les phases se mélangent ; frise de six ronds reliés (anneau vert = part vue ; la phase courante devient une pastille rouge « Phase N » avec une petite flèche vers la phrase) : un appui fait défiler la liste jusqu'à la phase sans rien masquer, et l'onglet suit les titres visibles quand tu défiles ; dessous, la saga et les chiffres de la phase (années, titres, durée, % vu) ; elle reste collée sous le titre, sauf sur un écran de moins de 560 px de haut), ordre chronologique ou de sortie. En haut, « Prochain à voir » (bandeau fin) : le titre (ou l'épisode) qui suit **le dernier que tu as coché** dans l'ordre choisi. Un appui sur le bandeau retire la recherche et l'onglet qui cacheraient la ligne, y défile, ouvre la fiche (pour un épisode, la fiche défile jusqu'à lui et le surligne) ; le rond à droite coche sans ouvrir. Ce que tu as sauté avant n'est jamais rappelé ; sans historique, il propose le tout premier titre.
 - **Fiche d'un titre** (bottom sheet sur téléphone, panneau à droite sur grand écran) : détails, scènes après le générique, résumé, bouton « Ignorer », et pour une série la liste des épisodes à cocher. Les épisodes dont la date de diffusion (américaine, le jour même) n'est pas encore arrivée sont exclus des totaux et du « Prochain à voir », et affichés « Sort le JJ/MM/AAAA » dans la fiche. Le bouton « ⋮ » d'une ligne ouvre un menu d'actions, dont « Tout marquer vu jusqu'ici » (rattrapage d'historique en un geste, annulable ; ces unités comptent dans les heures vues mais pas dans le rythme). Sur écran tactile, glisser une ligne vers la droite la marque vue (non vue si elle l'est déjà), vers la gauche l'ignore (réactive si elle est ignorée) ; le geste se valide au-delà de 40 % de la largeur et reste annulable. Dans la fiche, glisser un épisode vers la droite le marque vu. Pour passer d'une fiche à l'autre : glisser l'en-tête (image paysage, titre, résumé) vers la gauche (suivant) ou la droite (précédent), appuyer sur le pied de fiche « ‹ titre précédent · n / N · titre suivant › » (épinglé en bas, noms des voisins masqués sous 360 px), ou utiliser les flèches ← → du clavier. Les fiches se feuillettent dans l'ordre de la liste affichée (filtres et recherche compris, phases repliées exclues) ; aux deux bouts, la fiche rebondit.
 - Cocher un film, un épisode, une série entière ou une phase entière ; chaque coche propose « Annuler » pendant 10 secondes.
 - **Hors-ligne** : après une première visite, l'application s'ouvre et se coche sans réseau (service worker `sw.js`, cache renouvelé à chaque déploiement ; la page d'accueil passe par le réseau d'abord, donc une mise à jour apparaît dès que tu es en ligne). Les affiches TMDB ne sont pas conservées hors ligne. Elle s'installe sur l'écran d'accueil du téléphone via le menu du navigateur.
@@ -18,7 +26,9 @@ L'interface suit Material 3 : une barre de navigation compacte en bas sur télé
 - **Données** (Réglages) : rappel de sauvegarde réglable (7, 14, 30 jours ou jamais) et « Effacer toute ma progression » (une sauvegarde est téléchargée d'abord, l'effacement est annulable 10 secondes).
 - **Thème** : un bouton en haut à droite, visible sur tous les écrans, fait défiler Auto, Clair et Sombre.
 - **Réglages** (sections repliables, une seule ouverte à la fois) : « Ce que je suis » (couper en bloc les séries, les courts formats, les autres réalités ou la saga du Multivers, avec le poids de chaque catégorie ; un titre précis se réintègre depuis son menu), thème Auto (suit le système), Clair ou Sombre, plus un interrupteur « Noir OLED » (noir pur) qui s'applique au mode sombre, y compris quand le thème est en Auto ; affiches, sauvegarde et restauration (export / import JSON), sources et version.
-- Badges : « à vérifier », « autre réalité » (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man), scènes mi-générique / post-générique par film (recoupées avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe)).
+- Durées affichées au même format partout : « 45 min », « 2 h 06 min », et au-delà de 24 h « 15 j 21 h 12 min » (les données sont en minutes).
+- Couleurs : une seule valeur par couleur, identique dans les thèmes Clair, Sombre et OLED : rouge `#d32f2f` (celui de l'icône), vert `#2e7d32`, ambre `#a85f00`, bleu `#1e6fd9`, violet `#7b4fc9`, plus un gris `#5f6368`, avec du texte blanc dessus (contraste AA). Le texte courant reste en couleur normale ; les liens sont soulignés de rouge. Les médailles de succès gardent leurs couleurs bronze, argent et or.
+- Badges (pastilles pleines à texte blanc) : « ignoré » (gris), « à venir » (bleu), scène post-générique (violet), « version » et « à vérifier » (ambre), « autre réalité » (vert) (What If, Marvel Zombies, Your Friendly Neighborhood Spider-Man), scènes mi-générique / post-générique par film (recoupées avec la [liste Wikipedia des scènes du MCU](https://en.wikipedia.org/wiki/Mid-credits_and_post-credits_scenes_in_the_Marvel_Cinematic_Universe)).
 - Accessibilité : cibles tactiles de 48 px, contrastes WCAG AA dans les trois thèmes, navigation au clavier, feuilles modales natives (focus piégé, Échap), texte qui suit la taille choisie dans le système, `prefers-reduced-motion` respecté.
 
 ## Lancer en local
@@ -27,6 +37,8 @@ L'interface suit Material 3 : une barre de navigation compacte en bas sur télé
 python3 -m http.server 8000   # puis http://localhost:8000
 npm test                      # tests unitaires (Node 22+)
 npm run validate              # vérifie data/mcu.json
+npm run icons                 # régénère les icônes PNG depuis icons/icon.svg
+npm run screenshots           # régénère les captures du README (docs/screenshots)
 npm install && npx playwright install --only-shell chromium && npm run e2e   # accessibilité (axe-core), cibles tactiles, clavier, puis parcours de comportement
 ```
 
@@ -71,6 +83,10 @@ La partie TMDB demande un secret de dépôt `TMDB_API_KEY` (Settings > Secrets a
 ## Contrôle automatique des durées
 
 Chaque série porte un `tvmazeId`. `node scripts/check-data.mjs` compare les durées et le nombre d'épisodes de `data/mcu.json` à TVmaze et sort en erreur s'il y a un écart ; avec `--write`, il met à jour les durées et passe `verified` à `true` quand tous les épisodes ont une durée TVmaze. Le workflow `.github/workflows/data-check.yml` le lance le 1er de chaque mois (et à la demande dans l'onglet Actions) : un échec est signalé par GitHub. Il ne tourne pas sur les PR, pour qu'une panne de TVmaze ne bloque pas un merge.
+
+## Installer sur l'écran d'accueil
+
+Chrono-MCU est une application web installable (PWA) : sur Android (Chrome), menu ⋮ > « Installer l'application » ; sur iPhone (Safari), Partager > « Sur l'écran d'accueil » ; sur ordinateur (Chrome, Edge), icône d'installation dans la barre d'adresse. L'icône est le monogramme « CM » blanc sur rouge, dans la police du titre (source : `icons/icon.svg`, PNG générés par `npm run icons`). Un téléphone garde l'icône de l'installation : après un changement d'icône, désinstalle puis réinstalle l'application pour voir la nouvelle.
 
 ## Titre et police
 Le titre « Chrono-MCU » s'affiche en capitales condensées blanches sur un bloc rouge au coin chanfreiné, dans l'esprit d'un logo de franchise (un style, pas le logo Marvel ; l'application n'est pas officielle). La police est [Bebas Neue](https://github.com/dharmatype/Bebas-Neue) de Dharma Type (SIL Open Font License, texte dans `fonts/OFL.txt`), réduite aux caractères utiles et servie depuis le site (`fonts/bebas-neue-subset.woff2`, autorisée par la CSP `font-src 'self'`).
