@@ -697,10 +697,14 @@ await scenario('mode sans spoiler : résumé, image et titres d\'épisodes flout
   check(/Masquer les spoilers/.test(await page.locator('[data-fk="spoilers:wandavision"]').innerText()), 'un bouton « Masquer les spoilers » doit apparaître');
   await page.click('[data-fk="spoilers:wandavision"]');
   check((await page.locator('#sheet .overview.spoiler-blur').count()) === 1 && (await page.locator('#sheet-hero .hero-img.spoiler-blur').count()) === 1, 'le second appui doit tout re-flouter');
-  await page.locator('[data-fk="ep:wandavision/1"]').check({ force: true });
+  // Un clic « forcé » ignore ce qui recouvre la case : on la centre d'abord pour qu'elle ne passe pas sous le pied de fiche épinglé
+  const epBox = page.locator('[data-fk="ep:wandavision/1"]');
+  await epBox.evaluate((el) => el.closest('li').scrollIntoView({ block: 'center' }));
+  await epBox.check({ force: true });
   const rows = await page.evaluate(() => [...document.querySelectorAll('#sheet .episodes .item')].slice(0, 2).map((li) => li.querySelectorAll('.spoiler-blur').length));
   check(rows[0] === 0 && rows[1] === 1, `le titre de l\'épisode vu n\'est plus flou, le suivant le reste : ${rows}`);
-  await page.locator('[data-fk="ep:wandavision/1"]').uncheck({ force: true });
+  await epBox.evaluate((el) => el.closest('li').scrollIntoView({ block: 'center' }));
+  await epBox.uncheck({ force: true });
 });
 
 await scenario('objectif : carte sur Progression, date modifiable, retirable', async (page) => {
