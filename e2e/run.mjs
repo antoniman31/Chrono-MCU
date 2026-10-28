@@ -151,6 +151,89 @@ await Promise.all(Array.from({ length: 4 }, async () => {
   while (queue.length) await runCombo(...queue.shift());
 }));
 
+// États moins courants, thèmes clair et sombre : bandeaux de réparation, objectif atteint / en retard / dans les temps, tout vu,
+// bandeau de succès, import raté, catalogue indisponible
+{
+  const catalogue = JSON.parse(await readFile(new URL('../data/mcu.json', import.meta.url), 'utf8'));
+  const released = catalogue.filter((t) => !t.upcoming);
+  const day = (offset) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
+  const stateOf = (ids) => ({ version: 2, order: 'chrono', seen: Object.fromEntries(ids.map((id, i) => [id, day(-30 + (i % 20))])), ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: null });
+  const some = stateOf(released.slice(0, 12).map((t) => t.id));
+  const all = stateOf(released.flatMap((t) => (t.type === 'serie' ? t.episodes.map((e) => `${t.id}/${e.n}`) : [t.id])));
+  const withBad = JSON.stringify({ ...some, seen: { ...some.seen, truc: 'pas-une-date' } });
+  const cases = [
+    { name: 'objectif dans les temps', state: some, view: { goalDate: day(400) }, route: 'progression' },
+    { name: 'objectif en retard', state: some, view: { goalDate: day(3) }, route: 'progression' },
+    { name: 'tout vu', state: all, view: { goalDate: day(400) }, route: 'progression' },
+    { name: 'tout vu (À voir)', state: all, view: {}, route: null },
+    { name: 'données réparées', raw: withBad, view: {}, route: null },
+    { name: 'données illisibles', raw: '{pas du json', view: {}, route: null },
+    { name: 'données d\'une version plus récente', raw: JSON.stringify({ version: 99, order: 'chrono', seen: {} }), view: {}, route: null },
+    { name: 'bandeau de succès', state: stateOf(['iron-man']), view: { achv: {} }, route: null, wait: '#achv-toast:not([hidden])' },
+  ];
+  for (const scheme of ['light', 'dark']) {
+    for (const c of cases) {
+      const where = `états/${scheme} ${c.name}`;
+      const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+      await blockImages(context);
+      await withAxe(context);
+      await context.addInitScript(([state, raw, view]) => {
+        try {
+          localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, ...view }));
+          if (raw !== null) localStorage.setItem('chrono-mcu:v1', raw);
+          else localStorage.setItem('chrono-mcu:v1', JSON.stringify(state));
+        } catch { /* ignore */ }
+      }, [c.state ?? null, c.raw ?? null, c.view]);
+      const page = await context.newPage();
+      page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
+      page.on('console', (m) => { if (/Content Security Policy/i.test(m.text())) fail(where, `violation CSP : ${m.text().slice(0, 140)}`); });
+      await page.goto(base);
+      await page.waitForSelector('body[data-ready]', { state: 'attached' });
+      if (c.wait) await page.waitForSelector(c.wait);
+      if (c.route) {
+        await page.click(`.nav-item[data-route="${c.route}"]`);
+        await page.waitForSelector(`#screen-${c.route}:not([hidden])`);
+      }
+      await audit(page, where);
+      await context.close();
+    }
+
+    // Import raté : le message d'erreur de la feuille Sauvegarde
+    {
+      const where = `états/${scheme} import raté`;
+      const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+      await skipWelcome(context);
+      await blockImages(context);
+      await withAxe(context);
+      const page = await context.newPage();
+      page.on('pageerror', (e) => fail(where, `erreur JS : ${e.message}`));
+      await page.goto(base);
+      await page.waitForSelector('body[data-ready]', { state: 'attached' });
+      await page.click('.nav-item[data-route="reglages"]');
+      await openSection(page, 'data');
+      await page.click('[data-fk="s-backup"]');
+      await page.setInputFiles('#import-file', { name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('pas du json') });
+      await page.waitForSelector('#sheet [role="alert"]');
+      await audit(page, where);
+      await context.close();
+    }
+
+    // Catalogue indisponible : message plein écran
+    {
+      const where = `états/${scheme} catalogue indisponible`;
+      const context = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme, reducedMotion: 'reduce' });
+      await skipWelcome(context);
+      await withAxe(context);
+      await context.route(/data\/mcu\.json/, (route) => route.fulfill({ status: 500, body: 'erreur' }));
+      const page = await context.newPage();
+      await page.goto(base);
+      await page.waitForSelector('#message:not([hidden])');
+      await audit(page, where);
+      await context.close();
+    }
+  }
+}
+
 // Parcours clavier : l'écran principal doit être entièrement atteignable sans souris
 {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 } });
@@ -334,7 +417,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
 
 await browser.close();
 closeServer();
-console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états) en ${((Date.now() - started) / 1000).toFixed(0)} s.`);
+console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états, plus les états rares) en ${((Date.now() - started) / 1000).toFixed(0)} s.`);
 if (failures.length) {
   console.log(`${failures.length} problème(s) :`);
   [...new Set(failures)].forEach((f) => console.log(` - ${f}`));
