@@ -110,3 +110,18 @@ test('préférences : achv validé', () => {
   assert.deepEqual(v.achv, { a: { level: 2, date: '2026-10-01' }, c: { level: 1, date: null } });
   assert.equal(normalizeView([]).achv, undefined);
 });
+
+test('personnages et équipes : part des titres sortis où le héros a un rôle principal', () => {
+  const titles = [
+    film('a', '2008-01-01', { heroes: ['iron-man', 'avengers'] }), film('b', '2009-01-01', { heroes: ['iron-man'] }),
+    film('c', '2010-01-01', { heroes: ['iron-man'] }), film('d', '2011-01-01', { heroes: ['iron-man'] }), film('e', '2012-01-01'),
+  ];
+  let list = evaluate(base({ titles, seen: { a: '2026-10-01', b: '2026-10-01' } }));
+  const iron = get(list, 'hero:iron-man');
+  assert.deepEqual([iron.value, iron.level, iron.next, iron.unit, iron.family], [50, 1, 75, '%', 'heroes']);
+  assert.equal(get(list, 'hero:avengers').level, 3);
+  assert.equal(get(list, 'hero:avengers').name, 'Tout sur les Avengers');
+  assert.equal(get(list, 'hero:thor').value, 0);
+  list = evaluate(base({ titles, seen: Object.fromEntries(titles.map((t) => [t.id, '2026-10-01'])) }));
+  assert.equal(get(list, 'hero:iron-man').level, 3);
+});

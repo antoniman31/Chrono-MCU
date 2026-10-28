@@ -118,3 +118,11 @@ test('versions : réservées aux films, bien formées, sans doublon d\'identifia
   assert.ok(validate([film({ versions: [{ ...v, postCredits: ['x'] }] })]).length > 0);
   assert.ok(validate([serie({ versions: [v] })]).length > 0);
 });
+
+test('heroes : liste non vide d\'identifiants connus, sans doublon', () => {
+  assert.deepEqual(validate([film({ heroes: ['iron-man', 'avengers'] })]), []);
+  assert.ok(validate([film({ heroes: [] })]).some((e) => e.includes('heroes')));
+  assert.ok(validate([film({ heroes: ['inconnu'] })]).some((e) => e.includes('heroes')));
+  assert.ok(validate([film({ heroes: ['thor', 'thor'] })]).some((e) => e.includes('heroes')));
+  assert.ok(validate([film({ heroes: 'thor' })]).some((e) => e.includes('heroes')));
+});

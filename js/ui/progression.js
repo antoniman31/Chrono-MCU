@@ -201,8 +201,8 @@ function succes(ctx) {
         h('div', { class: 'achv-name' }, h('span', { text: secret ? 'Succès caché' : a.name }), h('span', { class: 'tier', text: tier })),
         h('div', { class: 'achv-desc', text: secret ? 'À découvrir en regardant.' : a.desc }),
         a.date && !locked ? h('div', { class: 'achv-desc', text: `Débloqué le ${formatShort(a.date)}` }) : null,
-        showBar ? progressBar(Math.min(100, Math.round((Math.min(a.value, a.next) / a.next) * 100)), `${a.name} : ${Math.min(a.value, a.next)} sur ${a.next}`) : null,
-        showBar ? h('div', { class: 'achv-desc', text: `${Math.min(a.value, a.next)} / ${a.next}` }) : null));
+        showBar ? progressBar(Math.min(100, Math.round((Math.min(a.value, a.next) / a.next) * 100)), `${a.name} : ${Math.min(a.value, a.next)}${a.unit} sur ${a.next}${a.unit}`) : null,
+        showBar ? h('div', { class: 'achv-desc', text: `${Math.min(a.value, a.next)}${a.unit ? ' ' : ''}${a.unit} / ${a.next}${a.unit ? ' ' : ''}${a.unit}` }) : null));
   };
   return [
     card('p-achv', 'Succès',

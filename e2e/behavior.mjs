@@ -267,6 +267,27 @@ await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, pa
   check(/Obtenu/.test(await page.locator('#progress-panel').innerText()), 'un succès obtenu n\'est pas retiré quand on décoche');
 }, { prefs: { achv: {} } });
 
+await scenario('filtre par personnage : liste, compteur, succès par personnage', async (page) => {
+  const total = async () => parseInt((await page.locator('#result-count').innerText()), 10);
+  const all = await total();
+  await page.click('#open-filters');
+  await page.selectOption('#f-hero', 'guardians');
+  await page.click('[data-fk="f-done"]');
+  const n = await total();
+  check(n >= 3 && n < all, `le filtre Gardiens doit réduire la liste (${n} sur ${all})`);
+  check(/1 actif/.test(await page.locator('#open-filters').getAttribute('aria-label')), 'le filtre personnage compte comme filtre actif');
+  check(await page.locator('[data-fk="open:les-gardiens-de-la-galaxie"]').count() === 1, 'Les Gardiens de la Galaxie doit rester');
+  check(await page.locator('[data-fk="open:iron-man"]').count() === 0, 'Iron Man ne doit plus apparaître');
+  await page.click('#open-filters');
+  await page.click('[data-fk="f-reset"]');
+  await page.click('[data-fk="f-done"]');
+  check((await total()) === all, 'la réinitialisation doit effacer le filtre personnage');
+  await page.click('.nav-item[data-route="progression"]');
+  await page.click('[data-fk="stab:succes"]');
+  const txt = await page.locator('#progress-panel').innerText();
+  check(/Personnages et équipes/.test(txt) && /Tout sur Iron Man/.test(txt) && /Tout sur les Avengers/.test(txt), 'les succès par personnage doivent apparaître');
+});
+
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
   const data = await page.evaluate(async () => (await fetch('data/mcu.json')).json());
   const films = data.filter((t) => t.type === 'film' && !t.upcoming).length;

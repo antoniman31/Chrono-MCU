@@ -157,3 +157,5 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 - Progression en trois sous-onglets (Bilan / Rythme / MCU) : stats perso issues des dates de coche (js/insights.js, fonctions pures testées) et stats du catalogue (records, post-générique, répartition, frise par année). Graphiques en HTML/CSS, avec alternative textuelle (role=img + aria-label).
 
 - Succès (4e sous-onglet de Progression, js/achievements.js) : paliers bronze/argent/or, 5 succès cachés, calcul depuis les coches et réglages, rattrapages exclus des succès de rythme. Les paliers obtenus sont mémorisés dans les préférences d'affichage (`achv`, propres à l'appareil, hors export) ; le premier calcul est silencieux pour ne pas annoncer l'existant. Bandeau discret avec « Voir ».
+
+- Personnages et équipes : champ optionnel `heroes` dans data/mcu.json (identifiants de js/heroes.js, rôle principal ou co-principal seulement, validé par scripts/validate-data.mjs). 13 personnages et 2 équipes (Avengers, Gardiens), à compléter à la main. Servent au filtre « Personnage ou équipe » (feuille Filtres) et à un succès « Tout sur X » par héros (paliers 50 / 75 / 100 % des titres sortis).

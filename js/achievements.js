@@ -2,17 +2,18 @@
 // Un succès a un ou trois paliers (bronze, argent, or) ; une fois débloqué, un palier n'est jamais retiré (voir merge).
 import { titleSeen, toUnits } from './logic.js?v=__BUILD__';
 import { matchesCategory } from './categories.js?v=__BUILD__';
+import { HEROES } from './heroes.js?v=__BUILD__';
 import { activityByDay, dayNumber, weekStart } from './insights.js?v=__BUILD__';
 
 export const LEVEL_LABELS = ['', 'Bronze', 'Argent', 'Or'];
-export const FAMILIES = [['progression', 'Parcours'], ['rythme', 'Rythme'], ['mcu', 'MCU'], ['secret', 'Cachés']];
+export const FAMILIES = [['progression', 'Parcours'], ['rythme', 'Rythme'], ['mcu', 'MCU'], ['heroes', 'Personnages et équipes'], ['secret', 'Cachés']];
 
 const plural = (n, one, many) => (n > 1 ? many : one);
 
 // Une ligne par succès : metric(m) donne la valeur à comparer aux paliers ; desc(n) décrit le palier visé
 const CATALOG = [
   { id: 'first', family: 'progression', name: 'Premier pas', tiers: [1], metric: (m) => m.seenUnits, desc: () => 'Coche ton premier film ou épisode' },
-  { id: 'percent', family: 'progression', name: 'Cap sur la fin', tiers: [25, 50, 100], metric: (m) => m.percent, desc: (n) => `Atteindre ${n} % du catalogue` },
+  { id: 'percent', family: 'progression', name: 'Cap sur la fin', unit: '%', tiers: [25, 50, 100], metric: (m) => m.percent, desc: (n) => `Atteindre ${n} % du catalogue` },
   { id: 'phases', family: 'progression', name: 'Phase après phase', tiers: [1, 3, 5], metric: (m) => m.phasesDone, desc: (n) => `Terminer ${n} ${plural(n, 'phase', 'phases')} en entier` },
   { id: 'infinity', family: 'progression', name: 'Infinity Saga', tiers: [1], metric: (m) => m.infinityDone, desc: () => 'Voir toute l\'Infinity Saga' },
   { id: 'multiverse', family: 'progression', name: 'Saga du Multivers', tiers: [1], metric: (m) => m.multiverseDone, desc: () => 'Voir tout ce qui est sorti de la Saga du Multivers' },
@@ -31,6 +32,16 @@ const CATALOG = [
   { id: 'catchup', family: 'secret', hidden: true, name: 'Rattrapage express', tiers: [1], metric: (m) => m.catchUpCount >= 10, desc: () => 'Marquer 10 titres d\'un coup comme déjà vus' },
   { id: 'phases3', family: 'secret', hidden: true, name: 'Multivers à la maison', tiers: [1], metric: (m) => m.triplePhaseDay, desc: () => 'Voir trois phases différentes en un seul jour' },
 ];
+
+// Un succès par personnage ou équipe : part (en %) des titres sortis où il a un rôle principal
+const HEROES_CATALOG = HEROES.map((hero) => {
+  const label = hero.team ? hero.label.replace(/^Les /, 'les ') : hero.label;
+  return {
+    id: `hero:${hero.id}`, family: 'heroes', name: `Tout sur ${label}`, unit: '%', tiers: [50, 75, 100],
+    metric: (m) => m.heroPercent[hero.id] ?? 0, desc: (n) => `Voir ${n} % des titres sortis de ${label}`,
+  };
+});
+CATALOG.push(...HEROES_CATALOG);
 
 // Nombre total de médailles (un palier = une médaille)
 export const TOTAL_MEDALS = CATALOG.reduce((sum, a) => sum + a.tiers.length, 0);
@@ -86,6 +97,10 @@ export function metrics({ titles, seen, catchUp = {}, today, goalDate = null, sp
     birthday,
     catchUpCount: Object.keys(catchUp).filter((key) => seen[key]).length,
     triplePhaseDay: Object.values(phasesByDay).some((set) => set.size >= 3),
+    heroPercent: Object.fromEntries(HEROES.map((hero) => {
+      const own = titles.filter((t) => (t.heroes ?? []).includes(hero.id));
+      return [hero.id, own.length ? Math.floor((own.filter((t) => titleSeen(t, seen)).length / own.length) * 100) : 0];
+    })),
     today,
   };
 }
@@ -99,7 +114,7 @@ export function evaluate(input) {
     const value = num(a.metric(m));
     const level = a.tiers.filter((t) => value >= t).length;
     const next = a.tiers[level] ?? null;
-    return { id: a.id, family: a.family, name: a.name, hidden: a.hidden === true, tiers: a.tiers, value, level, next, desc: a.desc(next ?? a.tiers.at(-1)) };
+    return { id: a.id, family: a.family, name: a.name, unit: a.unit ?? '', hidden: a.hidden === true, tiers: a.tiers, value, level, next, desc: a.desc(next ?? a.tiers.at(-1)) };
   });
 }
 
