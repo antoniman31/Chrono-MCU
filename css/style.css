@@ -715,10 +715,23 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .sync-run { display: grid; gap: 8px; justify-items: start; }
 
 /* Fiche : navigation entre titres voisins */
-.detail-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.detail-nav .count { font-size: .8125rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.detail-nav .icon-btn.flip .icon { transform: scaleX(-1); }
-.detail-nav .icon-btn:disabled { opacity: .38; cursor: default; }
+.sheet-body { scroll-padding-bottom: 56px; }
+.sheet-body > .detail, .detail-pane > .detail { padding-bottom: 0; min-height: 100%; display: flex; flex-direction: column; }
+.detail-pane .detail-nav { margin-bottom: 0; bottom: 0; }
+.detail-nav {
+  position: sticky; bottom: calc(-24px - var(--safe-bottom)); z-index: 1; margin: auto -24px calc(-24px - var(--safe-bottom)); padding: 0 16px var(--safe-bottom);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px;
+  background: var(--surface); border-top: 1px solid var(--border); font-size: .75rem; color: var(--muted);
+}
+.detail-nav .count { font-variant-numeric: tabular-nums; }
+.detail-nav .nav-step { display: flex; align-items: center; gap: 2px; min-height: 44px; min-width: 0; padding: 0; background: none; border: 0; color: inherit; font: inherit; }
+.detail-nav .nav-step.next { justify-content: flex-end; text-align: right; }
+.detail-nav .nav-step .name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; line-height: 1rem; }
+.detail-nav .nav-step .icon { flex: none; width: 18px; height: 18px; }
+.detail-nav .nav-step.prev .icon { transform: scaleX(-1); }
+.detail-nav .nav-step:hover:not(:disabled) { color: var(--fg); }
+.detail-nav .nav-step:disabled { opacity: .38; cursor: default; }
+@media (max-width: 359.98px) { .detail-nav .nav-step .name { display: none; } .detail-nav .nav-step .icon { width: 24px; height: 24px; } }
 .detail-head, .detail .summary, #sheet-hero { touch-action: pan-y; }
 @media (prefers-reduced-motion: no-preference) {
   .detail.slide-next { animation: slide-from-right .22s cubic-bezier(.2, 0, 0, 1); }

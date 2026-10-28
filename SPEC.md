@@ -174,4 +174,4 @@ Les données arrivent par paliers : d'abord films + séries de la saga Infinity 
 
 - Titres « à venir » : menu ⋮, glissement à gauche et bouton de la fiche pour ignorer / ne plus ignorer (sans case à cocher) ; l'état « ignoré » est conservé à la sortie ; cadre pointillé fin par pseudo-élément.
 
-- Fiches voisines : barre Précédent / Suivant (compteur « n / N »), glissement horizontal limité à l'en-tête de la fiche et à l'image paysage (la liste d'épisodes garde son glissement « vu »), flèches ← → (sauf dans un champ ou un onglet). Ordre = liste affichée (`ctx.navIds`), butoir aux bouts, ignorés et « à venir » inclus.
+- Fiches voisines : pied de fiche épinglé en bas (sticky) « ‹ précédent · n / N · suivant › » avec le nom des voisins (masqué sous 360 px), glissement horizontal limité à l'en-tête de la fiche et à l'image paysage (la liste d'épisodes garde son glissement « vu »), flèches ← → (sauf dans un champ ou un onglet). Ordre = liste affichée (`ctx.navIds`), butoir aux bouts, ignorés et « à venir » inclus.
