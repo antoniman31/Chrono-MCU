@@ -695,3 +695,13 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .medal.l2 { background: #dfe3ea; border: 2px solid #7b8494; color: #1c2230; }
 .medal.l3 { background: #f6cf55; border: 2px solid #a37b00; color: #2e2200; }
 .achv.locked .achv-name > span:first-child { color: var(--muted); }
+
+/* Retour tactile à la coche : petit rebond du rond (sauf si les animations sont réduites) */
+@media (prefers-reduced-motion: no-preference) {
+  .cb.pop .box { animation: pop-in .28s cubic-bezier(.2, 0, 0, 1.4); }
+}
+@keyframes pop-in { 0% { transform: scale(.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.welcome-tips { margin: 8px 0 16px; padding-left: 20px; }
+.welcome-tips li { margin: 6px 0; }
+.welcome-actions { display: grid; gap: 8px; margin-top: 8px; }
+.history-block { flex-wrap: wrap; border-top: 1px solid var(--border); }

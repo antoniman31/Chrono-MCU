@@ -7,6 +7,7 @@ import { $, h, icon, today } from './ui/dom.js?v=__BUILD__';
 import { renderDetail, renderDetailEmpty } from './ui/detail.js?v=__BUILD__';
 import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
+import { renderWelcomeSheet } from './ui/welcome.js?v=__BUILD__';
 import { achievementInput, renderProgression, showAchievementsTab } from './ui/progression.js?v=__BUILD__';
 import { evaluate, mergeUnlocked, unlockMessage } from './achievements.js?v=__BUILD__';
 import { renderBackupSheet, renderEraseSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
@@ -50,7 +51,9 @@ const ctx = {
 
 let storageWarned = false;
 let persistAsked = false;
-let undoSnapshot = null;
+// Historique des actions annulables (en mémoire, jusqu'au rechargement) : { before: état d'avant, label }
+const HISTORY_MAX = 20;
+const history = [];
 let snackTimer = null;
 let snackPaused = false;
 
@@ -100,7 +103,6 @@ function showMessage(text, isError = false) {
 
 function hideSnackbar() {
   clearTimeout(snackTimer);
-  undoSnapshot = null;
   $('snackbar').hidden = true;
 }
 
@@ -182,7 +184,8 @@ function update(next, label = null, { detail = true } = {}) {
     showMessage('Stockage local indisponible : la progression ne sera pas conservée. Utilise l\'export dans Réglages.', true);
   }
   if (label && next !== before) {
-    undoSnapshot = before;
+    history.push({ before, label });
+    if (history.length > HISTORY_MAX) history.shift();
     showSnackbar(label, true);
   } else if (!label) hideSnackbar();
   render({ detail });
@@ -192,12 +195,36 @@ function update(next, label = null, { detail = true } = {}) {
 }
 ctx.update = update;
 
+// Annule la dernière action de l'historique (la même que le bouton de la snackbar, ou celle de Réglages)
+ctx.undoLast = () => {
+  const entry = history.pop();
+  if (!entry) return;
+  hideSnackbar();
+  update(entry.before);
+};
+ctx.historyInfo = () => ({ count: history.length, last: history.at(-1)?.label ?? null });
+
+// Retour tactile à la coche : petite vibration (si l'appareil la permet) et animation du rond, sauf réglage coupé
+ctx.feedback = (key) => {
+  if (!ctx.view.feedback) return;
+  navigator.vibrate?.(12);
+  const el = document.querySelector(`[data-fk="${CSS.escape(key)}"]`)?.closest('.cb');
+  if (!el) return;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+};
+
 ctx.toggleTitle = (full) => {
   const t = ctx.availById.get(full.id) ?? full; // seuls les épisodes sortis se cochent
   const seen = isTitleSeen(ctx.state, t);
   update(setTitleSeen(ctx.state, t, !seen, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title}`);
+  if (!seen) ctx.feedback(`cb:${t.id}`);
 };
-ctx.toggleEpisode = (t, e, seen) => update(toggleUnit(ctx.state, `${t.id}/${e.n}`, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title} ép. ${e.n}`);
+ctx.toggleEpisode = (t, e, seen) => {
+  update(toggleUnit(ctx.state, `${t.id}/${e.n}`, today()), `${seen ? 'Décoché' : 'Coché'} : ${t.title} ép. ${e.n}`);
+  if (!seen) ctx.feedback(`ep:${t.id}/${e.n}`);
+};
 ctx.toggleUnit = (unit, label) => update(toggleUnit(ctx.state, unit.key, today()), `Vu : ${label}`);
 ctx.togglePhase = (phase, all) =>
   update(setPhaseSeen(ctx.state, sortTitles(ctx.counted, ctx.state.order), phase, !all, today()), `${all ? 'Décoché' : 'Coché'} : phase ${phase}`);
@@ -319,6 +346,10 @@ ctx.exportProgress = () => {
   closeSheet();
   showSnackbar('Progression exportée', false);
 };
+ctx.openWelcome = (opener) => openSheet({
+  title: 'Bienvenue', kind: 'welcome', opener, render: (body) => renderWelcomeSheet(body, ctx),
+  onClose: () => { if (!ctx.view.welcomed) ctx.setView({ welcomed: true }); },
+});
 ctx.openErase = (opener) => openSheet({ title: 'Effacer ma progression', kind: 'erase', opener, render: (body) => renderEraseSheet(body, ctx) });
 ctx.eraseProgress = () => {
   const before = ctx.state;
@@ -381,12 +412,7 @@ async function main() {
     if (ctx.route === 'progression') render({ detail: false });
     else location.hash = '#progression';
   });
-  $('snackbar-action').addEventListener('click', () => {
-    if (!undoSnapshot) return;
-    const snapshot = undoSnapshot;
-    hideSnackbar();
-    update(snapshot);
-  });
+  $('snackbar-action').addEventListener('click', () => ctx.undoLast());
   const snack = $('snackbar');
   snack.addEventListener('pointerenter', () => { snackPaused = true; });
   snack.addEventListener('pointerleave', () => { snackPaused = false; });
@@ -426,6 +452,11 @@ async function main() {
   applyTheme();
   render();
   checkAchievements();
+  // Accueil : une seule fois, et seulement si rien n'est encore coché (sinon on le considère comme déjà vu)
+  if (!ctx.view.welcomed) {
+    if (Object.keys(ctx.state.seen).length) ctx.setView({ welcomed: true });
+    else ctx.openWelcome(null);
+  }
   document.getElementById('app')?.setAttribute('data-ready', 'true');
   document.body.dataset.ready = 'true';
 }

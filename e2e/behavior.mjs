@@ -25,7 +25,7 @@ async function scenario(name, run, { prefs = null, seed = null, colorScheme = 'l
     try {
       if (sessionStorage.getItem('e2e-seeded')) return;
       sessionStorage.setItem('e2e-seeded', '1');
-      if (p) localStorage.setItem('chrono-mcu:view', JSON.stringify(p));
+      localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, ...(p ?? {}) }));
       if (s) localStorage.setItem('chrono-mcu:v1', JSON.stringify(s));
     } catch { /* ignore */ }
   }, [prefs, seed]);
@@ -286,6 +286,59 @@ await scenario('filtre par personnage : liste, compteur, succès par personnage'
   await page.click('[data-fk="stab:succes"]');
   const txt = await page.locator('#progress-panel').innerText();
   check(/Personnages et équipes/.test(txt) && /Tout sur Iron Man/.test(txt) && /Tout sur les Avengers/.test(txt), 'les succès par personnage doivent apparaître');
+});
+
+await scenario('accueil : premier lancement, rattrapage jusqu\'à un titre, jamais réaffiché, relançable', async (page) => {
+  await page.waitForSelector('#sheet[open]');
+  check(/Bienvenue/.test(await page.locator('#sheet-title').innerText()), 'la feuille d\'accueil doit s\'ouvrir au premier lancement');
+  await page.click('[data-fk="w-caught"]');
+  check(await page.locator('[data-fk="w-confirm"]').isDisabled(), 'sans titre choisi, le bouton de confirmation est désactivé');
+  await page.selectOption('#w-until', 'iron-man-2');
+  const txt = await page.locator('#sheet-body').innerText();
+  check(/titres? (seront marqués|sera marqué)/.test(txt), `le nombre de titres doit apparaître : ${txt.slice(0, 200)}`);
+  await page.click('[data-fk="w-confirm"]');
+  await page.waitForSelector('#sheet:not([open])', { state: 'attached' });
+  const state = await stored(page);
+  check(Object.keys(state.seen).length >= 3 && Object.keys(state.catchUp).length === Object.keys(state.seen).length, 'le rattrapage doit marquer les titres précédents');
+  check(/marqué/.test(await page.locator('#snackbar-text').innerText()), 'la snackbar doit annoncer le rattrapage');
+  await reload(page);
+  check(await page.locator('#sheet[open]').count() === 0, 'l\'accueil ne doit plus se rouvrir');
+  await page.click('.nav-item[data-route="reglages"]');
+  await openSec(page, 'about');
+  await page.click('[data-fk="s-welcome"]');
+  await page.waitForSelector('#sheet[open]');
+  check(/Bienvenue/.test(await page.locator('#sheet-title').innerText()), 'Revoir l\'accueil doit rouvrir la feuille');
+}, { prefs: { welcomed: false } });
+
+await scenario('annulation multi-niveaux : plusieurs coches annulées une à une depuis Réglages', async (page) => {
+  await page.click('[data-fk="cb:iron-man"]');
+  await page.click('[data-fk="cb:iron-man-2"]');
+  await page.click('[data-fk="cb:thor"]');
+  check(Object.keys((await stored(page)).seen).length === 3, 'trois coches attendues');
+  await page.click('.nav-item[data-route="reglages"]');
+  await openSec(page, 'data');
+  const info = await page.locator('.history-block .desc').innerText();
+  check(/3 actions annulables/.test(info) && /Thor/.test(info), `historique attendu : ${info}`);
+  await page.click('[data-fk="s-undo"]');
+  await page.click('[data-fk="s-undo"]');
+  check(Object.keys((await stored(page)).seen).length === 1, 'deux annulations doivent laisser une coche');
+  await page.click('[data-fk="s-undo"]');
+  check(Object.keys((await stored(page)).seen).length === 0 && await page.locator('[data-fk="s-undo"]').isDisabled(), 'tout annulé : le bouton se désactive');
+});
+
+await scenario('retour tactile : animation à la coche, réglage pour le couper', async (page) => {
+  await page.evaluate(() => { window.__vibrations = []; navigator.vibrate = (ms) => { window.__vibrations.push(ms); return true; }; });
+  await page.click('[data-fk="cb:iron-man"]');
+  check((await page.evaluate(() => window.__vibrations.length)) === 1, 'une vibration attendue à la coche');
+  check(await page.locator('[data-fk="cb:iron-man"]').evaluate((el) => el.closest('.cb').classList.contains('pop')), 'le rond doit recevoir l\'animation');
+  await page.click('[data-fk="cb:iron-man"]');
+  check((await page.evaluate(() => window.__vibrations.length)) === 1, 'pas de vibration en décochant');
+  await page.click('.nav-item[data-route="reglages"]');
+  await openSec(page, 'look');
+  await page.click('label.switch-row:has([data-fk="s-feedback"])');
+  await page.click('.nav-item[data-route="voir"]');
+  await page.click('[data-fk="cb:iron-man"]');
+  check((await page.evaluate(() => window.__vibrations.length)) === 1, 'le réglage coupé doit supprimer la vibration');
 });
 
 await scenario('catégories : couper les séries, réintégrer un titre, tout persiste', async (page) => {
