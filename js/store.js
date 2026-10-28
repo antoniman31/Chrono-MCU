@@ -74,25 +74,110 @@ export function migrate(raw) {
   return { ok: true, state: { version, order, seen, ignored: ignored ?? {}, catchUp: catchUp ?? {}, skip: skip ?? [], included: included ?? {}, versions: versions ?? {}, lastSeenKey } };
 }
 
-export function loadState(storage) {
+// Copie brute du contenu qu'on n'a pas pu lire (ou qu'on a dû réparer) : gardée à part, jamais écrasée par la progression
+export const CORRUPT_KEY = 'chrono-mcu:v1:corrupt';
+
+function keepCopy(storage, raw) {
   try {
-    const raw = storage?.getItem(STORAGE_KEY);
-    if (!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    const result = migrate(parsed);
-    if (!result.ok || validateState(result.state).length) return defaultState();
-    if (parsed.version !== STATE_VERSION) {
-      // Migration: on garde l'ancien contenu tel quel (une seule fois) avant de réécrire
-      try {
-        if (!storage.getItem(BACKUP_KEY)) storage.setItem(BACKUP_KEY, raw);
-        storage.setItem(STORAGE_KEY, JSON.stringify(result.state));
-      } catch { /* stockage plein ou indisponible: l'état migré reste en mémoire */ }
-    }
-    return result.state;
+    if (!storage.getItem(CORRUPT_KEY)) storage.setItem(CORRUPT_KEY, raw);
+    return true;
   } catch {
-    return defaultState();
+    return false; // stockage plein ou indisponible
   }
 }
+
+export const corruptCopy = (storage) => {
+  try {
+    return storage?.getItem(CORRUPT_KEY) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export function clearCorruptCopy(storage) {
+  try {
+    storage.removeItem(CORRUPT_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Retire d'un état ce qui est invalide au lieu de tout jeter : { state, dropped } (dropped = nombre d'éléments retirés)
+export function repairState(s) {
+  let dropped = 0;
+  const only = (obj, ok) => {
+    if (!isObject(obj)) {
+      if (obj !== undefined) dropped += 1;
+      return {};
+    }
+    const out = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (ok(value)) out[key] = value;
+      else dropped += 1;
+    }
+    return out;
+  };
+  const skip = Array.isArray(s.skip) ? s.skip.filter((id) => CATEGORY_IDS.includes(id)) : [];
+  if (s.skip !== undefined) dropped += Array.isArray(s.skip) ? s.skip.length - skip.length : 1;
+  if (!ORDERS.includes(s.order)) dropped += 1;
+  return {
+    state: {
+      version: STATE_VERSION,
+      order: ORDERS.includes(s.order) ? s.order : 'chrono',
+      seen: only(s.seen, isDay),
+      ignored: only(s.ignored, (v) => v === true),
+      catchUp: only(s.catchUp, (v) => v === true),
+      skip,
+      included: only(s.included, (v) => v === true),
+      versions: only(s.versions, (v) => typeof v === 'string' && v !== ''),
+      lastSeenKey: typeof s.lastSeenKey === 'string' ? s.lastSeenKey : null,
+    },
+    dropped,
+  };
+}
+
+// Lit l'état enregistré. `report` vaut null si tout va bien, sinon { kind, saved, dropped? } :
+//  - 'repaired' : quelques éléments invalides retirés, le reste est conservé ;
+//  - 'unreadable' : rien de récupérable, l'application repart de zéro ;
+//  - 'newer' : données d'une version plus récente de l'application.
+// Dès qu'il y a un problème, le contenu d'origine est gardé à part (`saved` : copie réussie ou non) : il n'est jamais perdu en silence.
+export function loadStateWithReport(storage) {
+  let raw = null;
+  try {
+    raw = storage?.getItem(STORAGE_KEY);
+  } catch {
+    return { state: defaultState(), report: null };
+  }
+  if (!raw) return { state: defaultState(), report: null };
+  const lost = (kind) => ({ state: defaultState(), report: { kind, saved: keepCopy(storage, raw) } });
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return lost('unreadable');
+  }
+  const result = migrate(parsed);
+  if (!result.ok) return lost(Number.isInteger(parsed?.version) && parsed.version > STATE_VERSION ? 'newer' : 'unreadable');
+  let state = result.state;
+  let report = null;
+  if (validateState(state).length) {
+    const fixed = repairState(state);
+    if (validateState(fixed.state).length) return lost('unreadable');
+    state = fixed.state;
+    report = { kind: 'repaired', dropped: fixed.dropped, saved: keepCopy(storage, raw) };
+  }
+  if (parsed.version !== STATE_VERSION) {
+    // Migration: on garde l'ancien contenu tel quel (une seule fois) avant de réécrire
+    try {
+      if (!storage.getItem(BACKUP_KEY)) storage.setItem(BACKUP_KEY, raw);
+      storage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch { /* stockage plein ou indisponible: l'état migré reste en mémoire */ }
+  }
+  return { state, report };
+}
+
+export const loadState = (storage) => loadStateWithReport(storage).state;
 
 export function saveState(storage, state) {
   try {

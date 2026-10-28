@@ -19,6 +19,7 @@ const VERSIONED = [
   'js/logic.js',
   'js/phases.js',
   'js/prefs.js',
+  'js/recovery.js',
   'js/spoilers.js',
   'js/store.js',
   'js/ui/detail.js',

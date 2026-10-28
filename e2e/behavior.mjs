@@ -16,19 +16,20 @@ const STATE = 'chrono-mcu:v1';
 
 const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 
-async function scenario(name, run, { prefs = null, seed = null, colorScheme = 'light', viewport = { width: 360, height: 740 } } = {}) {
+async function scenario(name, run, { prefs = null, seed = null, rawSeed = null, colorScheme = 'light', viewport = { width: 360, height: 740 } } = {}) {
   scenarios += 1;
   const context = await browser.newContext({ viewport, colorScheme, reducedMotion: 'reduce', acceptDownloads: true });
   await context.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: PIXEL }));
   // Les valeurs de départ ne sont posées qu'une fois (pas à chaque rechargement), pour pouvoir tester la persistance
-  await context.addInitScript(([p, s]) => {
+  await context.addInitScript(([p, s, raw]) => {
     try {
       if (sessionStorage.getItem('e2e-seeded')) return;
       sessionStorage.setItem('e2e-seeded', '1');
       localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, ...(p ?? {}) }));
       if (s) localStorage.setItem('chrono-mcu:v1', JSON.stringify(s));
+      if (raw !== null) localStorage.setItem('chrono-mcu:v1', raw);
     } catch { /* ignore */ }
-  }, [prefs, seed]);
+  }, [prefs, seed, rawSeed]);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(`erreur JS : ${e.message}`));
@@ -349,6 +350,42 @@ await scenario('retour tactile : animation à la coche, réglage pour le couper'
   await page.click('[data-fk="cb:iron-man"]');
   check((await page.evaluate(() => window.__vibrations.length)) === 1, 'le réglage coupé doit supprimer la vibration');
 });
+
+// Données enregistrées illisibles : on répare ce qui peut l'être, on garde une copie et on le dit (jamais de perte silencieuse)
+const CORRUPT = 'chrono-mcu:v1:corrupt';
+const withBadDate = JSON.stringify({ version: 2, order: 'chrono', seen: { 'iron-man': '2026-10-01', thor: '2026-10-02', avengers: 'pas-une-date' }, ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: 'thor' });
+await scenario('données avec une date invalide : le reste est conservé, une copie est gardée et un bandeau le dit', async (page) => {
+  const card = page.locator('[aria-label="Données enregistrées"]');
+  check(await card.count() === 1 && /1 élément illisible ignoré/.test(await card.innerText()), `bandeau de réparation attendu : ${await card.innerText().catch(() => '')}`);
+  await page.click('[data-fk="cb:captain-america-first-avenger"]');
+  const state = await stored(page);
+  check(state.seen['iron-man'] === '2026-10-01' && state.seen.thor === '2026-10-02' && !state.seen.avengers && state.seen['captain-america-first-avenger'], `les coches valides doivent survivre : ${JSON.stringify(state.seen)}`);
+  check(await page.evaluate((k) => localStorage.getItem(k), CORRUPT) === withBadDate, 'la copie brute doit être gardée telle quelle');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('[data-fk="recovery-download"]')]);
+  check(/^chrono-mcu-donnees-illisibles-\d{4}-\d{2}-\d{2}\.json$/.test(download.suggestedFilename()), `nom du fichier inattendu : ${download.suggestedFilename()}`);
+  await page.click('[data-fk="recovery-dismiss"]');
+  check(await page.locator('[aria-label="Données enregistrées"]').count() === 0, '« Compris » doit masquer le bandeau');
+  await go(page, 'reglages');
+  await openSec(page, 'data');
+  check(await page.locator('[data-fk="s-corrupt-download"]').count() === 1, 'la copie doit rester disponible dans Réglages > Données');
+  await page.click('[data-fk="s-corrupt-delete"]');
+  check(await page.locator('[data-fk="s-corrupt-download"]').count() === 0 && await page.evaluate((k) => localStorage.getItem(k), CORRUPT) === null, 'supprimer doit effacer la copie');
+}, { rawSeed: withBadDate });
+
+await scenario('données illisibles : départ à vide mais copie intacte après une coche, avec le bandeau', async (page) => {
+  const card = page.locator('[aria-label="Données enregistrées"]');
+  check(/repart de zéro/.test(await card.innerText()), 'le bandeau doit annoncer le départ à zéro');
+  await page.click('[data-fk="cb:iron-man"]');
+  check(await page.evaluate((k) => localStorage.getItem(k), CORRUPT) === '{pas du json', 'la copie illisible ne doit pas être écrasée par la progression');
+  check((await stored(page)).seen['iron-man'], 'la nouvelle progression doit être enregistrée');
+}, { rawSeed: '{pas du json' });
+
+await scenario('données d\'une version plus récente : ni utilisées ni écrasées', async (page) => {
+  check(/version plus récente/.test(await page.locator('[aria-label="Données enregistrées"]').innerText()), 'le bandeau doit parler d\'une version plus récente');
+  await page.click('[data-fk="cb:iron-man"]');
+  const raw = JSON.parse(await page.evaluate((k) => localStorage.getItem(k), CORRUPT));
+  check(raw.version === 99 && raw.seen.thor === '2026-10-02', 'la copie des données plus récentes doit être intacte');
+}, { rawSeed: JSON.stringify({ version: 99, order: 'chrono', seen: { thor: '2026-10-02' } }) });
 
 // Hors-ligne : on « construit » une copie (marqueur __BUILD__ remplacé comme au déploiement), on la sert,
 // on laisse le service worker s'installer, puis on coupe le réseau et on recharge.
