@@ -378,8 +378,8 @@ main:focus { outline: none; }
 .item-text { flex: 1 1 0; min-width: 0; }
 @media (max-width: 339.98px) { .item-main .poster { width: 56px; height: 84px; } } /* très petits écrans : même taille pour toutes, un peu plus petite */
 
-/* Cartes de même hauteur quand il y a une affiche : elle prend toute la hauteur de la carte, collée au bord, et la case « vu » est posée
-   sur son coin. min-height (et non height) : si le texte est très agrandi, la carte grandit au lieu de couper le contenu. */
+/* Cartes de même hauteur quand il y a une affiche : elle prend toute la hauteur de la carte, collée au bord, et la case « vu » est en bas
+   de la colonne de droite, sous le menu ⋮. min-height (et non height) : si le texte est très agrandi, la carte grandit au lieu de couper le contenu. */
 .item:has(.item-main .poster) { min-height: 144px; }
 .item:has(.item-main .poster) .item-fg { min-height: 144px; }
 .item:has(.item-main .poster) .item-main { padding: 0; align-items: stretch; min-height: 144px; }
@@ -388,8 +388,9 @@ main:focus { outline: none; }
 .item:has(.item-main .poster) .title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } /* titre complet dans la fiche */
 .item:has(.item-main .poster) .badges { max-height: 3.5rem; overflow: hidden; }
 .item:has(.item-main .poster) .meta { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.item:has(.item-main .poster) .cb { position: absolute; left: 0; top: 0; z-index: 2; }
-.item:has(.item-main .poster) .cb input:not(:checked):not(:indeterminate) + .box { background: rgb(0 0 0 / .6); border-color: #fff; }
+.item:has(.item-main .poster) .item-main { padding-right: 48px; } /* place de la colonne de droite : menu en haut, case « vu » en bas */
+.item:has(.item-main .poster) .item-menu { position: absolute; right: 0; top: 0; }
+.item:has(.item-main .poster) .cb { position: absolute; right: 0; bottom: 0; z-index: 2; }
 .item:has(.item-main .poster) .cb-gap { display: none; }
 @media (max-width: 339.98px) { .item:has(.item-main .poster) .item-main .poster { width: 72px; } }
 .poster { width: 72px; height: 108px; flex: none; object-fit: cover; border-radius: 4px; background: var(--surface-2); }

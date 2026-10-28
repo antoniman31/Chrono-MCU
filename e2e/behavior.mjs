@@ -433,6 +433,16 @@ await scenario('affiches de la liste : toutes de la même taille, même avec des
   const distinct = [...new Set(heights.map((x) => x.card))];
   check(distinct.length === 1 && distinct[0] === 144, `toutes les cartes doivent avoir la même hauteur : ${distinct.join(', ')}`);
   check(heights.every((x) => x.poster === x.card), 'l\'affiche doit remplir toute la hauteur de la carte');
+  // La case « vu » et le menu forment une colonne à droite : rien ne cache l'affiche, le menu est au-dessus de la case
+  const layout = await page.evaluate(() => [...document.querySelectorAll('#list li.item:not(.upcoming)')].slice(0, 25).map((li) => {
+    const p = li.querySelector('.poster').getBoundingClientRect();
+    const cb = li.querySelector('.cb').getBoundingClientRect();
+    const menu = li.querySelector('.item-menu').getBoundingClientRect();
+    const card = li.querySelector('.item-fg').getBoundingClientRect();
+    return { clearOfPoster: cb.left >= p.right && menu.left >= p.right, menuAbove: menu.bottom <= cb.top + 1, atRight: Math.abs(card.right - cb.right) <= 1 && Math.abs(card.right - menu.right) <= 1 };
+  }));
+  check(layout.every((x) => x.clearOfPoster), 'la case et le menu ne doivent pas recouvrir l\'affiche');
+  check(layout.every((x) => x.menuAbove && x.atRight), 'le menu doit être en haut à droite et la case en bas à droite');
 });
 
 await scenario('noir OLED : réglage conservé après rechargement, y compris en Auto', async (page) => {
