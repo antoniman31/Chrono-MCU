@@ -180,6 +180,7 @@ export function renderReglages(ctx) {
         btn({ label: 'Annuler la dernière', variant: 'outlined', key: 's-undo', extra: ctx.historyInfo().count ? {} : { disabled: true }, onclick: () => ctx.undoLast() })),
       h('div', { class: 'danger-zone' },
         h('p', { class: 'muted t-body-sm', text: 'Zone de danger' }),
+        btn({ label: 'Réinitialiser les succès', variant: 'outlined', iconName: 'block', key: 's-reset-achv', popup: true, onclick: (e) => ctx.openResetAchievements(e.currentTarget) }),
         btn({ label: 'Effacer toute ma progression', variant: 'outlined', iconName: 'block', key: 's-erase', popup: true, onclick: (e) => ctx.openErase(e.currentTarget) })),
     ]),
     accordion('about', 'info', 'À propos', ctx.versionLabel, [
@@ -221,6 +222,16 @@ export function renderBackupSheet(body, ctx) {
 }
 
 // Confirmation avant d'effacer : la sauvegarde est téléchargée d'abord, l'effacement reste annulable quelques secondes
+export function renderResetAchievementsSheet(body, ctx) {
+  const earned = Object.values(ctx.view.achv ?? {}).reduce((sum, a) => sum + (a?.level ?? 0), 0);
+  body.append(
+    h('p', { text: earned ? `Tu vas remettre à zéro tes ${earned} médaille${earned > 1 ? 's' : ''} enregistrée${earned > 1 ? 's' : ''} et leurs dates de déblocage.` : 'Aucune médaille n\'est enregistrée pour l\'instant.' }),
+    h('p', { class: 'muted', text: 'Les succès sont recalculés tout de suite d\'après ta progression actuelle : ceux que tu as réellement mérités reviennent et sont annoncés de nouveau, les autres disparaissent (par exemple si tu as décoché des titres). Ta progression n\'est pas touchée.' }),
+    h('div', { class: 'sheet-footer' },
+      btn({ label: 'Annuler', variant: 'text', key: 'ra-cancel', onclick: () => ctx.closeSheet() }),
+      btn({ label: 'Réinitialiser', variant: 'filled', key: 'ra-confirm', onclick: () => ctx.resetAchievements() })));
+}
+
 export function renderEraseSheet(body, ctx) {
   const n = Object.keys(ctx.state.seen).length;
   body.append(

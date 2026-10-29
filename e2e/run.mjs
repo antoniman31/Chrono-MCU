@@ -138,6 +138,9 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   await page.click('[data-fk="s-backup"]');
   await audit(page, `${where} feuille Sauvegarde`);
   await page.keyboard.press('Escape');
+  await page.click('[data-fk="s-reset-achv"]');
+  await audit(page, `${where} feuille Réinitialiser les succès`);
+  await page.keyboard.press('Escape');
   await page.click('[data-fk="s-erase"]');
   await audit(page, `${where} feuille Effacer`);
   await context.close();
