@@ -3,7 +3,7 @@ import { ACHV_FILTERS, closestToUnlock, evaluate, FAMILIES, LEVEL_LABELS, matche
 import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
 import { sagaLabel } from '../phases.js?v=__BUILD__';
 import { $, formatDay, formatShort, h, hours, icon, today } from './dom.js?v=__BUILD__';
-import { btn, checkbox, chip, progressBar } from './parts.js?v=__BUILD__';
+import { btn, checkbox, chip, medalEl, progressBar } from './parts.js?v=__BUILD__';
 
 // Carte « Objectif » : heures par semaine pour tout voir avant la date cible, comparées au rythme actuel
 function goalCard(ctx, s) {
@@ -234,6 +234,26 @@ function succes(ctx) {
     soon.length ? card('p-achv-soon', 'Bientôt', h('ul', { class: 'achv-list' }, soon.map((a) => item(a, true)))) : null,
     ...(families.length ? families : [h('p', { class: 'muted', text: 'Aucun succès dans ce filtre pour le moment.' })]),
   ];
+}
+
+// Feuille de célébration : un grand succès (palier or, saga, objectif…) ; les autres déblocages simultanés sont listés dessous
+export function renderAchievementSheet(body, ctx, unlocked) {
+  const main = unlocked.find((u) => u.big && u.single) ?? unlocked.find((u) => u.big) ?? unlocked[0]; // une saga ou un objectif avant un palier or
+  const others = unlocked.filter((u) => u !== main);
+  const kicker = main.single ? 'Succès débloqué' : `Succès débloqué · ${LEVEL_LABELS[main.level]}`;
+  body.append(
+    h('div', { class: 'achv-celebrate' },
+      h('span', { class: 'medal-xl' }, medalEl(main.level, main.single)),
+      h('p', { class: 'kicker', text: kicker }),
+      h('h3', { class: 'achv-big-name', text: main.name }),
+      main.desc ? h('p', { class: 'muted', text: main.desc }) : null,
+      others.length ? h('div', { class: 'achv-more' },
+        h('p', { class: 'muted t-body-sm', text: others.length === 1 ? 'Et aussi :' : `Et ${others.length} autres succès :` }),
+        h('ul', {}, others.slice(0, 5).map((u) => h('li', {}, medalEl(u.level, u.single), h('span', { text: u.single ? u.name : `${u.name} (${LEVEL_LABELS[u.level].toLowerCase()})` }))),
+          others.length > 5 ? h('li', { class: 'muted', text: `… et ${others.length - 5} de plus` }) : null)) : null),
+    h('div', { class: 'sheet-footer' },
+      btn({ label: 'Plus tard', variant: 'text', key: 'achv-later', onclick: () => ctx.closeSheet() }),
+      btn({ label: 'Voir mes succès', variant: 'filled', key: 'achv-open', onclick: () => ctx.openAchievements() })));
 }
 
 export function renderProgression(ctx) {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluate, mergeUnlocked, unlockMessage, metrics, totalMedals, ACHV_FILTERS, matchesFilter, closestToUnlock, medalCounts } from '../js/achievements.js';
+import { evaluate, mergeUnlocked, metrics, totalMedals, ACHV_FILTERS, matchesFilter, closestToUnlock, medalCounts } from '../js/achievements.js';
 import { normalizeView } from '../js/prefs.js';
 
 const film = (id, releaseDate, extra = {}) => ({ id, title: id, type: 'film', phase: 1, saga: 'infinity', releaseDate, chronoOrder: 1, runtimeMin: 100, verified: true, ...extra });
@@ -98,10 +98,23 @@ test('déblocages : premier calcul silencieux, ensuite annonce, jamais retiré',
   assert.equal(r.next.percent.level, 3);
 });
 
-test('message de déblocage', () => {
-  assert.equal(unlockMessage([{ name: 'Premier pas', level: 1, single: true }]), 'Succès débloqué : Premier pas');
-  assert.equal(unlockMessage([{ name: 'Assidu', level: 2, single: false }]), 'Succès débloqué : Assidu (argent)');
-  assert.equal(unlockMessage([{ name: 'A', level: 1, single: true }, { name: 'B', level: 1, single: true }, { name: 'C', level: 1, single: true }]), '3 succès débloqués : A, B…');
+test('déblocages : grand succès (dernier palier, saga, objectif) et description du palier atteint', () => {
+  const titles = [film('a', '2008-01-01'), film('b', '2009-01-01')];
+  const sagas = [{ id: 'infinity', name: "La Saga de l'Infini" }, { id: 'multiverse', name: 'La Saga du Multivers' }];
+  const evaluated = evaluate(base({ titles, sagas, seen: { a: '2026-10-01', b: '2026-10-02' } }));
+  const { unlocked } = mergeUnlocked({}, evaluated, '2026-10-02');
+  const byId = (id) => unlocked.find((u) => u.id === id);
+  assert.equal(byId('percent').big, true, 'Cap sur la fin atteint 100 % : dernier palier');
+  assert.equal(byId('percent').level, 3);
+  assert.equal(byId('percent').desc, 'Atteindre 100 % du catalogue', 'la description est celle du palier atteint, pas du suivant');
+  assert.equal(byId('infinity').big, true, 'une saga terminée est un grand succès');
+  assert.equal(byId('first').big, false);
+  assert.equal(byId('first').desc, 'Coche ton premier film ou épisode');
+  const partial = mergeUnlocked({}, evaluate(base({ titles: [film('a', '2008-01-01'), film('b', '2009-01-01'), film('c', '2010-01-01'), film('d', '2011-01-01')], seen: { a: '2026-10-01', b: '2026-10-02' } })), '2026-10-02');
+  const pct = partial.unlocked.find((u) => u.id === 'percent');
+  assert.equal(pct.level, 2);
+  assert.equal(pct.big, false, 'un palier intermédiaire n\'est pas un grand succès');
+  assert.equal(pct.desc, 'Atteindre 50 % du catalogue');
 });
 
 test('préférences : achv validé', () => {

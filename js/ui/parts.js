@@ -63,3 +63,8 @@ export function backdropImg(t, view) {
     onerror: (e) => e.target.closest('.sheet-hero')?.setAttribute('hidden', ''),
   });
 }
+
+// Médaille d'un succès : palier 1 à 3 (bronze, argent, or) ; un succès à palier unique est toujours « or »
+export function medalEl(level, single) {
+  return h('span', { class: `medal l${single ? 3 : level}`, 'aria-hidden': 'true' }, single ? icon('check') : String(level));
+}

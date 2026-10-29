@@ -23,7 +23,7 @@ const CATALOG = [
   { id: 'hours', family: 'progression', name: 'Heures de vol', unit: 'h', tiers: [24, 100, 200], metric: (m) => m.hoursSeen, desc: (n) => `Cumuler ${n} h de visionnage` },
   { id: 'backup1', family: 'progression', name: 'Prévoyant', tiers: [1], metric: (m) => m.hasBackup, desc: () => 'Exporter ta progression une première fois' },
   { id: 'backup2', family: 'progression', name: 'Sauvegarde à jour', tiers: [1], metric: (m) => m.recentBackup, desc: () => 'Avoir une sauvegarde de moins de 30 jours' },
-  { id: 'goal', family: 'progression', name: 'Dans les temps', tiers: [1], metric: (m) => m.goalDone, desc: () => 'Tout voir avant la date de ton objectif' },
+  { id: 'goal', big: true, family: 'progression', name: 'Dans les temps', tiers: [1], metric: (m) => m.goalDone, desc: () => 'Tout voir avant la date de ton objectif' },
   { id: 'streak', family: 'rythme', name: 'Assidu', tiers: [3, 7, 30], metric: (m) => m.bestStreak, desc: (n) => `Regarder quelque chose ${n} jours de suite` },
   { id: 'marathon', family: 'rythme', name: 'Marathon', tiers: [3, 5, 10], metric: (m) => m.maxPerDay, desc: (n) => `Voir ${n} titres en une journée` },
   { id: 'week', family: 'rythme', name: 'Semaine chargée', tiers: [7, 15, 30], metric: (m) => m.maxPerWeek, desc: (n) => `Voir ${n} titres en une semaine (lundi au dimanche)` },
@@ -42,11 +42,11 @@ const CATALOG = [
   { id: 'series', family: 'mcu', name: 'Binge-watcher', tiers: [1, 5, 10], metric: (m) => m.seriesDone, desc: (n) => `Terminer ${n} ${plural(n, 'série', 'séries')}` },
   { id: 'films', family: 'mcu', name: 'Cinéphile', tiers: [10, 25, 40], metric: (m) => m.filmsDone, desc: (n) => `Voir ${n} films` },
   { id: 'post', family: 'mcu', name: 'Chasseur de scènes', tiers: [10, 25, 35], metric: (m) => m.postDone, desc: (n) => `Voir ${n} titres avec une scène après le générique` },
-  { id: 'postAll', family: 'mcu', name: 'Complétiste des scènes', tiers: [1], metric: (m) => m.postAll, desc: () => 'Voir tous les titres avec une scène après le générique' },
+  { id: 'postAll', big: true, family: 'mcu', name: 'Complétiste des scènes', tiers: [1], metric: (m) => m.postAll, desc: () => 'Voir tous les titres avec une scène après le générique' },
   { id: 'longest', family: 'mcu', name: 'Film fleuve', tiers: [1], metric: (m) => m.longestSeen, desc: () => 'Voir le film le plus long du MCU' },
   { id: 'shortest', family: 'mcu', name: 'Film éclair', tiers: [1], metric: (m) => m.shortestSeen, desc: () => 'Voir le film le plus court du MCU' },
-  { id: 'seriesAll', family: 'mcu', name: 'Toutes les séries', tiers: [1], metric: (m) => m.seriesAll, desc: () => 'Terminer toutes les séries sorties' },
-  { id: 'filmsAll', family: 'mcu', name: 'Tous les films', tiers: [1], metric: (m) => m.filmsAll, desc: () => 'Voir tous les films sortis' },
+  { id: 'seriesAll', big: true, family: 'mcu', name: 'Toutes les séries', tiers: [1], metric: (m) => m.seriesAll, desc: () => 'Terminer toutes les séries sorties' },
+  { id: 'filmsAll', big: true, family: 'mcu', name: 'Tous les films', tiers: [1], metric: (m) => m.filmsAll, desc: () => 'Voir tous les films sortis' },
   { id: 'postMid', family: 'mcu', name: 'Scènes en plein générique', tiers: [5, 12, 20], metric: (m) => m.postMid, desc: (n) => `Voir ${n} titres avec une scène en milieu de générique` },
   { id: 'postEnd', family: 'mcu', name: 'Scènes de la fin', tiers: [5, 15, 25], metric: (m) => m.postEnd, desc: (n) => `Voir ${n} titres avec une scène à la toute fin du générique` },
   { id: 'years', family: 'mcu', name: 'Machine à remonter le temps', tiers: [5, 10, 15], metric: (m) => m.seenYears, desc: (n) => `Voir des titres sortis lors de ${n} années différentes` },
@@ -97,7 +97,7 @@ function catalogFor(sagaIds, phaseIds = []) {
     }
     if (a.id === '__sagas__') {
       const done = sagaIds.map((id, i) => ({
-        id, family: 'progression', saga: id, name: id, tiers: [1], metric: (m) => m.sagaDone[id] === true,
+        id, big: true, family: 'progression', saga: id, name: id, tiers: [1], metric: (m) => m.sagaDone[id] === true,
         desc: () => (i === 0 ? 'Voir toute la saga' : 'Voir tout ce qui est sorti de la saga'),
         named: (s) => ({ name: s.short, desc: i === 0 ? `Voir toute ${s.inText}` : `Voir tout ce qui est sorti de ${s.inText}` }),
       }));
@@ -310,8 +310,11 @@ export function evaluate(input) {
     const level = a.tiers.filter((t) => value >= t).length;
     const next = a.tiers[level] ?? null;
     // Les succès liés à une saga prennent son nom dans data/sagas.json (input.sagas) ; sinon le texte de repli du catalogue
-    const text = a.named ? a.named(sagaNames(a.saga, input.sagas, input.titles), next ?? a.tiers.at(-1)) : { name: a.name, desc: a.desc(next ?? a.tiers.at(-1)) };
-    return { id: a.id, family: a.family, name: text.name, unit: a.unit ?? '', hidden: a.hidden === true, tiers: a.tiers, value, level, next, desc: text.desc };
+    const textFor = (n) => (a.named ? a.named(sagaNames(a.saga, input.sagas, input.titles), n) : { name: a.name, desc: a.desc(n) });
+    const text = textFor(next ?? a.tiers.at(-1));
+    // Description du palier atteint (celle de `desc` vise le palier suivant)
+    const reachedDesc = level > 0 ? textFor(a.tiers[level - 1]).desc : text.desc;
+    return { id: a.id, family: a.family, name: text.name, unit: a.unit ?? '', hidden: a.hidden === true, big: a.big === true, tiers: a.tiers, value, level, next, desc: text.desc, reachedDesc };
   });
 }
 
@@ -325,15 +328,9 @@ export function mergeUnlocked(prev, evaluated, today) {
     const before = next[a.id]?.level ?? 0;
     if (a.level > before) {
       next[a.id] = { level: a.level, date: silent ? null : today };
-      if (!silent) unlocked.push({ id: a.id, name: a.name, level: a.level, hidden: a.hidden, single: a.tiers.length === 1 });
+      if (!silent) unlocked.push({ id: a.id, name: a.name, level: a.level, hidden: a.hidden, single: a.tiers.length === 1, desc: a.reachedDesc, big: a.big === true || (a.tiers.length > 1 && a.level === a.tiers.length) });
     }
   }
   return { next, unlocked, changed: silent || unlocked.length > 0 };
 }
 
-// Texte du bandeau pour un ou plusieurs déblocages
-export function unlockMessage(unlocked) {
-  const label = (u) => (u.single ? u.name : `${u.name} (${LEVEL_LABELS[u.level].toLowerCase()})`);
-  if (unlocked.length === 1) return `Succès débloqué : ${label(unlocked[0])}`;
-  return `${unlocked.length} succès débloqués : ${unlocked.slice(0, 2).map(label).join(', ')}${unlocked.length > 2 ? '…' : ''}`;
-}

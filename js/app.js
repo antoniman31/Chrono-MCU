@@ -10,8 +10,8 @@ import { backdropImg } from './ui/parts.js?v=__BUILD__';
 import { closeSheet, openSheet, refreshSheet, setupSheet, sheetKind } from './ui/sheet.js?v=__BUILD__';
 import { attachPageSwipe } from './ui/swipe.js?v=__BUILD__';
 import { renderWelcomeSheet } from './ui/welcome.js?v=__BUILD__';
-import { achievementInput, renderProgression, showAchievementsTab } from './ui/progression.js?v=__BUILD__';
-import { evaluate, mergeUnlocked, unlockMessage } from './achievements.js?v=__BUILD__';
+import { achievementInput, renderAchievementSheet, renderProgression, showAchievementsTab } from './ui/progression.js?v=__BUILD__';
+import { evaluate, LEVEL_LABELS, mergeUnlocked } from './achievements.js?v=__BUILD__';
 import { renderBackupSheet, renderEraseSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
 import { renderFiltersSheet, renderItemMenu, renderVoir, setupVoir } from './ui/voir.js?v=__BUILD__';
 
@@ -172,11 +172,46 @@ function checkAchievements() {
     saveView(storage, ctx.view);
   }
   if (!unlocked.length) return;
-  $('achv-text').textContent = unlockMessage(unlocked);
-  $('achv-toast').hidden = false;
+  // Un grand succès (palier or, saga, objectif…) mérite une feuille, sauf si une autre feuille est déjà ouverte : alors le bandeau
+  if (!sheetKind() && unlocked.some((u) => u.big)) showAchievementSheet(unlocked);
+  else showAchievementToast(unlocked);
+}
+
+function showAchievementToast(unlocked) {
+  const best = unlocked.reduce((top, u) => (u.level > top.level ? u : top), unlocked[0]);
+  const label = (u) => (u.single ? u.name : `${u.name} (${LEVEL_LABELS[u.level].toLowerCase()})`);
+  const medal = $('achv-medal');
+  medal.className = `medal l${best.single ? 3 : best.level}`;
+  medal.replaceChildren(best.single ? icon('check') : String(best.level));
+  if (unlocked.length === 1) {
+    $('achv-kicker').textContent = best.single ? 'Succès débloqué' : `Succès débloqué · ${LEVEL_LABELS[best.level]}`;
+    $('achv-name').textContent = best.name;
+  } else {
+    $('achv-kicker').textContent = `${unlocked.length} succès débloqués`;
+    $('achv-name').textContent = `${unlocked.slice(0, 2).map(label).join(', ')}${unlocked.length > 2 ? '…' : ''}`;
+  }
+  const toast = $('achv-toast');
+  toast.hidden = false;
+  toast.classList.remove('run');
+  void toast.offsetWidth; // relance le filet qui montre le temps restant
+  toast.classList.add('run');
   clearTimeout(achvTimer);
   achvTimer = setTimeout(hideAchievementToast, 9000);
 }
+
+function showAchievementSheet(unlocked) {
+  hideAchievementToast();
+  openSheet({ title: 'Succès débloqué', kind: 'achv', render: (body) => renderAchievementSheet(body, ctx, unlocked) });
+}
+
+// Ouvre l'onglet Succès (bouton « Voir » du bandeau ou de la feuille)
+ctx.openAchievements = () => {
+  hideAchievementToast();
+  closeSheet();
+  showAchievementsTab();
+  if (ctx.route === 'progression') render({ detail: false });
+  else location.hash = '#progression';
+};
 
 /* ---------- Rendu ---------- */
 function renderDetailPane() {
@@ -505,12 +540,7 @@ async function main() {
     e.preventDefault();
     ctx.stepDetail(e.key === 'ArrowRight' ? 1 : -1);
   });
-  $('achv-view').addEventListener('click', () => {
-    hideAchievementToast();
-    showAchievementsTab();
-    if (ctx.route === 'progression') render({ detail: false });
-    else location.hash = '#progression';
-  });
+  $('achv-view').addEventListener('click', () => ctx.openAchievements());
   $('snackbar-action').addEventListener('click', () => ctx.undoLast());
   const snack = $('snackbar');
   snack.addEventListener('pointerenter', () => { snackPaused = true; });
