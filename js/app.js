@@ -12,7 +12,7 @@ import { attachPageSwipe } from './ui/swipe.js?v=__BUILD__';
 import { renderWelcomeSheet } from './ui/welcome.js?v=__BUILD__';
 import { achievementInput, renderAchievementSheet, renderProgression, showAchievementsTab } from './ui/progression.js?v=__BUILD__';
 import { evaluate, LEVEL_LABELS, mergeUnlocked } from './achievements.js?v=__BUILD__';
-import { renderBackupSheet, renderEraseSheet, renderReglages } from './ui/reglages.js?v=__BUILD__';
+import { renderBackupSheet, renderEraseSheet, renderReglages, renderResetAchievementsSheet } from './ui/reglages.js?v=__BUILD__';
 import { renderFiltersSheet, renderItemMenu, renderVoir, setupVoir } from './ui/voir.js?v=__BUILD__';
 
 // Remplacé par l'identifiant du commit au déploiement (contourne le cache de 10 min de GitHub Pages): voir .github/workflows/pages.yml
@@ -467,6 +467,15 @@ ctx.openWelcome = (opener) => openSheet({
   title: 'Bienvenue', kind: 'welcome', opener, render: (body) => renderWelcomeSheet(body, ctx),
   onClose: () => { if (!ctx.view.welcomed) ctx.setView({ welcomed: true }); },
 });
+ctx.openResetAchievements = (opener) => openSheet({ title: 'Réinitialiser les succès', kind: 'reset-achv', opener, render: (body) => renderResetAchievementsSheet(body, ctx) });
+// Repart de zéro : les médailles enregistrées sont effacées puis recalculées d'après la progression actuelle (et annoncées de nouveau)
+ctx.resetAchievements = () => {
+  closeSheet();
+  ctx.view.achv = {};
+  saveView(storage, ctx.view);
+  render({ detail: false });
+  checkAchievements();
+};
 ctx.openErase = (opener) => openSheet({ title: 'Effacer ma progression', kind: 'erase', opener, render: (body) => renderEraseSheet(body, ctx) });
 ctx.eraseProgress = () => {
   const before = ctx.state;

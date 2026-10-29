@@ -312,6 +312,22 @@ await scenario('page Succès : compteurs par couleur, bloc Bientôt, filtres Tou
   check((await page.locator('[data-fk="achv-filter:progress"]').getAttribute('aria-pressed')) === 'true', 'le filtre actif doit être signalé');
 }, { prefs: { achv: {} }, seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
 
+await scenario('réinitialiser les succès : médailles recalculées d\'après la progression, annoncées de nouveau, progression intacte', async (page) => {
+  await go(page, 'progression');
+  await page.click('[data-fk="stab:succes"]');
+  check(/Heures de vol/.test(await page.locator('#progress-panel').innerText()), 'point de départ');
+  await go(page, 'reglages');
+  await openSec(page, 'data');
+  await page.click('[data-fk="s-reset-achv"]');
+  check(/Tu vas remettre à zéro tes \d+ médailles? enregistrées?/.test(await page.locator('#sheet').innerText()), 'la feuille doit annoncer les médailles enregistrées');
+  await page.click('[data-fk="ra-confirm"]');
+  await page.waitForSelector('#achv-toast:not([hidden]), #sheet[open]');
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('chrono-mcu:view')).achv);
+  check(stored && stored.first && !stored.hours, `la médaille non méritée (Heures de vol) doit disparaître, la méritée revenir : ${JSON.stringify(Object.keys(stored ?? {}))}`);
+  const seen = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('chrono-mcu:v1')).seen).length);
+  check(seen === 3, `la progression ne doit pas changer (${seen} coches)`);
+}, { prefs: { achv: { first: { level: 1, date: '2026-01-01' }, hours: { level: 1, date: '2026-01-01' } } }, seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+
 await scenario('succès cachés : masqués par défaut, un bouton les montre et les re-masque, un réglage les montre toujours', async (page) => {
   await go(page, 'progression');
   await page.click('[data-fk="stab:succes"]');
