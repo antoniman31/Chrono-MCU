@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluate, mergeUnlocked, unlockMessage, metrics, totalMedals } from '../js/achievements.js';
+import { evaluate, mergeUnlocked, unlockMessage, metrics, totalMedals, ACHV_FILTERS, matchesFilter, closestToUnlock, medalCounts } from '../js/achievements.js';
 import { normalizeView } from '../js/prefs.js';
 
 const film = (id, releaseDate, extra = {}) => ({ id, title: id, type: 'film', phase: 1, saga: 'infinity', releaseDate, chronoOrder: 1, runtimeMin: 100, verified: true, ...extra });
@@ -284,4 +284,40 @@ test('succès cachés : retour après 30 jours, jours spéciaux, vendredi 13, th
   assert.equal(metrics({ ...base(), titles, seen: {}, oled: true, theme: 'light', showPosters: false }).lightTheme, true);
   assert.equal(metrics({ ...base(), titles, seen: {}, oled: true, theme: 'light', showPosters: false }).noPosters, true);
   assert.equal(metrics({ ...base(), titles, seen: {} }).noPosters, false);
+});
+
+const fake = (id, level, tiers, value, extra = {}) => ({ id, name: id, hidden: false, tiers, level, value, next: tiers[level] ?? null, ...extra });
+
+test('filtres de la page Succès', () => {
+  const none = fake('a', 0, [1], 0);
+  const part = fake('b', 1, [10, 25], 12);
+  const full = fake('c', 2, [10, 25], 30);
+  const single = fake('d', 1, [1], 1);
+  const idsFor = (f) => [none, part, full, single].filter((a) => matchesFilter(a, f)).map((a) => a.id);
+  assert.deepEqual(idsFor('all'), ['a', 'b', 'c', 'd']);
+  assert.deepEqual(idsFor('progress'), ['b']); // de la progression, pas tout obtenu
+  assert.deepEqual(idsFor('done'), ['b', 'c', 'd']);
+  assert.deepEqual(idsFor('locked'), ['a']);
+  assert.deepEqual(ACHV_FILTERS.map(([id]) => id), ['all', 'progress', 'done', 'locked']);
+});
+
+test('succès les plus proches : les plus avancés d\'abord, jamais les cachés ni les terminés', () => {
+  const list = [
+    fake('quart', 0, [10, 25], 3),
+    fake('presque', 0, [10, 25], 9),
+    fake('moitie', 1, [10, 25], 17),
+    fake('rien', 0, [10], 0),
+    fake('fini', 2, [10, 25], 40),
+    fake('secret', 0, [10], 9, { hidden: true }),
+  ];
+  assert.deepEqual(closestToUnlock(list).map((a) => a.id), ['presque', 'moitie', 'quart']);
+  assert.deepEqual(closestToUnlock(list, 1).map((a) => a.id), ['presque']);
+});
+
+test('médailles par couleur : un succès à palier unique compte comme une médaille d\'or', () => {
+  const list = [fake('a', 3, [1, 2, 3], 3), fake('b', 2, [1, 2, 3], 2), fake('c', 1, [1, 2, 3], 1), fake('d', 1, [1], 1), fake('e', 0, [1], 0)];
+  assert.deepEqual(medalCounts(list), { bronze: 3, silver: 2, gold: 2 });
+  assert.equal(totalMedals(list.map((a) => ({ ...a, tiers: a.tiers }))), 3 + 3 + 3 + 1 + 1);
+  const sum = medalCounts(list);
+  assert.equal(sum.bronze + sum.silver + sum.gold, list.reduce((n, a) => n + a.level, 0), 'la somme des couleurs égale les médailles obtenues');
 });

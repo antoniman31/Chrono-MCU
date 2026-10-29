@@ -1,9 +1,9 @@
 import { goalPlan, progress, stats } from '../logic.js?v=__BUILD__';
-import { evaluate, FAMILIES, LEVEL_LABELS, totalMedals } from '../achievements.js?v=__BUILD__';
+import { ACHV_FILTERS, closestToUnlock, evaluate, FAMILIES, LEVEL_LABELS, matchesFilter, medalCounts, totalMedals } from '../achievements.js?v=__BUILD__';
 import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
 import { sagaLabel } from '../phases.js?v=__BUILD__';
 import { $, formatDay, formatShort, h, hours, icon, today } from './dom.js?v=__BUILD__';
-import { btn, checkbox, progressBar } from './parts.js?v=__BUILD__';
+import { btn, checkbox, chip, progressBar } from './parts.js?v=__BUILD__';
 
 // Carte « Objectif » : heures par semaine pour tout voir avant la date cible, comparées au rythme actuel
 function goalCard(ctx, s) {
@@ -30,6 +30,7 @@ const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`;
 const fact = (label, value) => h('div', { class: 'fact' }, h('dt', { text: label }), h('dd', { text: value }));
 // Succès cachés montrés le temps de la visite (comme « Afficher les spoilers » dans une fiche) ; revient masqué au prochain affichage de l'appli
 let secretsRevealed = false;
+let achvFilter = 'all';
 
 const card = (id, title, ...children) => h('section', { class: 'card', 'aria-labelledby': id }, h('h3', { id, text: title }), children);
 
@@ -192,7 +193,7 @@ function succes(ctx) {
   const TOTAL_MEDALS = totalMedals(list);
   const earned = list.reduce((sum, a) => sum + a.level, 0);
   const percent = Math.round((earned / TOTAL_MEDALS) * 100);
-  const item = (a) => {
+  const item = (a, soon = false) => {
     const locked = a.level === 0;
     const secret = a.hidden && locked && ctx.view.hideSecrets && !secretsRevealed;
     const single = a.tiers.length === 1;
@@ -204,24 +205,34 @@ function succes(ctx) {
       h('div', { class: 'achv-body' },
         h('div', { class: 'achv-name' }, h('span', { text: secret ? 'Succès caché' : a.name }), h('span', { class: 'tier', text: tier })),
         h('div', { class: 'achv-desc', text: secret ? 'À découvrir en regardant.' : a.desc }),
-        a.date && !locked ? h('div', { class: 'achv-desc', text: `Débloqué le ${formatShort(a.date)}` }) : null,
+        a.date && !locked && !soon ? h('div', { class: 'achv-desc', text: `Débloqué le ${formatShort(a.date)}` }) : null,
+        !single && !secret ? h('div', { class: 'tri', role: 'img', 'aria-label': `${a.level} palier${a.level > 1 ? 's' : ''} sur ${a.tiers.length}` }, a.tiers.map((_, i) => h('i', { class: a.level > i ? `t${i + 1}` : '' }))) : null,
         showBar ? progressBar(Math.min(100, Math.round((Math.min(a.value, a.next) / a.next) * 100)), `${a.name} : ${amount(Math.min(a.value, a.next))} sur ${amount(a.next)}`) : null,
         showBar ? h('div', { class: 'achv-desc', text: `${amount(Math.min(a.value, a.next))} / ${amount(a.next)}` }) : null));
   };
+  const counts = medalCounts(list);
+  const soon = achvFilter === 'all' ? closestToUnlock(list) : [];
+  const families = FAMILIES.map(([family, label]) => {
+    const items = list.filter((a) => a.family === family && matchesFilter(a, achvFilter));
+    if (!items.length) return null;
+    const toggle = family === 'secret' && ctx.view.hideSecrets && (secretsRevealed || list.some((a) => a.hidden && a.level === 0))
+      ? btn({
+        label: secretsRevealed ? 'Masquer les succès cachés' : 'Afficher les succès cachés', iconName: secretsRevealed ? 'visibility-off' : 'visibility', variant: 'tonal', key: 'secrets-toggle',
+        onclick: () => { secretsRevealed = !secretsRevealed; ctx.render({ detail: false }); },
+      })
+      : null;
+    return card(`p-f-${family}`, label, toggle, h('ul', { class: 'achv-list' }, items.map(item)));
+  }).filter(Boolean);
   return [
     card('p-achv', 'Succès',
       h('p', { class: 'big-number', text: `${earned} / ${TOTAL_MEDALS}` }),
       progressBar(percent, 'Médailles obtenues'),
-      h('p', { class: 'muted t-body-md', text: 'Chaque palier (bronze, argent, or) est une médaille. Un palier obtenu n\'est jamais retiré, même si tu décoches.' })),
-    ...FAMILIES.map(([family, label]) => {
-      const toggle = family === 'secret' && ctx.view.hideSecrets && (secretsRevealed || list.some((a) => a.hidden && a.level === 0))
-        ? btn({
-          label: secretsRevealed ? 'Masquer les succès cachés' : 'Afficher les succès cachés', iconName: secretsRevealed ? 'visibility-off' : 'visibility', variant: 'tonal', key: 'secrets-toggle',
-          onclick: () => { secretsRevealed = !secretsRevealed; ctx.render({ detail: false }); },
-        })
-        : null;
-      return card(`p-f-${family}`, label, toggle, h('ul', { class: 'achv-list' }, list.filter((a) => a.family === family).map(item)));
-    }),
+      h('p', { class: 'muted t-body-md', text: `${counts.bronze} bronze · ${counts.silver} argent · ${counts.gold} or` }),
+      h('p', { class: 'muted t-body-sm', text: 'Un palier obtenu n\'est jamais retiré, même si tu décoches.' })),
+    h('div', { class: 'chips', role: 'group', 'aria-label': 'Filtrer les succès' },
+      ACHV_FILTERS.map(([id, label]) => chip({ label, pressed: achvFilter === id, key: `achv-filter:${id}`, onclick: () => { achvFilter = id; ctx.render({ detail: false }); } }))),
+    soon.length ? card('p-achv-soon', 'Bientôt', h('ul', { class: 'achv-list' }, soon.map((a) => item(a, true)))) : null,
+    ...(families.length ? families : [h('p', { class: 'muted', text: 'Aucun succès dans ce filtre pour le moment.' })]),
   ];
 }
 

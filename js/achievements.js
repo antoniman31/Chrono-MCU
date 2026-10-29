@@ -268,6 +268,37 @@ export function metrics({ sagas = [], titles, seen, catchUp = {}, today, goalDat
   };
 }
 
+// Filtres de la page Succès : « En cours » = de la progression sans que tout soit obtenu, « Obtenus » = au moins un palier
+export const ACHV_FILTERS = [['all', 'Tous'], ['progress', 'En cours'], ['done', 'Obtenus'], ['locked', 'Verrouillés']];
+export function matchesFilter(a, filter) {
+  if (filter === 'progress') return a.value > 0 && a.level < a.tiers.length;
+  if (filter === 'done') return a.level > 0;
+  if (filter === 'locked') return a.level === 0;
+  return true;
+}
+
+// Les succès (non cachés) les plus proches du palier suivant : part déjà faite, du plus avancé au moins avancé
+export function closestToUnlock(list, count = 3) {
+  return list
+    .filter((a) => !a.hidden && a.next !== null && a.value > 0)
+    .map((a) => ({ a, ratio: Math.min(a.value, a.next) / a.next }))
+    .sort((x, y) => y.ratio - x.ratio || x.a.next - y.a.next)
+    .slice(0, count)
+    .map((x) => x.a);
+}
+
+// Médailles obtenues par couleur ; un succès à palier unique compte comme une médaille d'or
+export function medalCounts(list) {
+  const out = { bronze: 0, silver: 0, gold: 0 };
+  for (const a of list) {
+    if (a.tiers.length === 1) { if (a.level > 0) out.gold += 1; continue; }
+    if (a.level >= 1) out.bronze += 1;
+    if (a.level >= 2) out.silver += 1;
+    if (a.level >= 3) out.gold += 1;
+  }
+  return out;
+}
+
 // Valeur numérique d'une métrique booléenne : vrai = 1
 const num = (v) => (typeof v === 'boolean' ? Number(v) : v);
 

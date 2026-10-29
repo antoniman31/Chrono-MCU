@@ -280,6 +280,25 @@ await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, pa
   check(/Obtenu/.test(await page.locator('#progress-panel').innerText()), 'un succès obtenu n\'est pas retiré quand on décoche');
 }, { prefs: { achv: {} } });
 
+await scenario('page Succès : compteurs par couleur, bloc Bientôt, filtres Tous / En cours / Obtenus / Verrouillés', async (page) => {
+  await go(page, 'progression');
+  await page.click('[data-fk="stab:succes"]');
+  const panel = () => page.locator('#progress-panel').innerText();
+  check(/\d+ bronze · \d+ argent · \d+ or/.test(await panel()), 'le détail bronze, argent, or doit s\'afficher');
+  check(await page.locator('#p-achv-soon').count() === 1, 'le bloc « Bientôt » doit proposer les succès les plus proches');
+  check((await page.locator('[data-fk^="achv-filter:"]').count()) === 4, 'quatre filtres attendus');
+  await page.click('[data-fk="achv-filter:done"]');
+  check(!(await page.locator('#p-achv-soon').count()), 'le bloc « Bientôt » ne s\'affiche qu\'avec le filtre Tous');
+  const done = await panel();
+  check(/Premier pas/.test(done) && !/Bouche cousue/.test(done) && !/Succès caché/.test(done), 'Obtenus : seulement ce qui est obtenu');
+  await page.click('[data-fk="achv-filter:locked"]');
+  const locked = await panel();
+  check(!/Premier pas/.test(locked) && /Succès caché/.test(locked), 'Verrouillés : pas ce qui est obtenu, les cachés restent masqués');
+  await page.click('[data-fk="achv-filter:progress"]');
+  check(/\d+ \/ \d+/.test(await panel()), 'En cours : des barres de progression');
+  check((await page.locator('[data-fk="achv-filter:progress"]').getAttribute('aria-pressed')) === 'true', 'le filtre actif doit être signalé');
+}, { prefs: { achv: {} }, seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+
 await scenario('succès cachés : masqués par défaut, un bouton les montre et les re-masque, un réglage les montre toujours', async (page) => {
   await go(page, 'progression');
   await page.click('[data-fk="stab:succes"]');
