@@ -266,7 +266,8 @@ await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, pa
   await page.click('[data-fk="cb:iron-man"]');
   await page.waitForSelector('#achv-toast:not([hidden])');
   const text = await page.locator('#achv-text').innerText();
-  check(/succès débloqués : .*Premier pas/.test(text) && /Là où tout a commencé/.test(text), `bandeau attendu (Premier pas et Iron Man) : ${text}`);
+  check(/2 succès débloqués/.test(text) && /Premier pas/.test(text) && /Là où tout a commencé/.test(text), `bandeau attendu (Premier pas et Iron Man) : ${text}`);
+  check(await page.locator('#achv-medal').isVisible() && await page.locator('#sheet[open]').count() === 0, 'un petit succès : bandeau avec médaille, sans feuille');
   await page.click('#achv-view');
   await page.waitForSelector('#screen-progression:not([hidden])');
   check(await page.locator('#stab-succes').getAttribute('aria-selected') === 'true', 'le bouton Voir doit ouvrir l\'onglet Succès');
@@ -279,6 +280,18 @@ await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, pa
   await page.click('.nav-item[data-route="progression"]');
   check(/Obtenu/.test(await page.locator('#progress-panel').innerText()), 'un succès obtenu n\'est pas retiré quand on décoche');
 }, { prefs: { achv: {} } });
+
+await scenario('grand succès : feuille de célébration avec les autres déblocages, Plus tard la ferme, Voir mes succès ouvre la page', async (page) => {
+  await page.waitForSelector('#sheet[open]');
+  const sheet = await page.locator('#sheet').innerText();
+  check(/Succès débloqué/.test(sheet) && /autres succès/.test(sheet), `feuille de célébration attendue : ${sheet.slice(0, 160)}`);
+  check(await page.locator('#achv-toast').isHidden(), 'pas de bandeau quand la feuille s\'ouvre');
+  await page.click('[data-fk="achv-later"]');
+  await page.waitForSelector('#sheet:not([open])', { state: 'attached' });
+  check(await page.locator('.nav-item[data-route="voir"][aria-current="page"]').count() === 1, '« Plus tard » reste où on est');
+  await page.click('[data-fk="cb:iron-man"]'); // décocher puis recocher : plus rien de neuf à annoncer
+  check(await page.locator('#sheet[open]').count() === 0, 'aucune feuille tant qu\'il n\'y a rien de nouveau');
+}, { prefs: { achv: {} }, seed: (() => { const day = new Date(Date.now() - 86400000).toLocaleDateString('en-CA'); const seen = {}; for (const t of require('../data/mcu.json')) { if (t.upcoming) continue; if (t.type === 'film') seen[t.id] = day; else for (const e of t.episodes) seen[`${t.id}/${e.n}`] = day; } return { version: 2, order: 'chrono', seen, ignored: {}, catchUp: {}, lastSeenKey: null }; })() });
 
 await scenario('page Succès : compteurs par couleur, bloc Bientôt, filtres Tous / En cours / Obtenus / Verrouillés', async (page) => {
   await go(page, 'progression');

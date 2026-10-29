@@ -652,8 +652,28 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 @media (min-width: 600px) { .update-toast { bottom: 148px; } }
 .achv-toast { bottom: calc(var(--nav-h) + var(--safe-bottom) + 72px); }
 @media (min-width: 600px) { .achv-toast { bottom: 84px; } }
-#achv-text { flex: 1 1 auto; min-width: 0; padding: 12px 0; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
+#achv-text { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; padding: 12px 0; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
 .achv-toast .btn { flex: none; white-space: nowrap; }
+.achv-toast .medal { width: 32px; height: 32px; font-size: .8125rem; }
+.achv-toast .kicker { font-size: .75rem; line-height: 1rem; opacity: .8; }
+.achv-toast b { font-weight: 700; }
+.achv-toast .timer { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--red); border-radius: 0 0 0 6px; transform-origin: left; }
+.achv-toast.run .timer { animation: achv-timer 9s linear forwards; }
+@keyframes achv-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.achv-celebrate { text-align: center; padding: 8px 0 4px; }
+.achv-celebrate .kicker { margin: 12px 0 0; font-size: .875rem; color: var(--muted); }
+.achv-big-name { margin: 2px 0 4px; font-size: 1.375rem; line-height: 1.75rem; font-weight: 600; }
+.medal-xl { display: inline-flex; filter: drop-shadow(0 0 18px rgba(246, 207, 85, .35)); }
+.medal-xl .medal { width: 84px; height: 84px; font-size: 2rem; border-width: 3px; }
+.medal-xl .medal svg { width: 40px; height: 40px; }
+.achv-more { margin-top: 16px; text-align: left; }
+.achv-more ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.achv-more li { display: flex; align-items: center; gap: 10px; font-size: .875rem; }
+.achv-more .medal { width: 24px; height: 24px; font-size: .6875rem; }
+.achv-more .medal svg { width: 14px; height: 14px; }
+@media (prefers-reduced-motion: no-preference) { .medal-xl .medal { animation: medal-pop .5s cubic-bezier(.2, 1.4, .4, 1); } }
+@keyframes medal-pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .achv-toast .timer { display: none; } }
 .achv-list { display: grid; gap: 4px; }
 .achv { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border); }
 .achv:first-child { border-top: 0; padding-top: 0; }
