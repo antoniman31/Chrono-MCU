@@ -534,6 +534,11 @@ async function main() {
   ctx.route = routeFromHash();
 
   setupVoir(ctx);
+  // Le logo ramène en haut de la liste : depuis un autre écran, on y revient d'abord ; la recherche et les filtres restent tels quels
+  $('logo-btn').addEventListener('click', () => {
+    if (ctx.route !== 'voir') location.hash = '#voir';
+    else window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
+  });
   $('theme-toggle').addEventListener('click', () => {
     const next = THEME_CYCLE[(THEME_CYCLE.indexOf(ctx.view.theme) + 1) % THEME_CYCLE.length];
     ctx.setView({ theme: next });
