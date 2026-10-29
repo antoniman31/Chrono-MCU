@@ -9,19 +9,19 @@ const memory = (initial = {}) => {
 };
 
 test('valeurs par défaut: groupé, affiches, aucune phase repliée, thème auto', () => {
-  assert.deepEqual(normalizeView(null), { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, feedback: true, welcomed: false, goalDate: '2026-12-18' });
+  assert.deepEqual(normalizeView(null), { groupByPhase: true, showPosters: true, collapsedPhases: [], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, hideSecrets: true, feedback: true, welcomed: false, goalDate: '2026-12-18' });
 });
 
 test('normalizeView: ignore les valeurs invalides', () => {
   const v = normalizeView({ groupByPhase: false, showPosters: false, collapsedPhases: [2, 'x', 3.5, 4], theme: 'rose' });
-  assert.deepEqual(v, { groupByPhase: false, showPosters: false, collapsedPhases: [2, 4], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, feedback: true, welcomed: false, goalDate: '2026-12-18' });
+  assert.deepEqual(v, { groupByPhase: false, showPosters: false, collapsedPhases: [2, 4], theme: 'auto', oled: false, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, hideSecrets: true, feedback: true, welcomed: false, goalDate: '2026-12-18' });
   for (const theme of THEMES) assert.equal(normalizeView({ theme }).theme, theme);
 });
 
 test('loadView / saveView: aller-retour, storage absent, cassé ou corrompu', () => {
   const storage = memory();
   saveView(storage, { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true });
-  assert.deepEqual(loadView(storage), { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, feedback: true, welcomed: false, goalDate: '2026-12-18' });
+  assert.deepEqual(loadView(storage), { groupByPhase: false, showPosters: true, collapsedPhases: [1], theme: 'dark', oled: true, lastBackup: null, nudgeUntil: null, nudgeDays: 30, spoilerFree: false, hideSecrets: true, feedback: true, welcomed: false, goalDate: '2026-12-18' });
   assert.equal(loadView(null).theme, 'auto');
   assert.equal(loadView(memory({ [VIEW_KEY]: '{pas du json' })).theme, 'auto');
   assert.doesNotThrow(() => saveView({ setItem() { throw new Error('QuotaExceeded'); } }, normalizeView(null)));
@@ -56,6 +56,9 @@ test('rappel de sauvegarde, sans spoiler et objectif : valeurs par défaut et va
   assert.equal(normalizeView({ nudgeDays: 5 }).nudgeDays, 30);
   assert.equal(normalizeView({ spoilerFree: true }).spoilerFree, true);
   assert.equal(normalizeView({ spoilerFree: 'oui' }).spoilerFree, false);
+  assert.equal(normalizeView({}).hideSecrets, true);
+  assert.equal(normalizeView({ hideSecrets: false }).hideSecrets, false);
+  assert.equal(normalizeView({ hideSecrets: 'non' }).hideSecrets, true);
   assert.equal(normalizeView(null).goalDate, '2026-12-18', 'Doomsday par défaut');
   assert.equal(normalizeView({ goalDate: '2027-03-01' }).goalDate, '2027-03-01');
   assert.equal(normalizeView({ goalDate: null }).goalDate, null, 'objectif retiré : pas de retour automatique à Doomsday');
@@ -76,7 +79,7 @@ test('sauvegarde : thème, objectif et succès voyagent, les réglages propres �
   const view = normalizeView({ theme: 'dark', oled: true, goalDate: '2027-01-01', spoilerFree: true, nudgeDays: 14, lastBackup: { day: '2026-10-01', seenCount: 3 }, welcomed: true, achv: { first: { level: 1, date: '2026-10-02' } } });
   const file = exportState(defaultState(), exportPrefs(view));
   const parsed = JSON.parse(file);
-  assert.deepEqual(Object.keys(parsed.prefs).sort(), ['achv', 'feedback', 'goalDate', 'groupByPhase', 'nudgeDays', 'oled', 'showPosters', 'spoilerFree', 'theme']);
+  assert.deepEqual(Object.keys(parsed.prefs).sort(), ['achv', 'feedback', 'goalDate', 'groupByPhase', 'hideSecrets', 'nudgeDays', 'oled', 'showPosters', 'spoilerFree', 'theme']);
   assert.equal('lastBackup' in parsed.prefs || 'welcomed' in parsed.prefs, false);
   const back = importState(file);
   assert.equal(back.ok, true);

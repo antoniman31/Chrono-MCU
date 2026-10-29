@@ -3,7 +3,7 @@ import { evaluate, FAMILIES, LEVEL_LABELS, totalMedals } from '../achievements.j
 import { activityByDay, breakdown, heatmap, milestones, perWeek, records, releaseTimeline, streaks, weeklyActivity } from '../insights.js?v=__BUILD__';
 import { sagaLabel } from '../phases.js?v=__BUILD__';
 import { $, formatDay, formatShort, h, hours, icon, today } from './dom.js?v=__BUILD__';
-import { checkbox, progressBar } from './parts.js?v=__BUILD__';
+import { btn, checkbox, progressBar } from './parts.js?v=__BUILD__';
 
 // Carte « Objectif » : heures par semaine pour tout voir avant la date cible, comparées au rythme actuel
 function goalCard(ctx, s) {
@@ -28,6 +28,9 @@ let currentTab = 'bilan';
 
 const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`;
 const fact = (label, value) => h('div', { class: 'fact' }, h('dt', { text: label }), h('dd', { text: value }));
+// Succès cachés montrés le temps de la visite (comme « Afficher les spoilers » dans une fiche) ; revient masqué au prochain affichage de l'appli
+let secretsRevealed = false;
+
 const card = (id, title, ...children) => h('section', { class: 'card', 'aria-labelledby': id }, h('h3', { id, text: title }), children);
 
 function renderTabs(ctx) {
@@ -180,7 +183,7 @@ export function showAchievementsTab() { currentTab = 'succes'; }
 
 export function achievementInput(ctx) {
   const { state, view } = ctx;
-  return { titles: ctx.counted, sagas: ctx.sagas, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions, ignored: state.ignored, lastBackup: view.lastBackup };
+  return { titles: ctx.counted, sagas: ctx.sagas, seen: state.seen, catchUp: state.catchUp, today: today(), goalDate: view.goalDate, spoilerFree: view.spoilerFree, versions: state.versions, ignored: state.ignored, lastBackup: view.lastBackup, theme: view.theme, oled: view.oled, showPosters: view.showPosters };
 }
 
 function succes(ctx) {
@@ -191,7 +194,7 @@ function succes(ctx) {
   const percent = Math.round((earned / TOTAL_MEDALS) * 100);
   const item = (a) => {
     const locked = a.level === 0;
-    const secret = a.hidden && locked;
+    const secret = a.hidden && locked && ctx.view.hideSecrets && !secretsRevealed;
     const single = a.tiers.length === 1;
     const tier = single ? (locked ? 'Verrouillé' : 'Obtenu') : (locked ? 'Verrouillé' : LEVEL_LABELS[a.level]);
     const showBar = !secret && !single && a.level < a.tiers.length;
@@ -210,7 +213,15 @@ function succes(ctx) {
       h('p', { class: 'big-number', text: `${earned} / ${TOTAL_MEDALS}` }),
       progressBar(percent, 'Médailles obtenues'),
       h('p', { class: 'muted t-body-md', text: 'Chaque palier (bronze, argent, or) est une médaille. Un palier obtenu n\'est jamais retiré, même si tu décoches.' })),
-    ...FAMILIES.map(([family, label]) => card(`p-f-${family}`, label, h('ul', { class: 'achv-list' }, list.filter((a) => a.family === family).map(item)))),
+    ...FAMILIES.map(([family, label]) => {
+      const toggle = family === 'secret' && ctx.view.hideSecrets && (secretsRevealed || list.some((a) => a.hidden && a.level === 0))
+        ? btn({
+          label: secretsRevealed ? 'Masquer les succès cachés' : 'Afficher les succès cachés', iconName: secretsRevealed ? 'visibility-off' : 'visibility', variant: 'tonal', key: 'secrets-toggle',
+          onclick: () => { secretsRevealed = !secretsRevealed; ctx.render({ detail: false }); },
+        })
+        : null;
+      return card(`p-f-${family}`, label, toggle, h('ul', { class: 'achv-list' }, list.filter((a) => a.family === family).map(item)));
+    }),
   ];
 }
 
