@@ -667,6 +667,11 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .medal.l1 { background: #e0a46b; border: 2px solid #8a5426; color: #2b1606; }
 .medal.l2 { background: #dfe3ea; border: 2px solid #7b8494; color: #1c2230; }
 .medal.l3 { background: #f6cf55; border: 2px solid #a37b00; color: #2e2200; }
+.tri { display: flex; gap: 4px; margin-top: 6px; }
+.tri i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px dashed var(--outline); box-sizing: border-box; }
+.tri i.t1 { background: #e0a46b; border: 1.5px solid #8a5426; }
+.tri i.t2 { background: #dfe3ea; border: 1.5px solid #7b8494; }
+.tri i.t3 { background: #f6cf55; border: 1.5px solid #a37b00; }
 .achv.locked .achv-name > span:first-child { color: var(--muted); }
 
 /* Retour tactile à la coche : petit rebond du rond (sauf si les animations sont réduites) */
@@ -744,5 +749,5 @@ fieldset legend.field-label { padding: 8px 16px 0; }
   .progress { border: 1px solid ButtonText; }
   .progress > span, .bar-col i { background: Highlight; forced-color-adjust: none; }
   .badge { border: 1px solid ButtonText; }
-  .medal { forced-color-adjust: none; }
+  .medal, .tri i { forced-color-adjust: none; }
 }

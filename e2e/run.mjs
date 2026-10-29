@@ -169,6 +169,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
     { name: 'données réparées', raw: withBad, view: {}, route: null },
     { name: 'données illisibles', raw: '{pas du json', view: {}, route: null },
     { name: 'données d\'une version plus récente', raw: JSON.stringify({ version: 99, order: 'chrono', seen: {} }), view: {}, route: null },
+    { name: 'succès avec progression (Bientôt, tiers)', state: some, view: { achv: {} }, route: 'progression', tab: 'succes' },
     { name: 'bandeau de nouvelle version', state: some, view: {}, route: null, reveal: '#update-toast' },
     { name: 'bandeau de succès', state: stateOf(['iron-man']), view: { achv: {} }, route: null, wait: '#achv-toast:not([hidden])' },
   ];
@@ -196,6 +197,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
         await page.click(`.nav-item[data-route="${c.route}"]`);
         await page.waitForSelector(`#screen-${c.route}:not([hidden])`);
       }
+      if (c.tab) await page.click(`[data-fk="stab:${c.tab}"]`);
       await audit(page, where);
       await context.close();
     }
