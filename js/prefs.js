@@ -30,6 +30,8 @@ export function normalizeView(saved) {
     nudgeDays: NUDGE_CHOICES.includes(saved?.nudgeDays) ? saved.nudgeDays : 30,
     // Mode sans spoiler : masque résumé, image paysage et titres d'épisodes de ce qui n'est pas encore commencé
     spoilerFree: saved?.spoilerFree === true,
+    // Succès cachés : masqués (nom et description) tant qu'ils ne sont pas obtenus ; un bouton les montre le temps de la visite
+    hideSecrets: saved?.hideSecrets !== false,
     // Retour tactile à la coche (vibration + petite animation) ; accueil déjà vu ou ignoré
     feedback: saved?.feedback !== false,
     welcomed: saved?.welcomed === true,
@@ -43,7 +45,7 @@ export function normalizeView(saved) {
 }
 
 // Réglages qui voyagent avec la sauvegarde ; le reste (dernière sauvegarde, report du rappel, accueil vu, phases repliées) est propre à l'appareil
-const PORTABLE = ['groupByPhase', 'showPosters', 'theme', 'oled', 'spoilerFree', 'feedback', 'nudgeDays', 'goalDate'];
+const PORTABLE = ['groupByPhase', 'showPosters', 'theme', 'oled', 'spoilerFree', 'hideSecrets', 'feedback', 'nudgeDays', 'goalDate'];
 
 export function exportPrefs(view) {
   const out = Object.fromEntries(PORTABLE.map((k) => [k, view[k]]));

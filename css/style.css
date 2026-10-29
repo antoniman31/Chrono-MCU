@@ -652,7 +652,8 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 @media (min-width: 600px) { .update-toast { bottom: 148px; } }
 .achv-toast { bottom: calc(var(--nav-h) + var(--safe-bottom) + 72px); }
 @media (min-width: 600px) { .achv-toast { bottom: 84px; } }
-#achv-text { padding: 12px 0; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
+#achv-text { flex: 1 1 auto; min-width: 0; padding: 12px 0; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
+.achv-toast .btn { flex: none; white-space: nowrap; }
 .achv-list { display: grid; gap: 4px; }
 .achv { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border); }
 .achv:first-child { border-top: 0; padding-top: 0; }

@@ -14,7 +14,8 @@ const get = (list, id) => list.find((a) => a.id === id);
 test('catalogue : médailles totales cohérentes', () => {
   const list = evaluate(base({ titles: [film('a', '2008-01-01')], seen: {} }));
   assert.equal(totalMedals(list), list.reduce((sum, a) => sum + a.tiers.length, 0));
-  assert.equal(list.filter((a) => a.hidden).length, 8);
+  assert.equal(list.filter((a) => a.hidden).length, 17);
+  assert.ok(list.filter((a) => a.hidden).every((a) => a.family === 'secret' && a.tiers.length === 1), 'les succès cachés sont tous à un seul palier');
 });
 
 test('paliers : pourcentage et premier pas', () => {
@@ -207,5 +208,80 @@ test('succès de saga : le nom vient de data/sagas.json, sans article dans le ti
   // identifiants inchangés : les déblocages déjà enregistrés restent valables
   const more = evaluate(base({ titles, sagas: [...sagas, { id: 'cosmos', name: 'La Saga du Cosmos' }], seen: {} }));
   assert.equal(get(more, 'cosmos').desc, 'Voir tout ce qui est sorti de la Saga du Cosmos');
-  assert.equal(totalMedals(more), totalMedals(list) + 1);
+  assert.equal(totalMedals(more), totalMedals(list) + 4); // la saga elle-même et ses trois paliers de pourcentage
+});
+
+test('succès par phase et par pourcentage de saga', () => {
+  const titles = [film('a', '2008-01-01'), film('b', '2009-01-01', { phase: 2 }), film('c', '2010-01-01', { phase: 2 })];
+  const sagas = [{ id: 'infinity', name: "La Saga de l'Infini" }, { id: 'multiverse', name: 'La Saga du Multivers' }];
+  const list = evaluate(base({ titles, sagas, seen: { a: '2026-10-01', b: '2026-10-02' } }));
+  assert.equal(get(list, 'phase:1').level, 1);
+  assert.equal(get(list, 'phase:2').level, 0);
+  assert.equal(get(list, 'phase:1').desc, 'Terminer toute la phase 1');
+  assert.equal(get(list, 'sagaPct:infinity').value, 66);
+  assert.equal(get(list, 'sagaPct:infinity').level, 2); // 25 et 50 atteints
+  assert.equal(get(list, 'sagaPct:infinity').name, "À l'usure : Saga de l'Infini");
+  assert.equal(get(list, 'sagaPct:multiverse').value, 0);
+});
+
+test('jours : week-ends, jours de la semaine, mois, jours actifs, journée fleuve, double séance', () => {
+  const titles = [film('a', '2008-01-01', { runtimeMin: 240 }), film('b', '2009-01-01', { runtimeMin: 240 }), film('c', '2010-01-01'), film('d', '2011-01-01', { phase: 2 })];
+  // 2026-10-03 samedi, 2026-10-04 dimanche
+  const m = metrics({ ...base(), titles, seen: { a: '2026-10-03', b: '2026-10-03', c: '2026-10-04', d: '2026-11-02' } });
+  assert.equal(m.fullWeekends, 1);
+  assert.equal(m.activeDays, 3);
+  assert.equal(m.activeMonths, 2);
+  assert.equal(m.allWeekdays, false);
+  assert.equal(m.longestDayHours, 8);
+  assert.equal(m.doubleFilm, true); // a et b : même jour, même phase
+  const split = metrics({ ...base(), titles, seen: { a: '2026-10-03', d: '2026-10-03' } });
+  assert.equal(split.doubleFilm, false, 'deux phases différentes ne font pas une double séance');
+  const week = ['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10', '2026-10-11'];
+  const all = Object.fromEntries(week.map((d, i) => [`s${i}`, d]));
+  const ts = week.map((_, i) => film(`s${i}`, '2008-01-01'));
+  assert.equal(metrics({ ...base(), titles: ts, seen: all }).allWeekdays, true);
+  // un rattrapage n'est pas une séance
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2026-10-03', b: '2026-10-03' }, catchUp: { a: true, b: true } }).longestDayHours, 0);
+});
+
+test('une série vue en une journée, toutes les séries, tous les films, scènes mi et fin de générique', () => {
+  const s = serie('s', 4);
+  const f = film('f', '2008-01-01', { postCredits: ['mid', 'end'] });
+  const g = film('g', '2009-01-01', { postCredits: ['end'] });
+  const day = '2026-10-10';
+  const seenAll = { 's/1': day, 's/2': day, 's/3': day, 's/4': day, f: day, g: day };
+  const m = metrics({ ...base(), titles: [s, f, g], seen: seenAll });
+  assert.equal(m.seriesInOneDay, true);
+  assert.equal(m.seriesAll, true);
+  assert.equal(m.filmsAll, true);
+  assert.equal(m.postMid, 1);
+  assert.equal(m.postEnd, 2);
+  assert.equal(m.seenYears, 3); // 2021, 2008, 2009
+  const spread = { ...seenAll, 's/4': '2026-10-11' };
+  assert.equal(metrics({ ...base(), titles: [s, f, g], seen: spread }).seriesInOneDay, false);
+  assert.equal(metrics({ ...base(), titles: [serie('t', 3)], seen: { 't/1': day, 't/2': day, 't/3': day } }).seriesInOneDay, false, 'moins de 4 épisodes : pas assez');
+});
+
+test('jalons du MCU et personnages terminés', () => {
+  const titles = [film('iron-man', '2008-05-02', { heroes: ['iron-man'] }), film('avengers-endgame', '2019-04-24', { heroes: ['iron-man', 'avengers'] })];
+  const m = metrics({ ...base(), titles, seen: { 'iron-man': '2026-10-01' } });
+  assert.equal(m.milestones['iron-man'], true);
+  assert.equal(m.milestones['avengers-endgame'], false);
+  assert.equal(m.milestones.avengers, false, 'un titre absent du catalogue ne casse rien');
+  assert.equal(m.heroesDone, 0);
+  assert.equal(metrics({ ...base(), titles, seen: { 'iron-man': '2026-10-01', 'avengers-endgame': '2026-10-02' } }).heroesDone, 2);
+});
+
+test('succès cachés : retour après 30 jours, jours spéciaux, vendredi 13, thème, noir OLED, affiches', () => {
+  const titles = [film('a', '2008-01-01'), film('b', '2009-01-01'), film('c', '2010-01-01')];
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2026-08-01', b: '2026-08-31' } }).comeback, false); // 29 jours sans rien cocher : pas encore
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2026-08-01', b: '2026-09-01' } }).comeback, true);
+  const special = metrics({ ...base(), titles, seen: { a: '2026-01-01', b: '2026-10-31', c: '2024-02-29' } });
+  assert.deepEqual([special.specialDays['01-01'], special.specialDays['10-31'], special.specialDays['02-29'], special.specialDays['12-25']], [true, true, true, undefined]);
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2026-11-13' } }).friday13, true); // vendredi
+  assert.equal(metrics({ ...base(), titles, seen: { a: '2026-10-13' } }).friday13, false); // mardi
+  assert.equal(metrics({ ...base(), titles, seen: {}, oled: true, theme: 'light', showPosters: false }).oled, true);
+  assert.equal(metrics({ ...base(), titles, seen: {}, oled: true, theme: 'light', showPosters: false }).lightTheme, true);
+  assert.equal(metrics({ ...base(), titles, seen: {}, oled: true, theme: 'light', showPosters: false }).noPosters, true);
+  assert.equal(metrics({ ...base(), titles, seen: {} }).noPosters, false);
 });

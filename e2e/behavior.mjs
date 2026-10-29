@@ -266,19 +266,37 @@ await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, pa
   await page.click('[data-fk="cb:iron-man"]');
   await page.waitForSelector('#achv-toast:not([hidden])');
   const text = await page.locator('#achv-text').innerText();
-  check(/Succès débloqué : Premier pas/.test(text), `bandeau attendu : ${text}`);
+  check(/succès débloqués : .*Premier pas/.test(text) && /Là où tout a commencé/.test(text), `bandeau attendu (Premier pas et Iron Man) : ${text}`);
   await page.click('#achv-view');
   await page.waitForSelector('#screen-progression:not([hidden])');
   check(await page.locator('#stab-succes').getAttribute('aria-selected') === 'true', 'le bouton Voir doit ouvrir l\'onglet Succès');
   const panel = await page.locator('#progress-panel').innerText();
   check(/Premier pas/.test(panel) && /Obtenu/.test(panel) && /Succès caché/.test(panel), `onglet Succès incomplet : ${panel.slice(0, 200)}`);
   check(await page.locator('#achv-toast').isHidden(), 'le bandeau doit disparaître après Voir');
-  check(/^1 \/ \d+/.test(await page.locator('#p-achv ~ .big-number, .big-number').first().innerText()), 'le compteur doit afficher 1 médaille');
+  check(/^2 \/ \d+/.test(await page.locator('#p-achv ~ .big-number, .big-number').first().innerText()), 'le compteur doit afficher 2 médailles (Premier pas et Là où tout a commencé)');
   await page.click('.nav-item[data-route="voir"]');
   await page.click('[data-fk="cb:iron-man"]'); // décoche
   await page.click('.nav-item[data-route="progression"]');
   check(/Obtenu/.test(await page.locator('#progress-panel').innerText()), 'un succès obtenu n\'est pas retiré quand on décoche');
 }, { prefs: { achv: {} } });
+
+await scenario('succès cachés : masqués par défaut, un bouton les montre et les re-masque, un réglage les montre toujours', async (page) => {
+  await go(page, 'progression');
+  await page.click('[data-fk="stab:succes"]');
+  const panel = () => page.locator('#progress-panel').innerText();
+  check(/Succès caché/.test(await panel()) && !/Bouche cousue/.test(await panel()), 'les succès cachés doivent être masqués au départ');
+  await page.click('[data-fk="secrets-toggle"]');
+  check(/Bouche cousue/.test(await panel()) && /Activer le mode sans spoiler/.test(await panel()), 'le bouton doit montrer les noms et les descriptions');
+  check(/Masquer les succès cachés/.test(await page.locator('[data-fk="secrets-toggle"]').innerText()), 'le bouton doit proposer de re-masquer');
+  await page.click('[data-fk="secrets-toggle"]');
+  check(!/Bouche cousue/.test(await panel()), 'le second appui doit re-masquer');
+  await go(page, 'reglages');
+  await openSec(page, 'look');
+  await flip(page, 's-secrets', false);
+  await go(page, 'progression');
+  await page.click('[data-fk="stab:succes"]');
+  check(/Bouche cousue/.test(await panel()) && (await page.locator('[data-fk="secrets-toggle"]').count()) === 0, 'réglage coupé : tout est montré, sans bouton');
+});
 
 await scenario('filtre par personnage : liste, compteur, succès par personnage', async (page) => {
   const total = async () => parseInt((await page.locator('#result-count').innerText()), 10);
