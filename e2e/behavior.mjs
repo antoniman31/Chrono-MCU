@@ -293,6 +293,21 @@ await scenario('grand succès : feuille de célébration avec les autres débloc
   check(await page.locator('#sheet[open]').count() === 0, 'aucune feuille tant qu\'il n\'y a rien de nouveau');
 }, { prefs: { achv: {} }, seed: (() => { const day = new Date(Date.now() - 86400000).toLocaleDateString('en-CA'); const seen = {}; for (const t of require('../data/mcu.json')) { if (t.upcoming) continue; if (t.type === 'film') seen[t.id] = day; else for (const e of t.episodes) seen[`${t.id}/${e.n}`] = day; } return { version: 2, order: 'chrono', seen, ignored: {}, catchUp: {}, lastSeenKey: null }; })() });
 
+await scenario('logo : remonte en haut de la liste sans toucher à la recherche, et ramène à la liste depuis un autre écran', async (page) => {
+  await page.fill('#search', 'man');
+  await page.waitForTimeout(250);
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await page.waitForFunction(() => window.scrollY > 100);
+  await page.click('[data-fk="logo"]');
+  await page.waitForFunction(() => window.scrollY === 0);
+  check((await page.inputValue('#search')) === 'man', 'la recherche doit rester');
+  await go(page, 'progression');
+  await page.click('[data-fk="logo"]');
+  await page.waitForSelector('#screen-voir:not([hidden])');
+  check(await page.evaluate(() => window.scrollY) === 0, 'depuis Progression : retour à la liste, en haut');
+  check((await page.inputValue('#search')) === 'man', 'la recherche reste aussi après un retour depuis un autre écran');
+});
+
 await scenario('page Succès : compteurs par couleur, bloc Bientôt, filtres Tous / En cours / Obtenus / Verrouillés', async (page) => {
   await go(page, 'progression');
   await page.click('[data-fk="stab:succes"]');
