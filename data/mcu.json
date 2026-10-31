@@ -1150,6 +1150,9 @@
     "saga": "multiverse",
     "releaseDate": "2021-03-19",
     "chronoOrder": 33,
+    "heroes": [
+      "bucky-barnes"
+    ],
     "tmdbId": 88396,
     "tvmazeId": 41749,
     "poster": "/6NrUwEWDxZI2XffOnw3nuibukmX.jpg",
@@ -1199,9 +1202,6 @@
         "airDate": "2021-04-23",
         "runtimeMin": 49
       }
-    ],
-    "heroes": [
-      "bucky-barnes"
     ]
   },
   {
@@ -1880,11 +1880,11 @@
     "releaseDateFr": "2024-07-24",
     "chronoOrder": 54,
     "runtimeMin": 128,
-    "heroes": [
-      "deadpool"
-    ],
     "postCredits": [
       "end"
+    ],
+    "heroes": [
+      "deadpool"
     ],
     "tmdbId": 533535,
     "poster": "/7CtRdKd5hQPB2b1apKCqxxQUKSf.jpg",
@@ -2002,6 +2002,9 @@
     "saga": "multiverse",
     "releaseDate": "2025-03-04",
     "chronoOrder": 57,
+    "heroes": [
+      "daredevil"
+    ],
     "tmdbId": 202555,
     "tvmazeId": 63234,
     "poster": "/9ERtLvFN1nFCabGaFkC6tiroglm.jpg",
@@ -2072,9 +2075,6 @@
         "airDate": "2025-04-15",
         "runtimeMin": 57
       }
-    ],
-    "heroes": [
-      "daredevil"
     ]
   },
   {
@@ -2087,12 +2087,12 @@
     "releaseDateFr": "2025-04-30",
     "chronoOrder": 58,
     "runtimeMin": 127,
-    "heroes": [
-      "bucky-barnes"
-    ],
     "postCredits": [
       "mid",
       "end"
+    ],
+    "heroes": [
+      "bucky-barnes"
     ],
     "tmdbId": 986056,
     "poster": "/zctISSBEZRgVQPG178HqRJMnc4x.jpg",
@@ -2373,6 +2373,9 @@
     "saga": "multiverse",
     "releaseDate": "2026-03-24",
     "chronoOrder": 64,
+    "heroes": [
+      "daredevil"
+    ],
     "tmdbId": 202555,
     "tvmazeId": 63234,
     "poster": "/kNOOBUEKnivdnWsxbtKnG69VMwx.jpg",
@@ -2435,9 +2438,6 @@
         "airDate": "2026-05-05",
         "runtimeMin": 51
       }
-    ],
-    "heroes": [
-      "daredevil"
     ]
   },
   {
@@ -2591,13 +2591,13 @@
     "releaseDateFr": "2016-02-10",
     "chronoOrder": 52,
     "runtimeMin": 108,
-    "heroes": [
-      "deadpool"
-    ],
     "postCredits": [
       "end"
     ],
     "altUniverse": true,
+    "heroes": [
+      "deadpool"
+    ],
     "tmdbId": 293660,
     "poster": "/z5VjcCEioj2c2dvxmoqBW0Rj8Xj.jpg",
     "backdrop": "/rFj9IKlL75B2pXhZA60jkNWvxeW.jpg",
@@ -2614,13 +2614,13 @@
     "releaseDateFr": "2018-05-16",
     "chronoOrder": 53,
     "runtimeMin": 119,
-    "heroes": [
-      "deadpool"
-    ],
     "postCredits": [
       "mid"
     ],
     "altUniverse": true,
+    "heroes": [
+      "deadpool"
+    ],
     "tmdbId": 383498,
     "poster": "/ybjooZMNlRBaFNfs52XqONc4Xyw.jpg",
     "backdrop": "/3P52oz9HPQWxcwHOwxtyrVV1LKi.jpg",
