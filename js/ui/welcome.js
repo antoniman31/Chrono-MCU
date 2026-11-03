@@ -40,7 +40,7 @@ function renderCatchUp(body, ctx) {
       h('select', { id: 'w-until', class: 'date-input', 'data-fk': 'w-until', onchange: (e) => { untilId = e.target.value; refreshSheet(); } },
         h('option', { value: '', text: 'Choisir…' }),
         ordered.map((t) => h('option', { value: t.id, selected: t.id === untilId, text: t.title })))),
-    h('p', { class: 'muted t-body-md', role: 'status', text: target ? `${pending} titre${pending > 1 ? 's' : ''} ${pending > 1 ? 'seront marqués' : 'sera marqué'} comme vu${pending > 1 ? 's' : ''} (rattrapage : ils comptent dans tes heures, pas dans ton rythme).` : 'Aucun titre choisi pour l\'instant.' }),
+    h('p', { class: 'muted t-body-md', role: 'status', text: target ? `${pending} titre${pending > 1 ? 's' : ''} ${pending > 1 ? 'seront marqués' : 'sera marqué'} comme vu${pending > 1 ? 's' : ''} (rattrapage : pris en compte dans les heures, pas dans le rythme).` : 'Aucun titre choisi pour l\'instant.' }),
     h('div', { class: 'sheet-footer' },
       btn({ label: 'Retour', variant: 'text', key: 'w-back', onclick: () => { step = 'intro'; refreshSheet(); } }),
       btn({ label: 'Marquer et commencer', variant: 'filled', key: 'w-confirm', extra: target ? {} : { disabled: true }, onclick: () => { const t = target; step = 'intro'; untilId = ''; ctx.closeSheet(); ctx.markUntil(t); } })));

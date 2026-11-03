@@ -39,7 +39,7 @@ function followSection(ctx) {
   return {
     summary: `${active} catégorie${active > 1 ? 's' : ''} sur ${categories.length} · ${followed.length} titre${followed.length > 1 ? 's' : ''}`,
     content: [
-      h('p', { class: 'muted t-body-sm', text: 'Décoche une catégorie pour l\'exclure de ta progression, de tes statistiques et du « Prochain à voir ». Tu peux réintégrer un titre précis depuis son menu.' }),
+      h('p', { class: 'muted t-body-sm', text: 'Décoche une catégorie pour l\'exclure de ta progression, de tes stats et de « Prochain à voir ». Un titre se réintègre depuis son menu.' }),
       rows,
       h('p', { class: 'follow-total', role: 'status', text: total }),
     ],
@@ -54,7 +54,7 @@ function syncBlock(ctx) {
   const input = h('input', { type: 'password', id: 'gh-token', class: 'date-input', autocomplete: 'off', spellcheck: 'false', placeholder: 'github_pat_…', 'data-fk': 'gh-token' });
   return h('div', { class: 'sync-block' },
     h('p', { class: 'field-label', text: 'Catalogue' }),
-    h('p', { class: 'desc', text: 'Cherche les nouveaux titres, les sorties et les durées (TMDB, TVmaze). Le résultat arrive en pull request à relire ; la synchronisation tourne aussi seule le 1er de chaque mois.' }),
+    h('p', { class: 'desc', text: 'Cherche les nouveaux titres, sorties et durées (TMDB, TVmaze). Résultat en pull request à relire ; lancée aussi seule le 1er du mois.' }),
     h('a', { class: 'btn btn-outlined', href: ACTIONS_URL, target: '_blank', rel: 'noopener', 'data-fk': 's-sync-link' }, h('span', { class: 'face' }, 'Ouvrir la synchronisation sur GitHub')),
     hasToken
       ? h('div', { class: 'sync-run' },
@@ -63,7 +63,7 @@ function syncBlock(ctx) {
         btn({ label: 'Retirer le jeton', variant: 'text', key: 's-sync-forget', onclick: () => ctx.forgetGithubToken() }))
       : h('details', { class: 'sync-token' },
         h('summary', { text: 'Lancer depuis l\'application (jeton personnel)' }),
-        h('p', { class: 'muted t-body-sm', text: 'Crée sur GitHub un jeton « fine-grained » limité à ce dépôt, avec le seul droit « Actions : lecture et écriture ». Il reste dans ce navigateur et n\'est jamais exporté avec ta progression.' }),
+        h('p', { class: 'muted t-body-sm', text: 'Crée un jeton GitHub « fine-grained » limité à ce dépôt, avec le seul droit « Actions : lecture et écriture ». Il reste sur cet appareil, hors export.' }),
         h('div', { class: 'field' },
           h('label', { class: 'field-label', for: 'gh-token', text: 'Jeton GitHub' }),
           input),
@@ -113,7 +113,7 @@ export function renderReglages(ctx) {
   const persistNote = ctx.persisted === true
     ? 'Stockage protégé : le navigateur ne devrait pas effacer ta progression.'
     : ctx.persisted === false
-      ? 'Stockage non protégé : le navigateur peut effacer les données du site. Exporte régulièrement, et installe l\'application sur ton écran d\'accueil si ton navigateur le propose.'
+      ? 'Stockage non protégé : le navigateur peut effacer les données. Exporte régulièrement ; installe l\'appli sur l\'écran d\'accueil si possible.'
       : null;
 
   const follow = followSection(ctx);
@@ -127,15 +127,15 @@ export function renderReglages(ctx) {
         h('input', { type: 'checkbox', role: 'switch', checked: view.oled, 'data-fk': 's-oled', onchange: (e) => ctx.setView({ oled: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       h('label', { class: 'setting switch-row' },
-        h('span', { class: 'text' }, 'Mode sans spoiler', h('span', { class: 'desc', text: 'Floute le résumé et l\'image de la fiche, et les titres d\'épisodes, tant que tu n\'as pas commencé le titre ou vu l\'épisode. Un bouton les révèle dans la fiche.' })),
+        h('span', { class: 'text' }, 'Mode sans spoiler', h('span', { class: 'desc', text: 'Floute le résumé, l\'image et les titres d\'épisodes tant que tu n\'as pas commencé le titre. Un bouton les révèle dans la fiche.' })),
         h('input', { type: 'checkbox', role: 'switch', checked: view.spoilerFree, 'data-fk': 's-spoiler', onchange: (e) => ctx.setView({ spoilerFree: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       h('label', { class: 'setting switch-row' },
-        h('span', { class: 'text' }, 'Masquer les succès cachés', h('span', { class: 'desc', text: 'Cache le nom et la description des succès cachés tant que tu ne les as pas obtenus. Un bouton les montre dans Progression > Succès.' })),
+        h('span', { class: 'text' }, 'Masquer les succès cachés', h('span', { class: 'desc', text: 'Cache nom et description des succès cachés tant qu\'ils ne sont pas obtenus. Un bouton les montre dans Progression > Succès.' })),
         h('input', { type: 'checkbox', role: 'switch', checked: view.hideSecrets, 'data-fk': 's-secrets', onchange: (e) => ctx.setView({ hideSecrets: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       h('label', { class: 'setting switch-row' },
-        h('span', { class: 'text' }, 'Retour tactile', h('span', { class: 'desc', text: 'Petite animation et vibration (si ton appareil le permet) quand tu coches. Les animations restent coupées si ton système les réduit.' })),
+        h('span', { class: 'text' }, 'Retour tactile', h('span', { class: 'desc', text: 'Animation et vibration (si possible) quand tu coches. Coupées si ton système réduit les animations.' })),
         h('input', { type: 'checkbox', role: 'switch', checked: view.feedback, 'data-fk': 's-feedback', onchange: (e) => ctx.setView({ feedback: e.target.checked }) }),
         h('span', { class: 'switch', 'aria-hidden': 'true' })),
       hasPosters
@@ -147,7 +147,7 @@ export function renderReglages(ctx) {
     ]),
     accordion('follow', 'check', 'Ce que je suis', follow.summary, follow.content),
     accordion('goal', 'chart', 'Objectif', view.goalDate ? `Tout voir avant le ${formatShort(view.goalDate)}` : 'Aucun objectif', [
-      h('p', { class: 'muted t-body-sm', text: 'Choisis une date : l\'écran Progression calcule les heures à regarder par semaine pour tout voir à temps. Par défaut, la sortie annoncée d\'Avengers : Doomsday.' }),
+      h('p', { class: 'muted t-body-sm', text: 'Choisis une date : Progression calcule les heures à voir par semaine pour tout finir à temps. Par défaut : la sortie d\'Avengers : Doomsday.' }),
       h('label', { class: 'field' },
         h('span', { class: 'field-label', text: 'Date cible' }),
         h('input', { type: 'date', class: 'date-input', value: view.goalDate ?? '', 'data-fk': 's-goal', onchange: (e) => ctx.setView({ goalDate: e.target.value || null }) })),
@@ -226,7 +226,7 @@ export function renderResetAchievementsSheet(body, ctx) {
   const earned = Object.values(ctx.view.achv ?? {}).reduce((sum, a) => sum + (a?.level ?? 0), 0);
   body.append(
     h('p', { text: earned ? `Tu vas remettre à zéro tes ${earned} médaille${earned > 1 ? 's' : ''} enregistrée${earned > 1 ? 's' : ''} et leurs dates de déblocage.` : 'Aucune médaille n\'est enregistrée pour l\'instant.' }),
-    h('p', { class: 'muted', text: 'Les succès sont recalculés tout de suite d\'après ta progression actuelle : ceux que tu as réellement mérités reviennent et sont annoncés de nouveau, les autres disparaissent (par exemple si tu as décoché des titres). Ta progression n\'est pas touchée.' }),
+    h('p', { class: 'muted', text: 'Les succès sont recalculés d\'après ta progression : ceux que tu as mérités reviennent (et sont annoncés), les autres disparaissent. Ta progression ne change pas.' }),
     h('div', { class: 'sheet-footer' },
       btn({ label: 'Annuler', variant: 'text', key: 'ra-cancel', onclick: () => ctx.closeSheet() }),
       btn({ label: 'Réinitialiser', variant: 'filled', key: 'ra-confirm', onclick: () => ctx.resetAchievements() })));
@@ -236,7 +236,7 @@ export function renderEraseSheet(body, ctx) {
   const n = Object.keys(ctx.state.seen).length;
   body.append(
     h('p', { text: n ? `Tu vas effacer ${n === 1 ? 'ta coche' : `tes ${n} coches`} (films et épisodes), tes choix de version et ton historique de rattrapage.` : 'Tu n\'as encore rien coché : il n\'y a rien à effacer.' }),
-    h('p', { class: 'muted', text: 'Une sauvegarde est téléchargée d\'abord. Tes titres ignorés, tes catégories suivies et tes préférences d\'affichage ne changent pas. Tu pourras annuler pendant 10 secondes.' }),
+    h('p', { class: 'muted', text: 'Une sauvegarde est téléchargée d\'abord. Titres ignorés, catégories et préférences restent. Annulable pendant 10 s.' }),
     h('div', { class: 'sheet-footer' },
       btn({ label: 'Annuler', variant: 'text', key: 'e-cancel', onclick: () => ctx.closeSheet() }),
       btn({ label: 'Sauvegarder et effacer', variant: 'filled', key: 'e-confirm', extra: n ? {} : { disabled: true }, onclick: () => ctx.eraseProgress() })));

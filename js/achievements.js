@@ -33,7 +33,7 @@ const CATALOG = [
   { id: 'activeDays', family: 'rythme', name: 'Jours actifs', unit: 'j', tiers: [10, 30, 60], metric: (m) => m.activeDays, desc: (n) => `Cocher quelque chose pendant ${n} jours différents` },
   { id: 'months', family: 'rythme', name: 'Mois après mois', unit: 'mois', tiers: [3, 6, 12], metric: (m) => m.activeMonths, desc: (n) => `Cocher quelque chose pendant ${n} mois différents` },
   { id: 'weekend', family: 'rythme', name: 'Week-end entier', tiers: [1, 5, 10], metric: (m) => m.fullWeekends, desc: (n) => `Cocher un samedi et le dimanche suivant, ${n} ${plural(n, 'week-end', 'week-ends')}` },
-  { id: 'weekdays', family: 'rythme', name: 'Tous les jours de la semaine', tiers: [1], metric: (m) => m.allWeekdays, desc: () => 'Cocher au moins une fois un lundi, un mardi, un mercredi, un jeudi, un vendredi, un samedi et un dimanche' },
+  { id: 'weekdays', family: 'rythme', name: 'Tous les jours de la semaine', tiers: [1], metric: (m) => m.allWeekdays, desc: () => 'Cocher au moins une fois chaque jour de la semaine, du lundi au dimanche' },
   { id: 'longDay', family: 'rythme', name: 'Journée fleuve', unit: 'h', tiers: [5, 8, 12], metric: (m) => m.longestDayHours, desc: (n) => `Voir ${n} h de films et d'épisodes en une seule journée` },
   { id: 'doubleFilm', family: 'rythme', name: 'Double séance', tiers: [1], metric: (m) => m.doubleFilm, desc: () => 'Voir deux films de la même phase le même jour' },
   { id: 'seriesDay', family: 'rythme', name: 'Série d\'une traite', tiers: [1], metric: (m) => m.seriesInOneDay, desc: () => 'Terminer une série d\'au moins 4 épisodes en une seule journée' },

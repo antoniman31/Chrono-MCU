@@ -148,8 +148,8 @@ export function renderDetail(container, ctx, id, { showTitle = true, showPoster 
   if (!t.upcoming) {
     const actions = [];
     if (ignored) children.push(h('p', { class: 'muted', text: info.category && !info.explicit
-      ? `Ignoré : la catégorie « ${categoryLabel(info.category, ctx.sagas, ctx.allTitles)} » n'est pas suivie (Réglages > Ce que je suis). Ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».`
-      : 'Ignoré : ce titre ne compte pas dans ta progression, tes statistiques ni le « Prochain à voir ».' }));
+      ? `Ignoré : la catégorie « ${categoryLabel(info.category, ctx.sagas, ctx.allTitles)} » est coupée (Réglages > Ce que je suis).`
+      : 'Ignoré : ce titre ne compte pas dans ta progression.' }));
     else {
       actions.push(btn({
         label: t.type === 'serie' ? (seen ? 'Marquer la série non vue' : 'Marquer la série vue') : (seen ? 'Marquer comme non vu' : 'Marquer comme vu'),
