@@ -17,7 +17,7 @@
     return document.body && document.body.dataset.ready === 'true';
   }
 
-  var STARTUP = 'L\'application n\'a pas pu démarrer. Recharge la page ; si le problème continue, ta progression enregistrée n\'est pas touchée : réessaie dans quelques minutes.';
+  var STARTUP = 'L\'application n\'a pas pu démarrer. Recharge la page ; ta progression enregistrée n\'est pas touchée.';
   var RUNTIME = 'Une erreur inattendue s\'est produite. Si quelque chose ne marche pas, recharge la page.';
 
   // Erreurs JavaScript, et ressources vitales (scripts, feuille de style) qui ne se chargent pas ; les images (affiches) sont ignorées
