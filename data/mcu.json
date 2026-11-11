@@ -2491,7 +2491,7 @@
     "poster": "/bWPktguPGslrdM79SNQt4OWYyJS.jpg",
     "backdrop": "/uoXXbN2PrOxH6UKyP7kYwmGpAAP.jpg",
     "overview": "Une nouvelle version de Vision ayant échappé à ceux qui cherchaient à faire de lui une arme, vit dans la clandestinité. En quête d’un nouveau sens à sa vie, il consulte les IA intégrées à son programme, notamment Friday, Edith, Jarvis et le tristement célèbre Ultron.",
-    "verified": false,
+    "verified": true,
     "episodes": [
       {
         "n": 1,
@@ -2541,7 +2541,7 @@
         "n": 8,
         "title": "Forever",
         "airDate": "2026-11-10",
-        "runtimeMin": 68
+        "runtimeMin": 69
       }
     ]
   },
