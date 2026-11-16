@@ -91,4 +91,4 @@ Détail des champs, des règles et des scripts : [`SPEC.md`](SPEC.md#annexe--ré
 ## Pour aller plus loin
 
 - [`SPEC.md`](SPEC.md) : spécification, décisions de conception et référence détaillée.
-- [`docs/AUDIT.md`](docs/AUDIT.md) : audit complet et état de chaque point.
+- [`RESTE-A-FAIRE.md`](RESTE-A-FAIRE.md) : ce qui reste (l'audit, point par point) ; [`JOURNAL.md`](JOURNAL.md) : l'histoire.
