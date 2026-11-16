@@ -67,6 +67,25 @@ const withAxe = (context) => context.addInitScript({ content: axeSource });
 const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 // Pas de réseau, mais une image de 1 pixel : les affiches existent, donc la mise en page avec affiche est celle qui est auditée
 const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: PIXEL }));
+// Ordre « Sortie », puis onglet Phase 4. Le 16/11/2026, en CI sur main, cet onglet est resté invisible 30 s après le clic ;
+// la relance est passée et 108 essais locaux (normal, processeur ralenti 8 fois, police retardée) ne l'ont pas reproduit.
+// Le délai dépassé arrêtait toute la suite sans rien dire : on note ce que la page montrait, et la suite continue.
+const openPhase4 = async (page, where) => {
+  await page.click('[data-order="release"]');
+  const tab = await page.waitForSelector('#phasebar:not([hidden]) [data-fk="ptab:4"]', { state: 'visible', timeout: 5000 }).catch(() => null);
+  if (tab) {
+    await tab.click();
+    return true;
+  }
+  const seenState = await page.evaluate(() => JSON.stringify({
+    order: [...document.querySelectorAll('[data-order]')].map((b) => `${b.dataset.order}:${b.getAttribute('aria-pressed')}`),
+    phasebarHidden: document.getElementById('phasebar')?.hidden,
+    tab: document.querySelector('[data-fk="ptab:4"]')?.getBoundingClientRect(),
+    openDialogs: [...document.querySelectorAll('dialog[open]')].map((d) => d.id),
+  }));
+  fail(where, `onglet Phase 4 invisible 5 s après « Sortie » : ${seenState}`);
+  return false;
+};
 
 async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
   const where = `${theme}/${vname}`;
@@ -92,9 +111,7 @@ async function runCombo(theme, [prefs, scheme], [vname, width, height]) {
 
   await audit(page, `${where} À voir`);
 
-  await page.click('[data-order="release"]');
-  await page.click('[data-fk="ptab:4"]');
-  await audit(page, `${where} phase 4 atteinte`);
+  if (await openPhase4(page, where)) await audit(page, `${where} phase 4 atteinte`);
   await page.click('[data-order="chrono"]');
 
   await page.click('#open-filters');
@@ -339,9 +356,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
     problems.forEach((p) => fail(where, `${screen} : ${p}`));
   };
   await inspect('À voir');
-  await page.click('[data-order="release"]');
-  await page.click('[data-fk="ptab:4"]');
-  await inspect('phase 4 atteinte');
+  if (await openPhase4(page, where)) await inspect('phase 4 atteinte');
   await page.click('[data-order="chrono"]');
   await page.click('#open-filters');
   await inspect('feuille Filtres');

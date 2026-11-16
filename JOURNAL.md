@@ -142,3 +142,15 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
 Bloc commun des 8 dépôts en tête de `CLAUDE.md` (décisions d'Antoni : fusion sur « go » seulement, noms de modèle
 autorisés, zones tactiles de 48 px). `docs/AUDIT.md` devient `RESTE-A-FAIRE.md` ; `tasks/plan.md` et `tasks/todo.md`
 entrent ici en entier.
+
+### CI, trois niveaux ; test e2e instable — 16/11/2026
+
+- Bloc commun : règle « CI, trois niveaux ». Ici, `e2e` dépend d'un job `changements` et se saute sur une PR qui ne touche
+  que des `.md` ; un job sauté compte comme réussi pour le ruleset, qui exige toujours `test` et `e2e`. Sur `main`, tout tourne.
+- Le 16/11, juste après la fusion de la #87 (documentation seule), `e2e` a échoué sur `main` : l'onglet Phase 4 est resté
+  invisible 30 s après le clic sur « Sortie ». La relance est passée. 108 essais locaux de la même séquence (normal,
+  processeur ralenti 8 fois, police Bebas Neue retardée de 0 à 800 ms) n'ont rien reproduit. Le délai dépassé arrêtait toute la
+  suite sans rien dire : `openPhase4` (dans `e2e/run.mjs`) attend l'onglet 5 s, puis note l'ordre affiché, l'état de la barre
+  des phases et les dialogues ouverts, et la suite continue. Vu échouer : avec le bouton d'ordre rendu inopérant, les
+  14 passages (12 combinaisons et 2 reflows) le signalent et la suite va jusqu'au bout (code restauré ensuite).
+- Qualité : 211 tests, 284 contrôles d'accessibilité, 50 scénarios de comportement.
