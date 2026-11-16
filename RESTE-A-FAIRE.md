@@ -53,6 +53,7 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 | 21 | **Code mort** : `heroLabel`, classes CSS `backup-actions`, `card-tonal`, `chips`, `t-label-lg`, `t-label-md`, `t-title-lg`, `t-title-md`, `settings-section` ; pas de linter. | S | fait (code et CSS morts retirés, oxlint dans la CI, aucun avertissement) |
 | 22 | **CSS** : jetons de couleur de thème dupliqués sur 6 blocs, risque d'oubli. | M | à faire |
 | 23 | **Petits détails** : suivi du défilement actif sur les écrans Progression et Réglages ; `latestRun` compare l'horloge du navigateur à celle de GitHub ; `saveToken` échoue sans le dire ; dépôt écrit en dur dans `github.js`. | S | fait en partie (`saveToken` : l'échec se voit)  |
+| 26 | **Test e2e instable** : le 16/11/2026, en CI sur `main`, l'onglet Phase 4 est resté invisible 30 s après le clic sur « Sortie » (relance verte ; 108 essais locaux sans échec : normal, processeur ralenti 8 fois, police retardée). Cause inconnue : le test note désormais ce que la page montrait et la suite continue. Au prochain échec, lire ce relevé dans le journal du job. | S | en cours |
 
 ## Fait
 
