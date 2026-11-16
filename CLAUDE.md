@@ -1,8 +1,27 @@
 # Chrono-MCU — règles du projet
 
+## Règles communes (le même bloc dans les 8 dépôts d'Antoni : le modifier ici, c'est le modifier partout)
+
+Décidées par Antoni le 16/11/2026. Les règles propres à ce dépôt suivent ce bloc ; en cas de conflit, ce bloc l'emporte.
+
+- **Avec Antoni** : français, tutoiement, réponses courtes, franches, sans flatterie. Il est seul utilisateur (Galaxy S26 Ultra, PC Windows).
+- **Proposer d'abord** : décrire le changement, attendre un « ok » explicite avant de toucher quoi que ce soit, ne jamais régénérer un fichier de son propre chef. « Pose des questions » veut dire `AskUserQuestion`, avec des choix concrets et un recommandé.
+- **Fusion** : PR en brouillon, fusion par squash **seulement sur le « go » d'Antoni**, CI verte. Jamais de fusion de sa propre initiative, même verte.
+- **Branche** : celle que la session impose. Aucun nom de branche n'est écrit dans ce dépôt : l'environnement le change à chaque session.
+- **Identité de commit** : `AntoniMan31 <268696974+antoniman31@users.noreply.github.com>`. Jamais l'adresse personnelle d'Antoni : GitHub refuse le push qui l'expose.
+- **Noms de modèle** : autorisés (ligne de co-auteur des commits comprise).
+- **Secrets** : jamais de clé, de jeton ni de mot de passe dans le dépôt ou la conversation ; ils se saisissent dans l'application ou dans les secrets GitHub/Cloudflare. Jamais d'export de données personnelles ni de `.env` commité.
+- **Tests** : le lint et les tests du dépôt passent avant chaque commit. Un test ne compte qu'après l'avoir **vu échouer** sur le code d'avant. Jamais affaiblir un contrôle pour obtenir du vert (test sauté, seuil baissé, exception sans raison écrite).
+- **Interface** : de vrais boutons (jamais un `div` cliquable) ; dans une appli utilisée au doigt, **zones tactiles d'au moins 48 px** (48 dp sous Android) ; contraste et focus vérifiés par l'outil du dépôt.
+- **Robustesse** : une écriture qui peut échouer (stockage, réseau) se voit à l'écran ; toute donnée venue d'un fichier, du stockage ou du réseau est une entrée non fiable. Exporter les données avant toute opération destructive.
+- **Écrit** : commentaires en français qui disent **pourquoi** ; aucun chiffre écrit sans l'avoir mesuré ; ne jamais écrire « ça marche » pour ce qui n'a pas tourné sur l'appareil réel.
+- **Suivi, trois fichiers à la racine** : `README.md` dit l'**état actuel** ; `JOURNAL.md` garde l'**histoire** (chaque lot s'y ajoute en fin de fichier, sous `### Titre — jj/mm/aaaa`) ; `RESTE-A-FAIRE.md` dit **ce qui reste**, mis à jour à chaque lot. Un fichier de suivi retiré part en entier dans `JOURNAL.md`, sous « Ancien X.md ».
+
+## Règles propres à ce dépôt
+
 Suivi de visionnage du MCU : HTML, CSS et JavaScript en modules ES, **sans build ni dépendance d'exécution**, publié sur
 GitHub Pages. Données dans `data/mcu.json` et `data/sagas.json`, progression dans le `localStorage` (`chrono-mcu:v1`).
-Ce qui reste à faire : `docs/AUDIT.md` (statut par point). L'état des fonctions : `README.md`.
+Ce qui reste à faire : `RESTE-A-FAIRE.md` (l'audit, statut par point). L'état : `README.md` et `SPEC.md`. L'histoire : `JOURNAL.md`.
 
 ## Commandes (toutes avant un commit)
 
@@ -21,8 +40,5 @@ Ce qui reste à faire : `docs/AUDIT.md` (statut par point). L'état des fonction
 
 ## Conventions
 
-- Commentaires en français qui disent **pourquoi**. Textes de l'interface courts, en français.
-- Une écriture qui peut échouer (stockage, réseau) se voit à l'écran.
-- Toute donnée venue d'un fichier importé ou du stockage est une entrée non fiable (`js/recovery.js`, `js/backup.js`).
-- Proposer d'abord, attendre un « ok » explicite d'Antoni avant de modifier quoi que ce soit.
-- Jamais de clé (TMDB, jeton GitHub) dans le dépôt ni dans une conversation.
+- Textes de l'interface courts, en français.
+- La reprise d'un état enregistré ou importé passe par `js/recovery.js` et `js/backup.js` (entrées non fiables).

@@ -1,4 +1,6 @@
-# Audit de Chrono-MCU
+# Ce qui reste à faire (audit de Chrono-MCU)
+
+> Anciennement `docs/AUDIT.md` (renommé le 16/11/2026, règle commune des dépôts). L'histoire est dans `JOURNAL.md`.
 
 Audit complet du 28/10/2026 (tests, couverture, données comparées à TVmaze, relecture du code et de la CI, scénarios reproduits dans un navigateur). Classé par priorité : gravité × probabilité. Effort : S = moins d'une heure, M = une PR moyenne, L = plusieurs PR.
 
@@ -46,7 +48,7 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 | # | Sujet | Effort | Statut |
 |---|---|---|---|
 | 18 | **PWA** : manifest minimal (pas d'`id`, `categories`, `shortcuts`, `screenshots`) ; icône maskable identique à l'icône normale. | S | fait en partie (`id` et `categories` ; icône maskable identique voulue : le monogramme tient dans la zone sûre) |
-| 19 | **Dépôt** : pas de `LICENSE` ni `SECURITY.md` ; `tasks/todo.md` périmé ; branches mortes (`bot/catalog-sync-20261028-1117`, une branche Dependabot). | S | fait en partie (`LICENSE` MIT, `SECURITY.md`, `tasks/todo.md` marqué archive ; branches mortes à supprimer par Antoni) |
+| 19 | **Dépôt** : pas de `LICENSE` ni `SECURITY.md` ; `tasks/todo.md` périmé ; branches mortes (`bot/catalog-sync-20261028-1117`, une branche Dependabot). | S | fait en partie (`LICENSE` MIT, `SECURITY.md`, `tasks/` archivé dans `JOURNAL.md` ; branches mortes à supprimer par Antoni) |
 | 20 | **Docs** : le `SPEC.md` liste encore affiches et scènes post-générique en « hors périmètre » ; 180 lignes de journal difficiles à maintenir. | M | fait en partie (`SPEC.md` corrigé) |
 | 21 | **Code mort** : `heroLabel`, classes CSS `backup-actions`, `card-tonal`, `chips`, `t-label-lg`, `t-label-md`, `t-title-lg`, `t-title-md`, `settings-section` ; pas de linter. | S | fait (code et CSS morts retirés, oxlint dans la CI, aucun avertissement) |
 | 22 | **CSS** : jetons de couleur de thème dupliqués sur 6 blocs, risque d'oubli. | M | à faire |

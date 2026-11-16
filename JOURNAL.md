@@ -1,10 +1,49 @@
+# Chrono-MCU — Journal
+
+L'histoire du projet. L'état actuel est dans `README.md` (et le détail dans `SPEC.md`), ce qui reste dans
+`RESTE-A-FAIRE.md` (l'audit du 28/10/2026, avec le statut de chaque point). Chaque lot s'ajoute en fin de fichier, sous
+`### Titre — jj/mm/aaaa`.
+
+## Ancien tasks/plan.md (plan de départ, retiré le 16/11/2026)
+
+### Plan d'implémentation: Chrono-MCU
+
+Référence: `SPEC.md`. Tranches verticales, chacune livrable et vérifiable. Aucune dépendance runtime.
+
+#### Graphe de dépendances
+```
+data (schéma + validation) ──> logic.js ──> store.js ──> UI (app.js, html, css)
+                                   │            │
+                                   └─> stats    └─> export/import, notes, reprise
+```
+Ordre: schéma de données -> logique pure -> persistance -> UI cœur -> v1.5 -> déploiement. La donnée MCU complète avance en parallèle (hors chemin critique du code).
+
+#### Phases et points de contrôle
+1. **Fondations**: structure du repo, schéma `mcu.json`, `validate-data.mjs`, jeu de données de départ (6 titres dont 1 série) pour tester. Checkpoint: `node scripts/validate-data.mjs` passe.
+2. **Logique pure (`logic.js`)**: dépliage en unités (film/épisode), tri chrono/sortie, progression globale/par phase, filtres, prochain à voir. Checkpoint: `node --test` vert.
+3. **Persistance (`store.js`)**: état, localStorage robuste, cocher film/épisode/série entière, export/import validé. Checkpoint: tests du store verts, import invalide sans écrasement.
+4. **UI cœur (v1)**: liste, bascule d'ordre, cases à cocher, repli des séries, barres de progression, filtres, bandeau prochain, boutons export/import. Checkpoint: vérification manuelle mobile (360 px) + desktop.
+5. **v1.5**: notes + étoiles, « je reprends », statistiques. Checkpoint: critères 7 à 9 de la spec.
+6. **Données et livraison**: catalogue Infinity + séries connues, puis reste (`verified:false` pour l'incertain), README, GitHub Pages. Checkpoint: relecture de `mcu.json` par Antoni.
+
+#### Risques
+- **Donnée MCU (principal)**: volume (centaines d'épisodes) et fiabilité de ma mémoire. Mitigation: `verified:false`, relecture par Antoni, livraison par paliers.
+- **Ordre Disney+**: peut différer de ma mémoire. Mitigation: `chronoOrder` modifiable dans le JSON, validation d'unicité.
+- **Schéma d'état**: toute évolution casse les sauvegardes. Mitigation: champ `version` et test de migration dès la phase 3.
+- **localStorage indisponible**: app en mémoire seule avec avertissement.
+
+#### Parallélisable
+Saisie des données (phase 6) en parallèle des phases 2 à 5. Tout le reste est séquentiel.
+
+## Ancien tasks/todo.md (tâches de départ, toutes faites, retiré le 16/11/2026)
+
 > **Archive** : le plan de départ, terminé. Ce qui reste à faire vit dans `docs/AUDIT.md`.
 
-# Tâches
+### Tâches
 
 Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichiers.
 
-## Phase 1: Fondations
+#### Phase 1: Fondations
 - [x] T1 Structure du repo et script de lancement
   - Acceptation: dossiers `css/ js/ data/ scripts/ tests/`, `index.html` minimal qui charge `js/app.js` en module
   - Vérif: `python3 -m http.server 8000` sert la page sans erreur console
@@ -18,7 +57,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Vérif: `node scripts/validate-data.mjs` passe sur T2 et échoue sur un fichier cassé (test)
   - Fichiers: scripts/validate-data.mjs, tests/validate-data.test.js
 
-## Phase 2: Logique pure
+#### Phase 2: Logique pure
 - [x] T4 Dépliage en unités et tri
   - Acceptation: `toUnits(titles)` produit films + épisodes; `sortTitles(titles, order)` pour chrono et sortie
   - Vérif: `node --test`
@@ -32,7 +71,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Vérif: tests chrono et sortie
   - Fichiers: js/logic.js, tests/logic.test.js
 
-## Phase 3: Persistance
+#### Phase 3: Persistance
 - [x] T7 Store et localStorage robuste
   - Acceptation: état par défaut, chargement/sauvegarde clé `chrono-mcu:v1`; storage indisponible ou corrompu = démarrage à vide sans crash
   - Vérif: tests avec storage factice (absent, JSON invalide)
@@ -46,7 +85,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Vérif: tests aller-retour et cas invalides
   - Fichiers: js/store.js, tests/store.test.js
 
-## Phase 4: UI cœur
+#### Phase 4: UI cœur
 - [x] T10 Liste et cases à cocher
   - Acceptation: affichage de la liste dans l'ordre actif, cocher films/épisodes, séries repliables avec « n/total »
   - Vérif: manuel, rechargement conserve l'état
@@ -68,7 +107,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Vérif: Playwright (viewports 360 et 1280) captures
   - Fichiers: css/style.css
 
-## Phase 5: v1.5
+#### Phase 5: v1.5
 - [x] T15 Notes et étoiles (retirées ensuite)
   - Acceptation: texte + note 1 à 5 par titre, persistés, inclus dans l'export
   - Vérif: tests store + manuel
@@ -82,7 +121,7 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Vérif: tests avec dates fixes
   - Fichiers: js/logic.js, js/app.js, tests/logic.test.js, css/style.css
 
-## Phase 6: Données et livraison
+#### Phase 6: Données et livraison
 - [x] T18 Catalogue Infinity + séries connues
   - Acceptation: titres et épisodes saisis, incertains en `verified:false`
   - Vérif: `node scripts/validate-data.mjs`; relecture Antoni
@@ -95,3 +134,11 @@ Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichier
   - Acceptation: README (usage, commandes, comment corriger les données), déploiement Pages
   - Vérif: site accessible, parcours complet manuel
   - Fichiers: README.md, workflow Pages
+
+## Lots
+
+### Règles communes et suivi unifié — 16/11/2026
+
+Bloc commun des 8 dépôts en tête de `CLAUDE.md` (décisions d'Antoni : fusion sur « go » seulement, noms de modèle
+autorisés, zones tactiles de 48 px). `docs/AUDIT.md` devient `RESTE-A-FAIRE.md` ; `tasks/plan.md` et `tasks/todo.md`
+entrent ici en entier.
