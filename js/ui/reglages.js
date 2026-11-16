@@ -71,7 +71,7 @@ function syncBlock(ctx) {
         btn({ label: 'Enregistrer le jeton', variant: 'tonal', key: 's-sync-save', onclick: () => {
           const ok = validToken(input.value);
           $('sync-token-error').textContent = ok ? '' : 'Ce jeton n\'a pas le bon format (il commence par github_pat_ ou ghp_).';
-          if (ok) ctx.saveGithubToken(input.value);
+          if (ok && !ctx.saveGithubToken(input.value)) $('sync-token-error').textContent = 'Jeton non enregistré : stockage de l\'appareil inaccessible.';
         } })));
 }
 
@@ -176,7 +176,7 @@ export function renderReglages(ctx) {
       syncBlock(ctx),
       h('div', { class: 'setting history-block' },
         h('span', { class: 'text' }, 'Annuler une action',
-          h('span', { class: 'desc', role: 'status', text: ctx.historyInfo().count ? `Dernière : ${ctx.historyInfo().last} · ${ctx.historyInfo().count} action${ctx.historyInfo().count > 1 ? 's' : ''} annulable${ctx.historyInfo().count > 1 ? 's' : ''} jusqu\'au rechargement` : 'Aucune action à annuler pour l\'instant (la liste se vide au rechargement).' })),
+          h('span', { class: 'desc', role: 'status', text: ctx.historyInfo().count ? `Dernière : ${ctx.historyInfo().last} · ${ctx.historyInfo().count} action${ctx.historyInfo().count > 1 ? 's' : ''} annulable${ctx.historyInfo().count > 1 ? 's' : ''} jusqu'au rechargement` : 'Aucune action à annuler pour l\'instant (la liste se vide au rechargement).' })),
         btn({ label: 'Annuler la dernière', variant: 'outlined', key: 's-undo', extra: ctx.historyInfo().count ? {} : { disabled: true }, onclick: () => ctx.undoLast() })),
       h('div', { class: 'danger-zone' },
         h('p', { class: 'muted t-body-sm', text: 'Zone de danger' }),

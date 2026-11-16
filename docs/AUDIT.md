@@ -37,20 +37,20 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 | 12 | **Couverture** : l'interface (`app.js`, `ui/*`) n'est vérifiée que par les e2e, non mesurés ; scripts réseau à 33–59 %. | M | à faire |
 | 13 | **CSP** : `style-src-attr 'unsafe-inline'` ne sert qu'à 3 attributs `style`, remplaçables. | S | fait (#71) |
 | 14 | **Vie privée** : affiches TMDB chargées par défaut (l'IP part chez TMDB) ; un réglage permet de les couper. | S | à faire |
-| 15 | **Performance de 1re visite** : chaîne d'imports de 7 niveaux, sans `modulepreload` (le total est petit : 82 Ko gzip). | S | à faire |
+| 15 | **Performance de 1re visite** : chaîne d'imports de 7 niveaux, sans `modulepreload` (le total est petit : 82 Ko gzip). | S | fait (modulepreload des 22 modules, gardé par `tests/preload.test.js`) |
 | 16 | **Mise à jour du service worker silencieuse** : pas d'annonce « nouvelle version ». | S | fait (#71) |
-| 17 | **Jeton GitHub** en `localStorage` : limité au dépôt et protégé par la CSP stricte, acceptable ; à documenter. | S | à faire |
+| 17 | **Jeton GitHub** en `localStorage` : limité au dépôt et protégé par la CSP stricte, acceptable ; à documenter. | S | fait (`SECURITY.md`) |
 
 ## Faible
 
 | # | Sujet | Effort | Statut |
 |---|---|---|---|
-| 18 | **PWA** : manifest minimal (pas d'`id`, `categories`, `shortcuts`, `screenshots`) ; icône maskable identique à l'icône normale. | S | à faire |
-| 19 | **Dépôt** : pas de `LICENSE` ni `SECURITY.md` ; `tasks/todo.md` périmé ; branches mortes (`bot/catalog-sync-20261028-1117`, une branche Dependabot). | S | à faire |
-| 20 | **Docs** : le `SPEC.md` liste encore affiches et scènes post-générique en « hors périmètre » ; 180 lignes de journal difficiles à maintenir. | M | à faire |
-| 21 | **Code mort** : `heroLabel`, classes CSS `backup-actions`, `card-tonal`, `chips`, `t-label-lg`, `t-label-md`, `t-title-lg`, `t-title-md`, `settings-section` ; pas de linter. | S | à faire |
+| 18 | **PWA** : manifest minimal (pas d'`id`, `categories`, `shortcuts`, `screenshots`) ; icône maskable identique à l'icône normale. | S | fait en partie (`id` et `categories` ; icône maskable identique voulue : le monogramme tient dans la zone sûre) |
+| 19 | **Dépôt** : pas de `LICENSE` ni `SECURITY.md` ; `tasks/todo.md` périmé ; branches mortes (`bot/catalog-sync-20261028-1117`, une branche Dependabot). | S | fait en partie (`LICENSE` MIT, `SECURITY.md`, `tasks/todo.md` marqué archive ; branches mortes à supprimer par Antoni) |
+| 20 | **Docs** : le `SPEC.md` liste encore affiches et scènes post-générique en « hors périmètre » ; 180 lignes de journal difficiles à maintenir. | M | fait en partie (`SPEC.md` corrigé) |
+| 21 | **Code mort** : `heroLabel`, classes CSS `backup-actions`, `card-tonal`, `chips`, `t-label-lg`, `t-label-md`, `t-title-lg`, `t-title-md`, `settings-section` ; pas de linter. | S | fait (code et CSS morts retirés, oxlint dans la CI, aucun avertissement) |
 | 22 | **CSS** : jetons de couleur de thème dupliqués sur 6 blocs, risque d'oubli. | M | à faire |
-| 23 | **Petits détails** : suivi du défilement actif sur les écrans Progression et Réglages ; `latestRun` compare l'horloge du navigateur à celle de GitHub ; `saveToken` échoue sans le dire ; dépôt écrit en dur dans `github.js`. | S | à faire |
+| 23 | **Petits détails** : suivi du défilement actif sur les écrans Progression et Réglages ; `latestRun` compare l'horloge du navigateur à celle de GitHub ; `saveToken` échoue sans le dire ; dépôt écrit en dur dans `github.js`. | S | fait en partie (`saveToken` : l'échec se voit)  |
 
 ## Fait
 

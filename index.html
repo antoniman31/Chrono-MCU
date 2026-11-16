@@ -15,6 +15,30 @@
   <title>Chrono-MCU</title>
   <script>try{var v=JSON.parse(localStorage.getItem('chrono-mcu:view')||'{}'),t=v.theme,o=v.oled===true||t==='oled',r=document.documentElement;if(t==='light')r.dataset.theme='light';else if(t==='dark'||t==='oled')r.dataset.theme=o?'oled':'dark';else if(o)r.dataset.oled=''}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css?v=__BUILD__">
+  <!-- Tous les modules de app.js, demandés d'un coup : sans cela le navigateur découvre la chaîne d'imports
+       niveau par niveau (7 allers-retours à la première visite). tests/preload.test.js garde la liste complète. -->
+  <link rel="modulepreload" href="js/achievements.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/backup.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/categories.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/duration.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/github.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/heroes.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/insights.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/logic.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/phases.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/prefs.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/recovery.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/spoilers.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/store.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/detail.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/dom.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/parts.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/progression.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/reglages.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/sheet.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/swipe.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/voir.js?v=__BUILD__">
+  <link rel="modulepreload" href="js/ui/welcome.js?v=__BUILD__">
 </head>
 <body>
   <!-- Icônes Material Icons (Apache 2.0), intégrées pour éviter tout appel externe -->

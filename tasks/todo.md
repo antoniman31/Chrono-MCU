@@ -1,3 +1,5 @@
+> **Archive** : le plan de départ, terminé. Ce qui reste à faire vit dans `docs/AUDIT.md`.
+
 # Tâches
 
 Format: Acceptation / Vérif / Fichiers. Chaque tâche touche au plus ~5 fichiers.
