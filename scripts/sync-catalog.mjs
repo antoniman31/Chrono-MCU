@@ -28,7 +28,7 @@ export const dueUpcoming = (catalog, today) => catalog.filter((t) => t.upcoming 
 // Film sorti : durée, date en France, retire « à venir ». Null tant que TMDB n'a pas de durée (on réessaiera la semaine suivante).
 export function promoteFilm(t, info, frDate) {
   if (!(info?.runtime > 0)) return null;
-  const { upcoming, ...rest } = t;
+  const { upcoming: _upcoming, ...rest } = t;
   const out = { ...rest, runtimeMin: info.runtime, verified: false };
   if (frDate) out.releaseDateFr = frDate;
   return out;
@@ -38,7 +38,7 @@ export function promoteFilm(t, info, frDate) {
 export function promoteSeries(t, tvEpisodes, tvmazeId) {
   const eps = [...tvEpisodes].sort((a, b) => a.number - b.number);
   if (!eps.length || eps.every((e) => e.runtime == null)) return null;
-  const { upcoming, ...rest } = t;
+  const { upcoming: _upcoming, ...rest } = t;
   const episodes = eps.map((e, i) => ({ n: i + 1, title: e.name?.trim() || `Épisode ${i + 1}`, airDate: e.airdate ?? undefined, runtimeMin: e.runtime ?? 0 }));
   for (const e of episodes) if (e.airDate === undefined) delete e.airDate;
   const complete = isComplete(episodes, eps.map((e, i) => ({ ...e, number: i + 1 })));

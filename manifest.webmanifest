@@ -1,8 +1,10 @@
 {
+  "id": "./",
   "name": "Chrono-MCU",
   "short_name": "Chrono-MCU",
   "description": "Suivi de visionnage du MCU : films et séries Disney+, ordre chronologique ou de sortie.",
   "lang": "fr",
+  "categories": ["entertainment"],
   "start_url": "./#voir",
   "scope": "./",
   "display": "standalone",

@@ -6,7 +6,7 @@ Application web de suivi de visionnage du MCU (films + séries Disney+), inspir�
 ### Périmètre
 - v1 (cœur) : case « vu », deux ordres, progression globale et par phase, filtres phase/type, « prochain à voir », export/import JSON.
 - v1.5 : (1) notes perso + note étoilée par titre (retirées ensuite, voir Évolutions), (2) mode « je reprends », (5) statistiques (heures vues/restantes, rythme, date de fin estimée).
-- Hors périmètre : comptes, synchro cloud, affiches TMDB, partage social, notifications, scènes post-générique, prérequis, parcours alternatifs.
+- Hors périmètre : comptes, synchro cloud, partage social, notifications, prérequis, parcours alternatifs. (Affiches TMDB et scènes post-générique sont entrées dans le périmètre depuis ; voir `README.md`.)
 
 ## Hypothèses
 Web statique, vanilla JS (ES modules), localStorage, mobile-first, navigateurs modernes, données MCU saisies à la main (à relire par Antoni), contenu : films + séries Disney+ sortis à ce jour, suivi par épisode pour les séries, ordre chronologique de référence : Disney+ officiel. Les entrées dont je ne suis pas sûr (sorties récentes, épisodes) sont marquées `"verified": false` et à compléter par Antoni.

@@ -146,12 +146,8 @@ body.sheet-open { overflow: hidden; }
 .icon { width: 24px; height: 24px; fill: currentColor; flex: none; }
 
 /* Typographie Material 3 */
-.t-title-lg { font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
-.t-title-md { font-size: 1rem; line-height: 1.5rem; font-weight: 500; letter-spacing: .01em; }
 .t-body-md { font-size: .875rem; line-height: 1.25rem; }
 .t-body-sm { font-size: .75rem; line-height: 1rem; }
-.t-label-lg { font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; }
-.t-label-md { font-size: .75rem; line-height: 1rem; font-weight: 500; letter-spacing: .03em; }
 
 /* ---------- Mise en page (compact < 600, medium 600-839, expanded 840+) ---------- */
 .app { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr); }
@@ -287,7 +283,6 @@ main:focus { outline: none; }
 /* ---------- Cartes ---------- */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
 .card + .card { margin-top: 12px; }
-.card-tonal { background: var(--tonal); color: var(--on-tonal); border-color: transparent; }
 /* « Prochain à voir » : bandeau fin, toute la zone de gauche ouvre la fiche, le rond à droite coche */
 .resume { margin-bottom: 12px; display: grid; gap: 6px; }
 .resume-bar { display: flex; align-items: center; min-height: 72px; border-radius: var(--radius); background: var(--tonal); color: var(--on-tonal); overflow: hidden; }
@@ -441,8 +436,6 @@ main:focus { outline: none; }
 .segopt input:checked + .face { background: var(--tonal); color: var(--on-tonal); border-color: var(--red); font-weight: 700; }
 .segopt input:focus-visible + .face { outline: 3px solid var(--focus); outline-offset: 2px; }
 .theme-desc { padding: 8px 16px 0; }
-.settings-section { margin-bottom: 24px; }
-.settings-section > h3 { font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; color: var(--fg); margin: 0 0 8px 4px; }
 .setting { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; padding: 8px 16px; width: 100%; background: none; border: 0; text-align: left; color: inherit; }
 .setting + .setting, .setting + fieldset, fieldset + .setting { border-top: 1px solid var(--border); }
 .setting .text { min-width: 0; }
@@ -507,7 +500,6 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .sheet-group { margin-bottom: 16px; }
 .sheet-group > h3 { font-size: .875rem; line-height: 1.25rem; font-weight: 500; letter-spacing: .01em; color: var(--muted); margin-bottom: 4px; }
 .sheet-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }
-.backup-actions { display: grid; gap: 4px; }
 
 .detail { padding: 0 0 16px; }
 .detail-pane .detail { padding: 24px; }

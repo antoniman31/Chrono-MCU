@@ -322,7 +322,7 @@ export function evaluate(input) {
 // Premier appel (prev absent) : on enregistre en silence, sans rien annoncer. Un palier n'est jamais retiré.
 export function mergeUnlocked(prev, evaluated, today) {
   const silent = prev == null;
-  const next = { ...(prev ?? {}) };
+  const next = { ...prev };
   const unlocked = [];
   for (const a of evaluated) {
     const before = next[a.id]?.level ?? 0;

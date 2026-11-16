@@ -289,7 +289,7 @@ export function markUntil(state, titles, id, today) {
 
 // Version d'un film regardée (null : version d'origine). Champ optionnel de l'état : pas de changement de STATE_VERSION.
 export function setTitleVersion(state, titleId, versionId) {
-  const versions = { ...(state.versions ?? {}) };
+  const versions = { ...state.versions };
   if (versionId) versions[titleId] = versionId;
   else delete versions[titleId];
   return { ...state, versions };

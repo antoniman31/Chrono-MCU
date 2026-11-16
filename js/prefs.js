@@ -60,7 +60,7 @@ export function importedPrefs(view, saved) {
   const patch = Object.fromEntries(PORTABLE.filter((k) => k in saved).map((k) => [k, clean[k]]));
   const incoming = normalizeAchv(saved.achv);
   if (incoming) {
-    const merged = { ...(view.achv ?? {}) };
+    const merged = { ...view.achv };
     for (const [id, v] of Object.entries(incoming)) if (v.level > (merged[id]?.level ?? 0)) merged[id] = v;
     patch.achv = merged;
   }

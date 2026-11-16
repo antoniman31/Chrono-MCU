@@ -21,4 +21,3 @@ export const HEROES = [
   { id: 'guardians', label: 'Les Gardiens de la Galaxie', team: true },
 ];
 export const HERO_IDS = HEROES.map((h) => h.id);
-export const heroLabel = (id) => HEROES.find((h) => h.id === id)?.label ?? id;

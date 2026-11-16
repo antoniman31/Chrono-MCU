@@ -25,7 +25,7 @@ async function scenario(name, run, { prefs = null, seed = null, rawSeed = null, 
     try {
       if (sessionStorage.getItem('e2e-seeded')) return;
       sessionStorage.setItem('e2e-seeded', '1');
-      localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, ...(p ?? {}) }));
+      localStorage.setItem('chrono-mcu:view', JSON.stringify({ welcomed: true, ...p }));
       if (s) localStorage.setItem('chrono-mcu:v1', JSON.stringify(s));
       if (raw !== null) localStorage.setItem('chrono-mcu:v1', raw);
     } catch { /* ignore */ }
@@ -886,7 +886,7 @@ await scenario('mode sans spoiler : résumé, image et titres d\'épisodes flout
   await epBox.evaluate((el) => el.closest('li').scrollIntoView({ block: 'center' }));
   await epBox.check();
   const rows = await page.evaluate(() => [...document.querySelectorAll('#sheet .episodes .item')].slice(0, 2).map((li) => li.querySelectorAll('.spoiler-blur').length));
-  check(rows[0] === 0 && rows[1] === 1, `le titre de l\'épisode vu n\'est plus flou, le suivant le reste : ${rows}`);
+  check(rows[0] === 0 && rows[1] === 1, `le titre de l'épisode vu n'est plus flou, le suivant le reste : ${rows}`);
   await epBox.evaluate((el) => el.closest('li').scrollIntoView({ block: 'center' }));
   await epBox.uncheck();
 });

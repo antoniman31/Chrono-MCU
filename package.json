@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "oxlint --deny-warnings js scripts tests e2e sw.js",
     "test": "node --test",
     "validate": "node scripts/validate-data.mjs",
     "check-data": "node scripts/check-data.mjs",
@@ -12,6 +13,7 @@
   },
   "devDependencies": {
     "axe-core": "4.14.0",
+    "oxlint": "1.90.0",
     "playwright": "1.64.1"
   }
 }

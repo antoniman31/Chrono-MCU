@@ -135,8 +135,17 @@ const setSyncStatus = (text, url = null) => {
   el.replaceChildren(text, ...(url ? [' ', h('a', { href: url, target: '_blank', rel: 'noopener', text: 'Voir le journal' })] : []));
 };
 ctx.hasGithubToken = () => loadToken(storage) !== null;
-ctx.saveGithubToken = (token) => { if (saveToken(storage, token)) render({ detail: false }); };
-ctx.forgetGithubToken = () => { saveToken(storage, null); syncPolling += 1; render({ detail: false }); };
+// Une écriture du stockage peut échouer (navigation privée, quota) : on le dit au lieu de faire comme si (audit n° 23).
+ctx.saveGithubToken = (token) => {
+  const ok = saveToken(storage, token);
+  if (ok) render({ detail: false });
+  return ok;
+};
+ctx.forgetGithubToken = () => {
+  if (!saveToken(storage, null)) return showSnackbar('Jeton non retiré : stockage de l\'appareil inaccessible.', false);
+  syncPolling += 1;
+  render({ detail: false });
+};
 ctx.runSync = async () => {
   const token = loadToken(storage);
   if (!token) return;
