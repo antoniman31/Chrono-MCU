@@ -160,3 +160,9 @@ entrent ici en entier.
 - #89 : oxlint 1.93 et Playwright 1.65.1 (outils de développement seulement, rien ne change dans le site).
 - Qualité : lint, 211 tests, validation des données ; e2e : 284 contrôles d'accessibilité et 50 scénarios, rejoués en
   local après fusion.
+
+### Règles communes : trois changements — 21/11/2026
+
+Bloc commun de `CLAUDE.md` mis à jour (décision d'Antoni) : deux règles en plus et une règle précisée, « Versions et API » (vérifier les
+versions dans la doc officielle, signaler tout code déprécié) et « Contradiction » (signaler une demande qui contredit une
+règle avant de l'appliquer) ; « Proposer d'abord » demande désormais un plan détaillé et des suggestions avant tout code, et un visuel (maquette HTML ou schéma ASCII) pour une fonctionnalité ou un design ; « les 8 dépôts » devient « tous les dépôts d'Antoni, existants et futurs », avec l'arrivée de game_timer.
