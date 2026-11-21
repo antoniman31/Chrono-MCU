@@ -154,3 +154,9 @@ entrent ici en entier.
   des phases et les dialogues ouverts, et la suite continue. Vu échouer : avec le bouton d'ordre rendu inopérant, les
   14 passages (12 combinaisons et 2 reflows) le signalent et la suite va jusqu'au bout (code restauré ensuite).
 - Qualité : 211 tests, 284 contrôles d'accessibilité, 50 scénarios de comportement.
+
+### Mises à jour Dependabot — 21/11/2026
+
+- #89 : oxlint 1.93 et Playwright 1.65.1 (outils de développement seulement, rien ne change dans le site).
+- Qualité : lint, 211 tests, validation des données ; e2e : 284 contrôles d'accessibilité et 50 scénarios, rejoués en
+  local après fusion.
