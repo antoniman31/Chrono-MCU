@@ -178,3 +178,10 @@ Bloc commun de `CLAUDE.md` aligné sur `regles-communes` (BLOC.md, commit 98885d
 ### Règles communes mises à jour — 21/11/2026
 
 Bloc commun de `CLAUDE.md` aligné sur `regles-communes` (BLOC.md, commit 400626b), par la propagation automatique.
+
+### CI : deux runs rouges sur `main` — 21/11/2026
+
+Aucune PR ouverte ; les deux échecs sont des exécutions sur `main` après des fusions de documentation seule. Déploiement de #91 : `deploy-pages` a répondu « No artifacts named "github-pages" were found » alors que l'envoi venait de réussir (panne passagère de GitHub, tous les tests verts) ; le déploiement suivant a réussi. E2e de #93 : le clic sur « Sortie » n'a pas changé l'ordre dans le test « reflow 320 px, texte à 200 % » (même symptôme que le 16/11, point 26 de `RESTE-A-FAIRE.md`).
+
+Correctifs : `pages.yml` relance `deploy-pages` une fois après 20 s, la seconde tentative fait échouer le job si elle échoue aussi (`tests/workflows.test.js`, vu échouer avant le changement) ; `e2e/run.mjs` relève les clics reçus, reclique une fois si l'ordre n'a pas changé et l'écrit dans le journal du job. Vérifié en avalant le premier clic sur « Sortie » dans chaque page : l'ancien test échoue comme en CI, le nouveau passe en listant 14 clics relancés. Cause du clic perdu toujours inconnue (132 essais locaux sans échec).
+
