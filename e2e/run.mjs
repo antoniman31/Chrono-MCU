@@ -28,7 +28,7 @@ async function audit(page, where) {
   // On attend la fin des animations d'entrée (feuille, snackbar) pour mesurer les couleurs finales
   await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
   // La règle `target-size` d'axe compare chaque paire de cibles (quadratique) : ~18 s sur la liste, contre 0,3 s pour tout le reste.
-  // Elle est remplacée par le contrôle maison plus bas, plus strict (44 px au lieu des 24 px de WCAG 2.2).
+  // Elle est remplacée par le contrôle maison plus bas, plus strict (48 px au lieu des 24 px de WCAG 2.2).
   const violations = await page.evaluate(async () => {
     const r = await axe.run(document, {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice'] },
@@ -44,11 +44,13 @@ async function audit(page, where) {
       if (el.closest('[hidden]') || el.closest('dialog:not([open])')) return;
       const r = el.getBoundingClientRect();
       if (!r.width || !r.height) return;
-      if (r.width < 44 || r.height < 44) out.push(`${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}[${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 24)}] ${Math.round(r.width)}x${Math.round(r.height)}`);
+      // Règle commune : 48 px. Seule exception, les ronds de phase sous 360 px de large : six ronds de 48 px n'y tiennent pas (décision d'Antoni du 24/11/2026)
+      const min = el.closest('.ptab') && window.innerWidth < 360 ? 44 : 48;
+      if (r.width < min || r.height < min) out.push(`${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}[${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 24)}] ${Math.round(r.width)}x${Math.round(r.height)}`);
     });
     return out;
   });
-  small.slice(0, 5).forEach((s) => fail(where, `cible tactile < 44 px : ${s}`));
+  small.slice(0, 5).forEach((s) => fail(where, `cible tactile < 48 px : ${s}`));
 }
 
 const viewports = [['compact', 360, 740], ['medium', 768, 900], ['expanded', 1280, 900]];
@@ -372,6 +374,14 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
     problems.forEach((p) => fail(where, `${screen} : ${p}`));
   };
   await inspect('À voir');
+  // À 320 px, les six ronds de phase (44 px, l'exception à la règle des 48 px) doivent tenir sans défiler ni déborder : on les mesure
+  // dès l'ordre « Sortie » choisi, avant tout appui sur un onglet (qui fait défiler la frise)
+  if (!fontScale) {
+    await page.click('[data-order="release"]');
+    await page.waitForSelector('#phasebar:not([hidden]) [data-fk="ptab:4"]', { state: 'visible', timeout: 5000 }).catch(() => null);
+    const tabs = await page.evaluate(() => [...document.querySelectorAll('#phase-tabs [role=tab]')].map((t) => { const r = t.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right), h: Math.round(r.height) }; }));
+    if (tabs.length !== 6 || tabs.some((t) => t.left < -1 || t.right > 321 || t.h < 44)) fail(where, `les six ronds de phase doivent tenir à 320 px : ${JSON.stringify(tabs)}`);
+  }
   if (await openPhase4(page, where)) await inspect('phase 4 atteinte');
   await page.click('[data-order="chrono"]');
   await page.click('#open-filters');

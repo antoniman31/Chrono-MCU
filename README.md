@@ -44,7 +44,7 @@ Interface Material 3 : barre de navigation en bas sur téléphone, rail latéral
 - **Hors-ligne** : après une première visite, l'application s'ouvre et se coche sans réseau (service worker) ; un bandeau propose de recharger quand une nouvelle version est prête.
 - **Pannes visibles** : un message en français remplace l'écran blanc (script introuvable, catalogue indisponible, JavaScript désactivé, erreur inattendue).
 - **Données illisibles** : l'état enregistré est réparé quand c'est possible, une copie brute est gardée à part, un bandeau le signale et propose de la télécharger.
-- **Accessibilité** : cibles tactiles de 44 px au minimum, contrastes WCAG AA dans les trois thèmes, mode contraste élevé de Windows, navigation au clavier, `prefers-reduced-motion` respecté.
+- **Accessibilité** : cibles tactiles de 48 px au minimum (44 px pour les ronds de phase sur un écran de moins de 360 px), contrastes WCAG AA dans les trois thèmes, mode contraste élevé de Windows, navigation au clavier, `prefers-reduced-motion` respecté.
 
 Le détail des gestes, des couleurs, des badges et des règles est dans [`SPEC.md`](SPEC.md#annexe--référence-détaillée-ex-readme).
 
