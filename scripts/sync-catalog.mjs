@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { frenchRelease, seasonNumber, shortOverview, tmdb } from './fetch-posters.mjs';
 import { isComplete, tvmazeEpisodes } from './check-data.mjs';
 import { orderTitle } from './shared.mjs';
+import { parisToday } from '../js/paris.js';
 
 const MARVEL_STUDIOS = '420';
 const MARVEL_ANIMATION = '2301';
@@ -129,7 +130,7 @@ async function main() {
   const write = process.argv.includes('--write');
   const reportPath = process.argv.includes('--report') ? process.argv[process.argv.indexOf('--report') + 1] : null;
   const key = process.env.TMDB_API_KEY;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = parisToday(); // jour de Paris, comme dans l'appli
   const path = new URL('../data/mcu.json', import.meta.url);
   const ignorePath = new URL('../data/sync-ignore.json', import.meta.url);
   const catalog = JSON.parse(readFileSync(path, 'utf8'));

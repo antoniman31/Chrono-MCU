@@ -1,3 +1,5 @@
+import { parisToday } from '../paris.js?v=__BUILD__';
+
 export const $ = (id) => document.getElementById(id);
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -33,7 +35,7 @@ export function icon(name, cls = '') {
   return svg;
 }
 
-export const today = () => new Date().toLocaleDateString('en-CA');
+export const today = (now) => parisToday(now);
 export { formatDuration as hours } from '../duration.js?v=__BUILD__';
 export const formatShort = (day) => day.split('-').reverse().join('/');
 export const formatDay = (day) =>

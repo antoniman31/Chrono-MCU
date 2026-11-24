@@ -52,7 +52,7 @@ Le détail des gestes, des couleurs, des badges et des règles est dans [`SPEC.m
 
 - Aucun compte, aucune synchronisation entre appareils : le transfert passe par l'export / import JSON.
 - La progression vit dans le navigateur, qui peut effacer les données du site : exporter régulièrement.
-- Le rythme et les succès se calculent par jour de coche, pas à l'heure près.
+- Le rythme et les succès se calculent par jour de coche (jour de Paris), pas à l'heure près.
 - Le catalogue est tenu à la main, avec une synchronisation mensuelle à relire. Les durées d'épisodes (TVmaze) et de films (Wikipedia) peuvent différer de quelques minutes de Disney+.
 - L'ordre chronologique n'est pas une copie vérifiée de celui de Disney+ ; `chronoOrder` se corrige dans les données.
 - Les affiches viennent de TMDB (l'adresse IP du visiteur lui est donc visible) ; elles se coupent dans Réglages.
