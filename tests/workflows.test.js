@@ -52,3 +52,17 @@ test('Dependabot surveille les actions et npm', () => {
   assert.match(d, /package-ecosystem: github-actions/);
   assert.match(d, /package-ecosystem: npm/);
 });
+
+// Le 21/11/2026, `deploy-pages` n'a pas trouvé l'artefact que l'étape d'avant venait d'envoyer (panne passagère de GitHub) :
+// tous les tests étaient verts mais le déploiement était rouge. Une seconde tentative, sans « continue-on-error », garde les vraies pannes visibles.
+test('déploiement : une seconde tentative après une panne passagère de GitHub Pages', () => {
+  const deploy = read('pages.yml').split(/^  deploy:/m)[1];
+  const uses = [...deploy.matchAll(/uses: actions\/deploy-pages@[0-9a-f]{40}/g)];
+  assert.equal(uses.length, 2, 'deploy-pages doit apparaître deux fois : tentative et reprise');
+  const first = deploy.slice(deploy.indexOf('id: deployment\n'), deploy.indexOf('Attendre avant'));
+  assert.match(first, /continue-on-error: true/, 'la première tentative ne fait pas échouer le job');
+  const retry = deploy.slice(deploy.indexOf('Attendre avant'));
+  assert.match(retry, /if: steps\.deployment\.outcome == 'failure'/, 'la reprise ne tourne qu\'après un échec');
+  assert.doesNotMatch(retry, /continue-on-error/, 'la reprise fait échouer le job si elle échoue aussi');
+  assert.match(deploy, /url: \$\{\{ steps\.deployment-retry\.outputs\.page_url \|\| steps\.deployment\.outputs\.page_url \}\}/, 'l\'adresse vient de la tentative qui a réussi');
+});

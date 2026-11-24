@@ -67,11 +67,25 @@ const withAxe = (context) => context.addInitScript({ content: axeSource });
 const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 // Pas de réseau, mais une image de 1 pixel : les affiches existent, donc la mise en page avec affiche est celle qui est auditée
 const blockImages = (context) => context.route(/image\.tmdb\.org/, (route) => route.fulfill({ contentType: 'image/png', body: PIXEL }));
-// Ordre « Sortie », puis onglet Phase 4. Le 16/11/2026, en CI sur main, cet onglet est resté invisible 30 s après le clic ;
-// la relance est passée et 108 essais locaux (normal, processeur ralenti 8 fois, police retardée) ne l'ont pas reproduit.
-// Le délai dépassé arrêtait toute la suite sans rien dire : on note ce que la page montrait, et la suite continue.
+// Ordre « Sortie », puis onglet Phase 4. Le 16/11 puis le 21/11/2026, en CI sur main, le clic sur « Sortie » n'a eu aucun effet (le bouton
+// « Chrono » restait actif, la barre des phases cachée) ; 132 essais locaux, processeur ralenti jusqu'à 12 fois, ne l'ont pas reproduit.
+// La cause est inconnue : on relève les clics que la page reçoit, on reclique UNE fois, et on l'écrit dans le journal du job (jamais en silence).
+// Si le second clic ne change rien non plus, ou si l'onglet reste invisible, le test échoue comme avant.
+const retriedClicks = [];
+const releasePressed = (page) => page.waitForSelector('[data-order="release"][aria-pressed="true"]', { timeout: 2000 }).then(() => true, () => false);
 const openPhase4 = async (page, where) => {
+  await page.evaluate(() => {
+    if (window.__clics) return;
+    window.__clics = [];
+    document.addEventListener('click', (e) => window.__clics.push(`${e.target?.tagName?.toLowerCase()}${e.target?.closest?.('[data-order]') ? ` dans [data-order=${e.target.closest('[data-order]').dataset.order}]` : ''}`), true);
+  });
   await page.click('[data-order="release"]');
+  if (!(await releasePressed(page))) {
+    const clics = await page.evaluate(() => window.__clics);
+    retriedClicks.push(where);
+    console.log(`Clic sur « Sortie » sans effet (${where}) : relancé une fois. Clics reçus par la page : ${JSON.stringify(clics)}`);
+    await page.click('[data-order="release"]');
+  }
   const tab = await page.waitForSelector('#phasebar:not([hidden]) [data-fk="ptab:4"]', { state: 'visible', timeout: 5000 }).catch(() => null);
   if (tab) {
     await tab.click();
@@ -82,6 +96,7 @@ const openPhase4 = async (page, where) => {
     phasebarHidden: document.getElementById('phasebar')?.hidden,
     tab: document.querySelector('[data-fk="ptab:4"]')?.getBoundingClientRect(),
     openDialogs: [...document.querySelectorAll('dialog[open]')].map((d) => d.id),
+    clics: window.__clics,
   }));
   fail(where, `onglet Phase 4 invisible 5 s après « Sortie » : ${seenState}`);
   return false;
@@ -441,6 +456,7 @@ for (const [label, fontScale] of [['320 px', null], ['320 px et texte à 200 %',
 await browser.close();
 closeServer();
 console.log(`${checks} contrôles d'accessibilité exécutés (4 variantes de thème × 3 largeurs × 8 états, plus les états rares) en ${((Date.now() - started) / 1000).toFixed(0)} s.`);
+if (retriedClicks.length) console.log(`${retriedClicks.length} clic(s) sur « Sortie » relancé(s) : ${retriedClicks.join(', ')}`);
 if (failures.length) {
   console.log(`${failures.length} problème(s) :`);
   [...new Set(failures)].forEach((f) => console.log(` - ${f}`));
