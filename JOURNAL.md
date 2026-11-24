@@ -208,3 +208,11 @@ blanc sur rouge 4,98:1, texte des médailles 7,94 à 12,35:1. Nouveau `tests/cou
 définition de jeton (vu en échec sur l'ancien code, 21 trouvailles). Le champ de recherche, relevé à l'audit, n'était pas
 un écart : la barre entière garde un contour au focus (`:focus-within`). E2e non joué en local (le conteneur a le
 Chromium 1243, Playwright 1.65.1 attend le 1255) : la CI le joue.
+
+### Messages d'erreur de l'import : dire quoi faire — 24/11/2026
+
+Revue de la règle commune « Design » (un message d'erreur dit ce qui s'est passé et comment corriger). L'import d'une
+sauvegarde refusée affichait « Fichier invalide: seen invalide », jargon interne sans action. Il dit maintenant le constat,
+le détail entre parenthèses, puis l'action : « choisis une sauvegarde exportée par Chrono-MCU, sans la modifier. » ; une
+sauvegarde plus récente que l'appli garde son action propre (mettre l'appli à jour). Le test des imports refusés de
+`store.test.js` exige la forme « constat : action » (vu échouer sur l'ancien texte). Qualité : lint OK, 218 tests, `validate` OK.

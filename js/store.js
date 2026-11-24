@@ -253,17 +253,22 @@ export function exportState(state, prefs = null) {
   return JSON.stringify(prefs ? { ...state, prefs } : state, null, 2);
 }
 
+// L'action proposée quand un fichier importé est refusé (règle commune « Design » : constat, puis action).
+const CHOISIR_SAUVEGARDE = 'choisis une sauvegarde exportée par Chrono-MCU, sans la modifier.';
+
 export function importState(text) {
   let parsed;
   try {
     parsed = JSON.parse(text);
   } catch {
-    return { ok: false, error: "Fichier illisible: ce n'est pas du JSON valide." };
+    return { ok: false, error: `Fichier illisible (ce n'est pas du JSON) : ${CHOISIR_SAUVEGARDE}` };
   }
   const migrated = migrate(parsed);
-  if (!migrated.ok) return { ok: false, error: `Fichier invalide: ${migrated.error}` };
+  // Une sauvegarde plus récente que l'appli porte déjà son action (mettre l'appli à jour) : on la garde telle quelle.
+  if (!migrated.ok && /mets l'application à jour/.test(migrated.error)) return { ok: false, error: `Sauvegarde refusée : ${migrated.error}` };
+  if (!migrated.ok) return { ok: false, error: `Fichier invalide (${migrated.error}) : ${CHOISIR_SAUVEGARDE}` };
   const errors = validateState(migrated.state);
-  if (errors.length) return { ok: false, error: `Fichier invalide: ${errors[0]}` };
+  if (errors.length) return { ok: false, error: `Fichier invalide (${errors[0]}) : ${CHOISIR_SAUVEGARDE}` };
   return { ok: true, state: migrated.state, prefs: parsed?.prefs ?? null };
 }
 

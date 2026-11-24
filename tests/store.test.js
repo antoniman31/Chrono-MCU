@@ -117,6 +117,8 @@ test('import invalide: rejeté avec message, jamais d\'état retourné', () => {
     const r = importState(text);
     assert.equal(r.ok, false, text);
     assert.ok(r.error.length > 0);
+    // Règle commune « Design » (24/11/2026) : le message dit quoi faire, sous la forme « constat : action ».
+    assert.match(r.error, /\S : \S/, `${text} → ${r.error}`);
     assert.equal('state' in r, false);
   }
 });
