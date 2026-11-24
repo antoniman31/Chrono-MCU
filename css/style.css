@@ -111,6 +111,18 @@
   --violet: #7b4fc9;
   --gray: #5f6368;
   --on-color: #ffffff;
+  /* Médailles : métal fixe (identité, pas thème), même valeur dans tous les thèmes. Texte dessus : bronze 7,94:1,
+     argent 12,35:1, or 10,39:1 (mesuré le 24/11/2026). */
+  --medaille-bronze: #e0a46b;
+  --medaille-bronze-bord: #8a5426;
+  --medaille-bronze-texte: #2b1606;
+  --medaille-argent: #dfe3ea;
+  --medaille-argent-bord: #7b8494;
+  --medaille-argent-texte: #1c2230;
+  --medaille-or: #f6cf55;
+  --medaille-or-bord: #a37b00;
+  --medaille-or-texte: #2e2200;
+  --medaille-halo: rgba(246, 207, 85, .35);
   --tonal: color-mix(in srgb, var(--red) 24%, var(--surface));
   --on-tonal: var(--fg);
 }
@@ -163,7 +175,7 @@ html { scroll-padding-top: var(--appbar-h); scroll-padding-bottom: calc(var(--na
 .logo-btn:active .logo { filter: brightness(.88); }
 /* Titre : bloc rouge à coin chanfreiné et capitales condensées blanches, dans l'esprit d'un logo de franchise (style seulement, ce n'est pas le logo Marvel) */
 .logo {
-  display: inline-block; max-width: 100%; padding: .16em .65em .06em .5em; background: var(--red); color: #fff;
+  display: inline-block; max-width: 100%; padding: .16em .65em .06em .5em; background: var(--red); color: var(--on-color);
   clip-path: polygon(0 0, 100% 0, 100% 62%, calc(100% - .45em) 100%, 0 100%); /* coin bas-droit chanfreiné */
   font-family: 'Bebas Neue', 'Arial Narrow', 'Roboto Condensed', Impact, sans-serif-condensed, sans-serif;
   font-size: 1.875rem; font-weight: 700; line-height: 1; letter-spacing: .05em; text-transform: uppercase; overflow-wrap: anywhere;
@@ -297,8 +309,8 @@ main:focus { outline: none; }
 /* Écrans de 380 px et plus : titre sur une seule ligne (… si trop long, titre complet dans la fiche) ; en dessous, deux lignes pour ne rien couper */
 @media (min-width: 380px) { .resume-bar:not(.resume-done) .name { -webkit-line-clamp: 1; } }
 .resume .meta { font-size: .75rem; line-height: 1rem; opacity: .85; }
-.resume-check { margin-right: 4px; color: #fff; }
-.resume-check .face { background: var(--red); color: #fff; }
+.resume-check { margin-right: 4px; color: var(--on-color); }
+.resume-check .face { background: var(--red); color: var(--on-color); }
 .resume-done { padding: 12px 16px; }
 .coming { margin: 0; padding: 0 4px; font-size: .8125rem; line-height: 1.25rem; color: var(--muted); }
 /* Mise en évidence d'une ligne ou d'un épisode après « Prochain à voir » */
@@ -570,7 +582,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 /* Phase sélectionnée : pastille rouge « Phase N » (les autres restent des ronds numérotés) */
 .ptab[aria-selected="true"] { flex: 0 0 auto; padding-inline: 4px; }
 .ptab[aria-selected="true"] .pdot { width: auto; border-radius: 1.0625rem; padding: 3px; }
-.ptab[aria-selected="true"] .pnum { display: block; line-height: calc(2.125rem - 6px); width: auto; height: 100%; padding-inline: 11px; border-radius: 14px; background: var(--red); color: #fff; font-size: .8125rem; white-space: nowrap; }
+.ptab[aria-selected="true"] .pnum { display: block; line-height: calc(2.125rem - 6px); width: auto; height: 100%; padding-inline: 11px; border-radius: 14px; background: var(--red); color: var(--on-color); font-size: .8125rem; white-space: nowrap; }
 .ptab[aria-selected="true"] .pword { display: inline; }
 .ptab[aria-selected="true"] .pdot { background: conic-gradient(var(--green) var(--p, 0%), var(--red) 0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 35%, transparent); }
 .ptab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 0; margin-left: -6px; border: 6px solid transparent; border-top-width: 0; border-bottom-color: var(--red); } /* petite flèche vers la phrase, dans l'espace libre sous le rond : la hauteur ne change pas */
@@ -659,7 +671,7 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .achv-celebrate { text-align: center; padding: 8px 0 4px; }
 .achv-celebrate .kicker { margin: 12px 0 0; font-size: .875rem; color: var(--muted); }
 .achv-big-name { margin: 2px 0 4px; font-size: 1.375rem; line-height: 1.75rem; font-weight: 600; }
-.medal-xl { display: inline-flex; filter: drop-shadow(0 0 18px rgba(246, 207, 85, .35)); }
+.medal-xl { display: inline-flex; filter: drop-shadow(0 0 18px var(--medaille-halo)); }
 .medal-xl .medal { width: 84px; height: 84px; font-size: 2rem; border-width: 3px; }
 .medal-xl .medal svg { width: 40px; height: 40px; }
 .achv-more { margin-top: 16px; text-align: left; }
@@ -680,14 +692,14 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .achv .progress { margin-top: 6px; }
 .medal { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--outline); color: var(--muted); font-weight: 700; }
 .medal svg { width: 20px; height: 20px; fill: currentColor; }
-.medal.l1 { background: #e0a46b; border: 2px solid #8a5426; color: #2b1606; }
-.medal.l2 { background: #dfe3ea; border: 2px solid #7b8494; color: #1c2230; }
-.medal.l3 { background: #f6cf55; border: 2px solid #a37b00; color: #2e2200; }
+.medal.l1 { background: var(--medaille-bronze); border: 2px solid var(--medaille-bronze-bord); color: var(--medaille-bronze-texte); }
+.medal.l2 { background: var(--medaille-argent); border: 2px solid var(--medaille-argent-bord); color: var(--medaille-argent-texte); }
+.medal.l3 { background: var(--medaille-or); border: 2px solid var(--medaille-or-bord); color: var(--medaille-or-texte); }
 .tri { display: flex; gap: 4px; margin-top: 6px; }
 .tri i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px dashed var(--outline); box-sizing: border-box; }
-.tri i.t1 { background: #e0a46b; border: 1.5px solid #8a5426; }
-.tri i.t2 { background: #dfe3ea; border: 1.5px solid #7b8494; }
-.tri i.t3 { background: #f6cf55; border: 1.5px solid #a37b00; }
+.tri i.t1 { background: var(--medaille-bronze); border: 1.5px solid var(--medaille-bronze-bord); }
+.tri i.t2 { background: var(--medaille-argent); border: 1.5px solid var(--medaille-argent-bord); }
+.tri i.t3 { background: var(--medaille-or); border: 1.5px solid var(--medaille-or-bord); }
 .achv.locked .achv-name > span:first-child { color: var(--muted); }
 
 /* Retour tactile à la coche : petit rebond du rond (sauf si les animations sont réduites) */

@@ -198,3 +198,13 @@ Règle commune « Heure de Paris » appliquée : `js/paris.js` (`parisToday`, vi
 Règle commune « Interface » : 48 px au minimum. Passés de 44 à 48 px dans `css/style.css` : logo, barre du bas compacte, choix des feuilles (`.segopt`), onglets de phase, onglets Progression, résumé du jeton GitHub, boutons du pied de fiche. Exception décidée par Antoni : sous 360 px de large, les ronds de phase restent à 44 px (six ronds de 48 px ne tiennent pas dans 320 px : le 6 était coupé, vu en capture). `e2e/run.mjs` exige 48 px (44 px pour `.ptab` sous 360 px) : sur l'ancien CSS, 1 210 cibles étaient signalées (liens de la barre du bas, case des feuilles, logo, onglets Progression) ; le contrôle des six ronds à 320 px a échoué sans la règle des 44 px (vu échouer). Après : 284 audits et 50 scénarios sans problème. À vérifier sur le S26 : la barre du bas, la frise des phases et le choix de l'ordre.
 
 Correction après la CI : à 320 px, la pastille « Phase 1 » est plus large dans la CI que chez moi (94 px, la sixième rond finissait à 330 px pour 321 permis). Sous 360 px, le mot « Phase » de la pastille choisie est donc masqué (le numéro reste) ; le contrôle des six ronds à 320 px est inchangé.
+
+### Couleurs en jetons — 24/11/2026
+
+Audit de la règle commune « Design » : 11 couleurs étaient écrites dans les règles de `css/style.css` au lieu d'un jeton.
+Le blanc posé sur le rouge (3 endroits) utilise `--on-color`, qui existait déjà ; les médailles bronze, argent et or
+(fond, bord, texte, halo) ont leurs jetons `--medaille-*`, mêmes valeurs, rien ne change à l'écran. Contraste mesuré :
+blanc sur rouge 4,98:1, texte des médailles 7,94 à 12,35:1. Nouveau `tests/couleurs.test.js` : aucune couleur hors d'une
+définition de jeton (vu en échec sur l'ancien code, 21 trouvailles). Le champ de recherche, relevé à l'audit, n'était pas
+un écart : la barre entière garde un contour au focus (`:focus-within`). E2e non joué en local (le conteneur a le
+Chromium 1243, Playwright 1.65.1 attend le 1255) : la CI le joue.
