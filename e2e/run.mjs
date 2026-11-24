@@ -3,6 +3,7 @@
 import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { startServer } from './server.mjs';
+import { parisToday } from '../js/paris.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -191,7 +192,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 {
   const catalogue = JSON.parse(await readFile(new URL('../data/mcu.json', import.meta.url), 'utf8'));
   const released = catalogue.filter((t) => !t.upcoming);
-  const day = (offset) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
+  const day = (offset) => parisToday(new Date(Date.now() + offset * 86_400_000)); // jours de Paris, comme l'appli
   const stateOf = (ids) => ({ version: 2, order: 'chrono', seen: Object.fromEntries(ids.map((id, i) => [id, day(-30 + (i % 20))])), ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: null });
   const some = stateOf(released.slice(0, 12).map((t) => t.id));
   const all = stateOf(released.flatMap((t) => (t.type === 'serie' ? t.episodes.map((e) => `${t.id}/${e.n}`) : [t.id])));

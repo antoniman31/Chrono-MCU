@@ -6,6 +6,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { startServer } from '../e2e/server.mjs';
 import { toUnits } from '../js/logic.js';
+import { parisToday } from '../js/paris.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -16,7 +17,7 @@ const catalog = JSON.parse(readFileSync(new URL('../data/mcu.json', import.meta.
 const titles = (catalog.titles ?? catalog).filter((t) => !t.upcoming).sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
 const units = toUnits(titles).slice(0, 40);
 
-const day = (offset) => new Date(Date.now() - offset * 86_400_000).toLocaleDateString('en-CA');
+const day = (offset) => parisToday(new Date(Date.now() - offset * 86_400_000));
 const seen = {};
 units.forEach((u, i) => { seen[u.key] = day(Math.floor(((units.length - 1 - i) * 27) / units.length) + (i % 3 === 0 ? 0 : 1)); });
 const state = { version: 2, order: 'release', seen, ignored: {}, catchUp: {}, skip: [], included: {}, versions: {}, lastSeenKey: units.at(-1).key };

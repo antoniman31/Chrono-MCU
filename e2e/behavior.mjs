@@ -2,6 +2,7 @@
 // export / import, thème OLED, migration d'état et rappel de sauvegarde. Lancer avec `npm run e2e`.
 import { createRequire } from 'node:module';
 import { startServer } from './server.mjs';
+import { parisToday } from '../js/paris.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -259,7 +260,7 @@ await scenario('progression : sous-onglets Bilan / Rythme / MCU / Succès, clavi
   check(await page.locator('#stab-succes').getAttribute('aria-selected') === 'true', 'flèche droite : onglet Succès');
   await page.keyboard.press('ArrowRight');
   check(await page.locator('#stab-bilan').getAttribute('aria-selected') === 'true', 'retour au premier onglet en bouclant');
-}, { seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+}, { seed: (() => { const d = (n) => parisToday(new Date(Date.now() - n * 86400000)); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
 
 await scenario('succès : bandeau au déblocage, bouton Voir, onglet Succès, palier conservé', async (page) => {
   check(await page.locator('#achv-toast').isHidden(), 'aucun bandeau de succès au départ');
@@ -291,7 +292,7 @@ await scenario('grand succès : feuille de célébration avec les autres débloc
   check(await page.locator('.nav-item[data-route="voir"][aria-current="page"]').count() === 1, '« Plus tard » reste où on est');
   await page.click('[data-fk="cb:iron-man"]'); // décocher puis recocher : plus rien de neuf à annoncer
   check(await page.locator('#sheet[open]').count() === 0, 'aucune feuille tant qu\'il n\'y a rien de nouveau');
-}, { prefs: { achv: {} }, seed: (() => { const day = new Date(Date.now() - 86400000).toLocaleDateString('en-CA'); const seen = {}; for (const t of require('../data/mcu.json')) { if (t.upcoming) continue; if (t.type === 'film') seen[t.id] = day; else for (const e of t.episodes) seen[`${t.id}/${e.n}`] = day; } return { version: 2, order: 'chrono', seen, ignored: {}, catchUp: {}, lastSeenKey: null }; })() });
+}, { prefs: { achv: {} }, seed: (() => { const day = parisToday(new Date(Date.now() - 86400000)); const seen = {}; for (const t of require('../data/mcu.json')) { if (t.upcoming) continue; if (t.type === 'film') seen[t.id] = day; else for (const e of t.episodes) seen[`${t.id}/${e.n}`] = day; } return { version: 2, order: 'chrono', seen, ignored: {}, catchUp: {}, lastSeenKey: null }; })() });
 
 await scenario('logo : remonte en haut de la liste sans toucher à la recherche, et ramène à la liste depuis un autre écran', async (page) => {
   await page.fill('#search', 'man');
@@ -325,7 +326,7 @@ await scenario('page Succès : compteurs par couleur, bloc Bientôt, filtres Tou
   await page.click('[data-fk="achv-filter:progress"]');
   check(/\d+ \/ \d+/.test(await panel()), 'En cours : des barres de progression');
   check((await page.locator('[data-fk="achv-filter:progress"]').getAttribute('aria-pressed')) === 'true', 'le filtre actif doit être signalé');
-}, { prefs: { achv: {} }, seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+}, { prefs: { achv: {} }, seed: (() => { const d = (n) => parisToday(new Date(Date.now() - n * 86400000)); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
 
 await scenario('réinitialiser les succès : médailles recalculées d\'après la progression, annoncées de nouveau, progression intacte', async (page) => {
   await go(page, 'progression');
@@ -341,7 +342,7 @@ await scenario('réinitialiser les succès : médailles recalculées d\'après l
   check(stored && stored.first && !stored.hours, `la médaille non méritée (Heures de vol) doit disparaître, la méritée revenir : ${JSON.stringify(Object.keys(stored ?? {}))}`);
   const seen = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('chrono-mcu:v1')).seen).length);
   check(seen === 3, `la progression ne doit pas changer (${seen} coches)`);
-}, { prefs: { achv: { first: { level: 1, date: '2026-01-01' }, hours: { level: 1, date: '2026-01-01' } } }, seed: (() => { const d = (n) => new Date(Date.now() - n * 86400000).toLocaleDateString('en-CA'); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
+}, { prefs: { achv: { first: { level: 1, date: '2026-01-01' }, hours: { level: 1, date: '2026-01-01' } } }, seed: (() => { const d = (n) => parisToday(new Date(Date.now() - n * 86400000)); return { version: 2, order: 'chrono', seen: { 'iron-man': d(2), 'l-incroyable-hulk': d(1), 'iron-man-2': d(0) }, ignored: {}, lastSeenKey: 'iron-man-2' }; })() });
 
 await scenario('succès cachés : masqués par défaut, un bouton les montre et les re-masque, un réglage les montre toujours', async (page) => {
   await go(page, 'progression');
