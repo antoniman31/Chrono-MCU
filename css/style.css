@@ -575,7 +575,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .ptab[aria-selected="true"] .pdot { background: conic-gradient(var(--green) var(--p, 0%), var(--red) 0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 35%, transparent); }
 .ptab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 0; margin-left: -6px; border: 6px solid transparent; border-top-width: 0; border-bottom-color: var(--red); } /* petite flèche vers la phrase, dans l'espace libre sous le rond : la hauteur ne change pas */
 /* Sous 360 px de large, six ronds de 48 px ne tiennent pas : ils restent à 44 px (écart à la règle des 48 px, décidé par Antoni le 24/11/2026) */
-@media (max-width: 359.98px) { .ptab { flex-basis: 44px; min-height: 44px; } }
+@media (max-width: 359.98px) { .ptab { flex-basis: 44px; min-height: 44px; } .ptab[aria-selected="true"] .pword { display: none; } } /* le mot « Phase » saute aussi : sinon la pastille choisie (plus large selon la police) fait déborder les six ronds */
 .phase-info { display: grid; gap: 0; padding: 6px 0 6px; text-align: center; overflow-wrap: anywhere; }
 .phase-info strong { font-size: .9375rem; line-height: 1.375rem; font-weight: 500; }
 .phase-info span { font-size: .8125rem; line-height: 1.125rem; color: var(--muted); }
