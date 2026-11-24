@@ -171,7 +171,7 @@ html { scroll-padding-top: var(--appbar-h); scroll-padding-bottom: calc(var(--na
 .appbar-in { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; max-width: 760px; margin-inline: auto; }
 .appbar h1 { min-width: 0; font-size: 1.375rem; line-height: 1.75rem; font-weight: 400; }
 #theme-toggle { margin-inline-end: -4px; color: var(--fg); }
-.logo-btn { display: inline-flex; align-items: center; max-width: 100%; min-height: 44px; padding: 0; margin: 0; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.logo-btn { display: inline-flex; align-items: center; max-width: 100%; min-height: 48px; padding: 0; margin: 0; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
 .logo-btn:active .logo { filter: brightness(.88); }
 /* Titre : bloc rouge à coin chanfreiné et capitales condensées blanches, dans l'esprit d'un logo de franchise (style seulement, ce n'est pas le logo Marvel) */
 .logo {
@@ -207,11 +207,11 @@ main:focus { outline: none; }
 .detail-pane { display: none; }
 
 /* Barre du bas compacte (écran étroit) : 48 px, icônes seules, le nom n'apparaît que sur la page active (dans une pilule).
-   Le nom accessible de chaque lien vient de son aria-label. Zone tactile : 44 px de haut. */
+   Le nom accessible de chaque lien vient de son aria-label. Zone tactile : 48 px de haut. */
 @media (max-width: 599.98px) {
   :root { --nav-h: 48px; }
   .nav { align-items: center; padding-inline: 8px; gap: 4px; }
-  .nav-item { position: relative; flex-direction: row; gap: 8px; height: 44px; min-height: 44px; border-radius: 22px; font-size: .8125rem; letter-spacing: .01em; }
+  .nav-item { position: relative; flex-direction: row; gap: 8px; height: 48px; min-height: 48px; border-radius: 22px; font-size: .8125rem; letter-spacing: .01em; }
   .nav-item::before { content: ""; position: absolute; inset: 4px 0; border-radius: 18px; }
   .nav-item > * { position: relative; }
   .nav-item:hover::before { background: color-mix(in srgb, currentColor 8%, transparent); }
@@ -444,7 +444,7 @@ main:focus { outline: none; }
 .seg3 { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 16px 0; }
 .segopt { position: relative; flex: 1 1 max-content; }
 .segopt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.segopt .face { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--outline); border-radius: 22px; white-space: nowrap; }
+.segopt .face { position: relative; display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 16px; border: 1px solid var(--outline); border-radius: 22px; white-space: nowrap; }
 .segopt input:checked + .face { background: var(--tonal); color: var(--on-tonal); border-color: var(--red); font-weight: 700; }
 .segopt input:focus-visible + .face { outline: 3px solid var(--focus); outline-offset: 2px; }
 .theme-desc { padding: 8px 16px 0; }
@@ -568,7 +568,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .phase-tabs { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); padding-top: 6px; }
 .phase-tabs::-webkit-scrollbar { display: none; }
 /* Frise : un rond par phase (anneau vert = part vue), reliés par un trait ; la phase courante a un anneau rouge et une petite flèche vers la phrase */
-.ptab { flex: 1 0 44px; scroll-snap-align: center; position: relative; display: grid; justify-items: center; align-content: start; min-height: 44px; padding: 0; background: none; border: 0; color: var(--muted); font-size: .6875rem; line-height: 1rem; }
+.ptab { flex: 1 0 48px; scroll-snap-align: center; position: relative; display: grid; justify-items: center; align-content: start; min-height: 48px; padding: 0; background: none; border: 0; color: var(--muted); font-size: .6875rem; line-height: 1rem; }
 .ptab::before { content: ""; position: absolute; top: calc(1.0625rem - 1px); left: 0; right: 0; height: 2px; background: var(--border); }
 .ptab:first-child::before { left: 50%; }
 .ptab:last-child::before { right: 50%; }
@@ -586,6 +586,8 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 .ptab[aria-selected="true"] .pword { display: inline; }
 .ptab[aria-selected="true"] .pdot { background: conic-gradient(var(--green) var(--p, 0%), var(--red) 0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 35%, transparent); }
 .ptab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 0; margin-left: -6px; border: 6px solid transparent; border-top-width: 0; border-bottom-color: var(--red); } /* petite flèche vers la phrase, dans l'espace libre sous le rond : la hauteur ne change pas */
+/* Sous 360 px de large, six ronds de 48 px ne tiennent pas : ils restent à 44 px (écart à la règle des 48 px, décidé par Antoni le 24/11/2026) */
+@media (max-width: 359.98px) { .ptab { flex-basis: 44px; min-height: 44px; } .ptab[aria-selected="true"] .pword { display: none; } } /* le mot « Phase » saute aussi : sinon la pastille choisie (plus large selon la police) fait déborder les six ronds */
 .phase-info { display: grid; gap: 0; padding: 6px 0 6px; text-align: center; overflow-wrap: anywhere; }
 .phase-info strong { font-size: .9375rem; line-height: 1.375rem; font-weight: 500; }
 .phase-info span { font-size: .8125rem; line-height: 1.125rem; color: var(--muted); }
@@ -619,7 +621,7 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 
 /* Progression : sous-onglets, graphiques et listes de chiffres */
 .stabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.stab { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--outline); border-radius: 22px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+.stab { flex: 1 1 auto; min-width: 0; min-height: 48px; padding: 0 12px; border: 1px solid var(--outline); border-radius: 22px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
 .stab[aria-selected="true"] { background: var(--tonal); color: var(--on-tonal); border-color: var(--red); font-weight: 700; }
 .stab:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .ppanel > * + * { margin-top: 12px; }
@@ -714,7 +716,7 @@ fieldset legend.field-label { padding: 8px 16px 0; }
 .sync-block { padding: 12px 16px; border-top: 1px solid var(--border); display: grid; gap: 8px; justify-items: start; }
 .sync-block .field-label { padding: 0; }
 .sync-block .btn { max-width: 100%; }
-.sync-token summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--fg); }
+.sync-token summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; color: var(--fg); }
 .sync-token .field { padding: 8px 0; }
 .sync-run { display: grid; gap: 8px; justify-items: start; }
 
@@ -728,7 +730,7 @@ fieldset legend.field-label { padding: 8px 16px 0; }
   background: var(--surface); border-top: 1px solid var(--border); font-size: .75rem; color: var(--muted);
 }
 .detail-nav .count { font-variant-numeric: tabular-nums; }
-.detail-nav .nav-step { display: flex; align-items: center; gap: 2px; min-height: 44px; min-width: 0; padding: 0; background: none; border: 0; color: inherit; font: inherit; }
+.detail-nav .nav-step { display: flex; align-items: center; gap: 2px; min-height: 48px; min-width: 0; padding: 0; background: none; border: 0; color: inherit; font: inherit; }
 .detail-nav .nav-step.next { justify-content: flex-end; text-align: right; }
 .detail-nav .nav-step .name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; line-height: 1rem; }
 .detail-nav .nav-step .icon { flex: none; width: 18px; height: 18px; }
