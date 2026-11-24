@@ -193,3 +193,12 @@ Correctifs : `pages.yml` relance `deploy-pages` une fois après 20 s, la seconde
 
 Règle commune « Heure de Paris » appliquée : `js/paris.js` (`parisToday`, via `Intl` en `Europe/Paris`) remplace l'heure de l'appareil dans `today()` (`js/ui/dom.js`), dans `scripts/sync-catalog.mjs` (jour UTC avant) et dans les captures d'écran. Les jours déjà enregistrés sont des chaînes `AAAA-MM-JJ` et ne changent pas. `tests/paris.test.js` : minuit passé à Paris mais pas en UTC, et les deux changements d'heure (28/03/2027, journée de 23 h, et 31/10/2027, journée de 25 h) ; l'ancien `today()` donnait le jour de l'appareil (vu échouer). Les jours des états préparés par `e2e/behavior.mjs` et `e2e/run.mjs` suivent la même règle : sinon, entre 22 h et minuit (UTC), la CI aurait calculé un jour d'écart avec l'appli. Ce dernier point est raisonné, pas vu échouer. À vérifier sur le S26 : le jour d'une coche juste après minuit.
 
+### Couleurs en jetons — 24/11/2026
+
+Audit de la règle commune « Design » : 11 couleurs étaient écrites dans les règles de `css/style.css` au lieu d'un jeton.
+Le blanc posé sur le rouge (3 endroits) utilise `--on-color`, qui existait déjà ; les médailles bronze, argent et or
+(fond, bord, texte, halo) ont leurs jetons `--medaille-*`, mêmes valeurs, rien ne change à l'écran. Contraste mesuré :
+blanc sur rouge 4,98:1, texte des médailles 7,94 à 12,35:1. Nouveau `tests/couleurs.test.js` : aucune couleur hors d'une
+définition de jeton (vu en échec sur l'ancien code, 21 trouvailles). Le champ de recherche, relevé à l'audit, n'était pas
+un écart : la barre entière garde un contour au focus (`:focus-within`). E2e non joué en local (le conteneur a le
+Chromium 1243, Playwright 1.65.1 attend le 1255) : la CI le joue.

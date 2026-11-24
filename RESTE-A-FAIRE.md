@@ -62,6 +62,7 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 |---|---|---|
 | 24 | **Protection de `main`** : ruleset actif (PR obligatoire, `test` et `e2e` requis, pas de force push, personne n'est exempté). | fait |
 | 25 | **Corrigés en cours de route** : contraste de « Dans les temps », test du mode sans spoiler instable, tests recopiant les noms de sagas. | fait |
+| 26 | **Couleurs en jetons** (audit « Design » du 24/11/2026) : blanc sur le rouge et médailles passés en jetons, `tests/couleurs.test.js` refuse une couleur en dur. À vérifier sur le S26 : médailles et pastilles rouges identiques à avant. | fait |
 
 ## Non audité
 
