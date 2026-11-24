@@ -12,8 +12,8 @@
     "screenshots": "node scripts/screenshots.mjs"
   },
   "devDependencies": {
-    "axe-core": "4.14.0",
-    "oxlint": "1.93.0",
+    "axe-core": "4.14.1",
+    "oxlint": "1.94.0",
     "playwright": "1.65.1"
   }
 }
