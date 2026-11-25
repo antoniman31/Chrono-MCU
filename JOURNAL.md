@@ -245,3 +245,6 @@ d'`e2e/behavior.mjs` (« mention d'À propos fausse : absente »).
   disparaît, `accordion()` n'écrit plus de sous-titre vide. Le contrôle de l'entête (`e2e/behavior.mjs`) est vu échouer avant le retrait.
 - Le nom d'auteur de la signature prend `--red-texte` : le rouge d'aplat (`--red`) ne tient pas 4,5:1 sur les fonds sombres (axe l'a mesuré,
   9 écarts), il est éclairci dans les thèmes sombres et OLED. Qualité : lint OK, 223 tests, `e2e` : 284 contrôles d'accessibilité et 50 scénarios.
+- La CI (`e2e`) a vu un défaut que le passage local n'avait pas montré : « reflow 320 px et texte à 200 % : Réglages › À propos défile
+  horizontalement (345 px pour 320 px) », le nom « AntoniMan31/Claude Code » ne se coupant pas. `overflow-wrap: anywhere` sur les lignes de la
+  signature.

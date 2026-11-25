@@ -552,7 +552,7 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 /* Signature (règle commune « Interface ») : trois calques colorés par le rouge de l'appli (contour = rouge mêlé de noir, remplissage = rouge
    mêlé de blanc). Le bleu d'origine du logo vient de deux jetons. */
 .signature { display: grid; justify-items: center; gap: 2px; margin-top: 16px; text-align: center; }
-.signature p { margin: 0; color: var(--muted); }
+.signature p { margin: 0; color: var(--muted); max-width: 100%; overflow-wrap: anywhere; }   /* « AntoniMan31/Claude Code » ne se coupe pas : à 320 px et 200 % de texte, la page défilait de côté (CI) */
 .signature__texte { font-size: .875rem; }
 .signature__texte b { color: var(--red-texte); font-weight: 700; }
 .signature__version { font-size: .75rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
