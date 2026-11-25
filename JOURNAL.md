@@ -248,3 +248,7 @@ d'`e2e/behavior.mjs` (« mention d'À propos fausse : absente »).
 - La CI (`e2e`) a vu un défaut que le passage local n'avait pas montré : « reflow 320 px et texte à 200 % : Réglages › À propos défile
   horizontalement (345 px pour 320 px) », le nom « AntoniMan31/Claude Code » ne se coupant pas. `overflow-wrap: anywhere` sur les lignes de la
   signature.
+
+### Règles communes mises à jour — 25/11/2026
+
+Bloc commun de `CLAUDE.md` aligné sur `regles-communes` (BLOC.md, commit 8e4cde6), par la propagation automatique.
