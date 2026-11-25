@@ -45,6 +45,9 @@ const STATIC = [
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
   'icons/apple-touch-icon.png',
+  'icons/am31-masque-contour.png',
+  'icons/am31-masque-remplissage.png',
+  'icons/am31-masque-reflets.png',
   'fonts/bebas-neue-subset.woff2',
 ];
 

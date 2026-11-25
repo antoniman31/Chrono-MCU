@@ -7,6 +7,7 @@
   --surface-2: #24272e;
   --fg: #e8e9ec;
   --muted: #9aa0ab;
+  --red-texte: color-mix(in srgb, var(--red) 55%, white);   /* le rouge d'aplat ne tient pas 4,5:1 sur un fond sombre : texte éclairci (thèmes sombres et OLED) */
   --outline: #7f8591;
   --border: #2d3139;
   --nav-bg: #1f2127;
@@ -39,6 +40,7 @@
   --surface-2: #ebe9ee;
   --fg: #1c1b1f;
   --muted: #575a63;
+  --red-texte: var(--red);
   --outline: #7a7d86;
   --border: #d6d7dd;
   --nav-bg: #f1eff3;
@@ -56,6 +58,7 @@
     --surface-2: #ebe9ee;
     --fg: #1c1b1f;
     --muted: #575a63;
+    --red-texte: var(--red);
     --outline: #7a7d86;
     --border: #d6d7dd;
     --nav-bg: #f1eff3;
@@ -105,6 +108,8 @@
    Le texte courant reste en --fg (souligné de rouge pour les liens) : une même teinte ne peut pas être lisible comme texte sur fond clair et sombre. */
 :root {
   --red: #d32f2f;
+  --logo-contour: #2464c0;     /* bleu d'origine du logo AM.31 : contour */
+  --logo-remplissage: #4aabff; /* bleu d'origine du logo AM.31 : remplissage */
   --green: #2e7d32;
   --amber: #a85f00;
   --blue: #1e6fd9;
@@ -544,6 +549,22 @@ fieldset legend { padding: 8px 16px 0; font-size: 1rem; line-height: 1.5rem; }
 @media (min-width: 600px) { .snackbar { left: 96px; right: auto; margin-inline: 0; bottom: 24px; width: min(560px, calc(100vw - 120px)); } }
 
 .version { font-size: .75rem; }
+/* Signature (règle commune « Interface ») : trois calques colorés par le rouge de l'appli (contour = rouge mêlé de noir, remplissage = rouge
+   mêlé de blanc). Le bleu d'origine du logo vient de deux jetons. */
+.signature { display: grid; justify-items: center; gap: 2px; margin-top: 16px; text-align: center; }
+.signature p { margin: 0; color: var(--muted); }
+.signature__texte { font-size: .875rem; }
+.signature__texte b { color: var(--red-texte); font-weight: 700; }
+.signature__version { font-size: .75rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.am31 { --am31-contour: color-mix(in srgb, var(--red) 58%, black); --am31-remplissage: color-mix(in srgb, var(--red) 72%, white);
+  min-width: 48px; min-height: 48px; padding: 7px 12px; border: 0; border-radius: 12px; background: none; cursor: pointer; display: grid; place-items: center; -webkit-tap-highlight-color: transparent; user-select: none; }
+.am31[data-couleur="origine"] { --am31-contour: var(--logo-contour); --am31-remplissage: var(--logo-remplissage); }
+.am31:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.am31__logo { position: relative; display: block; width: 106px; height: 34px; }
+.am31__logo i { position: absolute; inset: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.am31__c { background: var(--am31-contour); -webkit-mask-image: url("../icons/am31-masque-contour.png"); mask-image: url("../icons/am31-masque-contour.png"); }
+.am31__r { background: var(--am31-remplissage); -webkit-mask-image: url("../icons/am31-masque-remplissage.png"); mask-image: url("../icons/am31-masque-remplissage.png"); }
+.am31__l { background: color-mix(in srgb, var(--am31-remplissage) 30%, white); -webkit-mask-image: url("../icons/am31-masque-reflets.png"); mask-image: url("../icons/am31-masque-reflets.png"); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }

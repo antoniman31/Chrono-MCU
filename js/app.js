@@ -14,7 +14,7 @@ import { achievementInput, renderAchievementSheet, renderProgression, showAchiev
 import { evaluate, LEVEL_LABELS, mergeUnlocked } from './achievements.js?v=__BUILD__';
 import { renderBackupSheet, renderEraseSheet, renderReglages, renderResetAchievementsSheet } from './ui/reglages.js?v=__BUILD__';
 import { renderFiltersSheet, renderItemMenu, renderVoir, setupVoir } from './ui/voir.js?v=__BUILD__';
-import { ligneVersion } from './mention.js?v=__BUILD__';
+import { versionTexte } from './mention.js?v=__BUILD__';
 
 // Remplacé par l'identifiant du commit au déploiement (contourne le cache de 10 min de GitHub Pages): voir .github/workflows/pages.yml
 const BUILD = '__BUILD__';
@@ -55,8 +55,7 @@ const ctx = {
   pendingPrefs: null, // réglages du fichier à importer, appliqués avec la progression
   backupError: '',
   persisted: null,
-  versionLabel: BUILD.startsWith('__') ? 'Version locale' : `Version ${BUILD}`,
-  mentionLabel: ligneVersion(BUILD.startsWith('__') ? 'locale' : BUILD, BUILD_DATE.startsWith('__') ? '' : BUILD_DATE),
+  versionSignature: versionTexte(BUILD.startsWith('__') ? 'locale' : BUILD, BUILD_DATE.startsWith('__') ? '' : BUILD_DATE),
 };
 
 let storageWarned = false;

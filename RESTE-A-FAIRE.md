@@ -64,7 +64,7 @@ Statuts : **à faire**, **en cours**, **fait** (avec la PR).
 | 25 | **Corrigés en cours de route** : contraste de « Dans les temps », test du mode sans spoiler instable, tests recopiant les noms de sagas. | fait |
 | 26 | **Couleurs en jetons** (audit « Design » du 24/11/2026) : blanc sur le rouge et médailles passés en jetons, `tests/couleurs.test.js` refuse une couleur en dur. À vérifier sur le S26 : médailles et pastilles rouges identiques à avant. | fait |
 | 27 | **Messages d'erreur de l'import** (revue « Design » du 24/11/2026) : forme « constat : action » ; `store.test.js` l'exige. À vérifier sur le S26 : importer un fichier qui n'est pas une sauvegarde. | fait |
-| 28 | **Mention et version** (règle commune « Interface », 25/11/2026) : À propos se termine par « Fait par AntoniMan31/Claude Code · version … du … » ; le déploiement écrit le commit et la date du build. À vérifier sur le S26 après la mise en ligne : la ligne en bas d'À propos, avec le commit et le jour. | fait |
+| 28 | **Signature AM.31** (règle commune « Interface », 25/11/2026) : À propos se termine par le logo AM.31 (rouge de l'appli), « Fait par AntoniMan31/Claude Code » et « version … · jj/mm/aaaa » ; le déploiement écrit le commit et la date du build. Double appui sur le logo : bleu d'origine, puis retour. À vérifier sur le S26 après la mise en ligne : le bas d'À propos, les trois thèmes. | fait |
 
 ## Non audité
 
