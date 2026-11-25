@@ -400,9 +400,28 @@ await scenario('accueil : premier lancement, rattrapage jusqu\'à un titre, jama
   check(await page.locator('#sheet[open]').count() === 0, 'l\'accueil ne doit plus se rouvrir');
   await page.click('.nav-item[data-route="reglages"]');
   await openSec(page, 'about');
-  // Règle commune « Interface » (25/11/2026) : la mention exacte, puis une version remplie (« locale » hors déploiement).
-  const mention = await page.locator('.about-mention').allInnerTexts();
-  check(mention.length === 1 && /^Fait par AntoniMan31\/Claude Code · version \S+/.test(mention[0]), `mention d'À propos fausse : ${mention.join(' | ') || 'absente'}`);
+  // Règle commune « Interface » (25/11/2026) : le logo AM.31, la mention exacte, puis une version remplie (« locale » hors déploiement).
+  // L'ancien sous-titre « Version … » de l'accordéon est retiré : la version vit dans la signature (choix d'Antoni, 25/11/2026).
+  const entete = (await page.locator('[data-sec="about"] summary').innerText()).trim();
+  check(entete === 'À propos', `l'entête d'À propos ne doit plus porter de version : « ${entete} »`);
+  const texte = await page.locator('.signature__texte').allInnerTexts();
+  const version = await page.locator('.signature__version').allInnerTexts();
+  check(texte.length === 1 && texte[0] === 'Fait par AntoniMan31/Claude Code', `mention d'À propos fausse : ${texte.join(' | ') || 'absente'}`);
+  check(version.length === 1 && /^version \S+/.test(version[0]), `version d'À propos fausse : ${version.join(' | ') || 'absente'}`);
+  // Le logo est un vrai bouton de 48 px au moins ; un double clic alterne la couleur de l'appli et le bleu d'origine, sans rien mémoriser.
+  const logo = page.locator('button.am31');
+  check(await logo.count() === 1, 'le logo AM.31 manque');
+  const boite = await logo.boundingBox();
+  check(boite && boite.height >= 47.5 && boite.width >= 47.5, `le logo est trop petit pour le doigt : ${JSON.stringify(boite)}`);
+  check(await logo.getAttribute('data-couleur') === 'app', 'le logo doit partir à la couleur de l\'appli');
+  await logo.click();
+  check(await logo.getAttribute('data-couleur') === 'app', 'un seul appui ne doit rien changer');
+  await page.waitForTimeout(450);
+  await logo.dblclick();
+  check(await logo.getAttribute('data-couleur') === 'origine', 'un double clic doit passer au bleu d\'origine');
+  await page.waitForTimeout(450);
+  await logo.dblclick();
+  check(await logo.getAttribute('data-couleur') === 'app', 'un second double clic doit revenir à la couleur de l\'appli');
   await page.click('[data-fk="s-welcome"]');
   await page.waitForSelector('#sheet[open]');
   check(/Bienvenue/.test(await page.locator('#sheet-title').innerText()), 'Revoir l\'accueil doit rouvrir la feuille');

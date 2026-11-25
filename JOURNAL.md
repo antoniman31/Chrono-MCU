@@ -230,3 +230,21 @@ en reste un ; la date s'affiche en heure de Paris. Nouveau module `js/mention.js
 Contrôles vus échouer sur le code d'avant : `tests/mention.test.js` (module absent), le nouveau test de `workflows.test.js`
 (aucune date écrite), le parcours « accueil » d'`e2e/behavior.mjs` (« mention d'À propos fausse : absente »). Remplacement
 des deux marqueurs rejoué à la main sur une copie de `_site`.
+
+### Signature : logo AM.31 aux couleurs de l'appli — 25/11/2026
+
+Suite de la mention du même jour (choix d'Antoni : variante C d'une maquette, texte centré). Le bas d'À propos porte le logo AM.31
+(34 px de haut), « Fait par AntoniMan31/Claude Code » (le nom en rouge) et « version a1b2c3d · jj/mm/aaaa » en petit (« version locale »
+hors déploiement). Le logo vient de trois calques PNG (`icons/am31-masque-*.png`, 16 Ko : contour, remplissage, reflets, préchargés par
+`sw.js`) que le CSS colore avec `--red` mêlé de noir ou de blanc : il suit le thème. Un double appui (vrai bouton de 48 px, `signature()`
+dans `js/ui/reglages.js`) alterne le rouge et le bleu d'origine (jetons `--logo-contour` et `--logo-remplissage`) ; rien n'est mémorisé,
+pas de lien GitHub (choix d'Antoni). Le double appui se compte à la main (`estDoubleClic`, 350 ms) : `dblclick` n'existe pas au clavier.
+`ligneVersion` devient `versionTexte`. Contrôles vus échouer sur le code d'avant : `tests/mention.test.js` et le parcours « accueil »
+d'`e2e/behavior.mjs` (« mention d'À propos fausse : absente »).
+- Le sous-titre « Version d2f227b » de l'accordéon « À propos » est retiré (choix d'Antoni : la signature donne la version) ; `ctx.versionLabel`
+  disparaît, `accordion()` n'écrit plus de sous-titre vide. Le contrôle de l'entête (`e2e/behavior.mjs`) est vu échouer avant le retrait.
+- Le nom d'auteur de la signature prend `--red-texte` : le rouge d'aplat (`--red`) ne tient pas 4,5:1 sur les fonds sombres (axe l'a mesuré,
+  9 écarts), il est éclairci dans les thèmes sombres et OLED. Qualité : lint OK, 223 tests, `e2e` : 284 contrôles d'accessibilité et 50 scénarios.
+- La CI (`e2e`) a vu un défaut que le passage local n'avait pas montré : « reflow 320 px et texte à 200 % : Réglages › À propos défile
+  horizontalement (345 px pour 320 px) », le nom « AntoniMan31/Claude Code » ne se coupant pas. `overflow-wrap: anywhere` sur les lignes de la
+  signature.

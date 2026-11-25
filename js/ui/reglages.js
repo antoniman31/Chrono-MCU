@@ -6,12 +6,29 @@ import { formatDuration } from '../duration.js?v=__BUILD__';
 import { btn } from './parts.js?v=__BUILD__';
 import { DEFAULT_GOAL, NUDGE_CHOICES } from '../prefs.js?v=__BUILD__';
 import { ACTIONS_URL, validToken } from '../github.js?v=__BUILD__';
+import { estDoubleClic } from '../mention.js?v=__BUILD__';
 
 const THEME_LABELS = [
   ['auto', 'Auto', 'Suit le réglage de ton appareil (clair ou sombre)'],
   ['light', 'Clair', null],
   ['dark', 'Sombre', null],
 ];
+
+// Logo AM.31, mention et version (règle commune « Interface », 25/11/2026). Le logo est un vrai bouton : un double appui alterne la couleur
+// de l'appli (son rouge) et le bleu d'origine. Rien n'est mémorisé : à chaque ouverture, la couleur de l'appli.
+function signature(version) {
+  let dernier = 0;
+  const logo = h('button', { class: 'am31', type: 'button', 'data-couleur': 'app',
+    'aria-label': 'Logo AM.31. Double appui : alterner la couleur de l\'appli et le bleu d\'origine.',
+    onclick: () => {
+      const maintenant = performance.now();
+      if (estDoubleClic(dernier, maintenant)) { logo.dataset.couleur = logo.dataset.couleur === 'app' ? 'origine' : 'app'; dernier = 0; } else dernier = maintenant;
+    } },
+  h('span', { class: 'am31__logo', 'aria-hidden': 'true' }, h('i', { class: 'am31__c' }), h('i', { class: 'am31__r' }), h('i', { class: 'am31__l' })));
+  return h('div', { class: 'signature' }, logo,
+    h('p', { class: 'signature__texte' }, 'Fait par ', h('b', { text: 'AntoniMan31/Claude Code' })),
+    h('p', { class: 'signature__version', text: version }));
+}
 
 const link = (href, name, desc) =>
   h('li', {}, h('a', { class: 'ext-link', href, target: '_blank', rel: 'noopener' }, h('span', { text: name }), h('span', { class: 'desc', text: desc })));
@@ -82,7 +99,7 @@ function accordion(id, iconName, title, summary, children) {
   const el = h('details', { class: 'acc card', name: 'reglages', 'data-sec': id },
     h('summary', { class: 'acc-head' },
       h('span', { class: 'sec-ic', 'aria-hidden': 'true' }, icon(iconName)),
-      h('span', { class: 'text' }, h('span', { class: 'acc-title', text: title }), h('span', { class: 'desc', text: summary })),
+      h('span', { class: 'text' }, h('span', { class: 'acc-title', text: title }), summary ? h('span', { class: 'desc', text: summary }) : null),
       icon('expand', 'acc-chev')),
     h('div', { class: 'acc-body' }, children));
   el.open = openSection === id;
@@ -183,7 +200,7 @@ export function renderReglages(ctx) {
         btn({ label: 'Réinitialiser les succès', variant: 'outlined', iconName: 'block', key: 's-reset-achv', popup: true, onclick: (e) => ctx.openResetAchievements(e.currentTarget) }),
         btn({ label: 'Effacer toute ma progression', variant: 'outlined', iconName: 'block', key: 's-erase', popup: true, onclick: (e) => ctx.openErase(e.currentTarget) })),
     ]),
-    accordion('about', 'info', 'À propos', ctx.versionLabel, [
+    accordion('about', 'info', 'À propos', '', [
       h('p', { class: 'muted', text: 'Chrono-MCU suit ton visionnage du MCU (films et séries Disney+), sans compte : ta progression reste dans ce navigateur.' }),
       h('p', { class: 'muted', text: 'Sur écran tactile, glisse une ligne vers la droite pour la marquer vue, vers la gauche pour l\'ignorer.' }),
       btn({ label: 'Revoir l\'accueil', variant: 'outlined', key: 's-welcome', popup: true, onclick: (e) => ctx.openWelcome(e.currentTarget) }),
@@ -195,7 +212,7 @@ export function renderReglages(ctx) {
         hasPosters ? link('https://www.themoviedb.org', 'TMDB', 'affiches') : null),
       h('p', { class: 'muted', text: 'Application non officielle : sans lien avec Marvel, Disney ou leurs ayants droit. Le titre reprend un style, pas un logo.' }),
       hasPosters ? h('p', { class: 'muted', text: 'This product uses the TMDB API but is not endorsed or certified by TMDB.' }) : null,
-      h('p', { class: 'muted version about-mention', text: ctx.mentionLabel }),
+      signature(ctx.versionSignature),
     ]),
   ];
   $('settings-screen').replaceChildren(...sections);
