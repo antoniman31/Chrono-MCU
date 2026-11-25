@@ -216,3 +216,7 @@ sauvegarde refusée affichait « Fichier invalide: seen invalide », jargon inte
 le détail entre parenthèses, puis l'action : « choisis une sauvegarde exportée par Chrono-MCU, sans la modifier. » ; une
 sauvegarde plus récente que l'appli garde son action propre (mettre l'appli à jour). Le test des imports refusés de
 `store.test.js` exige la forme « constat : action » (vu échouer sur l'ancien texte). Qualité : lint OK, 218 tests, `validate` OK.
+
+### Règles communes mises à jour — 25/11/2026
+
+Bloc commun de `CLAUDE.md` aligné sur `regles-communes` (BLOC.md, commit 864f26d), par la propagation automatique.
