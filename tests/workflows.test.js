@@ -66,3 +66,12 @@ test('déploiement : une seconde tentative après une panne passagère de GitHub
   assert.doesNotMatch(retry, /continue-on-error/, 'la reprise fait échouer le job si elle échoue aussi');
   assert.match(deploy, /url: \$\{\{ steps\.deployment-retry\.outputs\.page_url \|\| steps\.deployment\.outputs\.page_url \}\}/, 'l\'adresse vient de la tentative qui a réussi');
 });
+
+// Réglages › À propos affiche le commit et la date du build (règle commune « Interface », 25/11/2026) : le déploiement
+// remplace __BUILD_DATE__ par l'heure du build, et refuse de publier s'il en reste un.
+test('le déploiement écrit la date du build et vérifie qu\'aucun marqueur ne reste', () => {
+  const pages = read('pages.yml');
+  assert.match(pages, /s\/__BUILD_DATE__\/\$\{BUILD_DATE\}\/g/, 'pages.yml ne remplace pas __BUILD_DATE__');
+  assert.match(pages, /BUILD_DATE="\$\(date -u \+%Y-%m-%dT%H:%M:%SZ\)"/, 'pages.yml ne calcule pas la date du build en UTC ISO');
+  assert.match(pages, /grep -rq '__BUILD_DATE__' _site/, 'pages.yml ne vérifie pas qu\'il ne reste aucun __BUILD_DATE__');
+});

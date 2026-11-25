@@ -98,6 +98,10 @@ jobs:
       - name: Versionner les fichiers (évite le cache navigateur de 10 min de GitHub Pages)
         run: |
           BUILD="${GITHUB_SHA::7}"
+          # Heure du build, affichée en heure de Paris dans Réglages › À propos (règle commune « Interface »).
+          BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          grep -rl '__BUILD_DATE__' _site | xargs sed -i "s/__BUILD_DATE__/${BUILD_DATE}/g"
+          if grep -rq '__BUILD_DATE__' _site; then echo 'Marqueur __BUILD_DATE__ restant'; exit 1; fi
           grep -rl '__BUILD__' _site | xargs sed -i "s/__BUILD__/${BUILD}/g"
           if grep -rq '__BUILD__' _site; then echo 'Marqueur __BUILD__ restant'; exit 1; fi
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

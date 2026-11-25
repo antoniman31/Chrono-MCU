@@ -400,6 +400,9 @@ await scenario('accueil : premier lancement, rattrapage jusqu\'à un titre, jama
   check(await page.locator('#sheet[open]').count() === 0, 'l\'accueil ne doit plus se rouvrir');
   await page.click('.nav-item[data-route="reglages"]');
   await openSec(page, 'about');
+  // Règle commune « Interface » (25/11/2026) : la mention exacte, puis une version remplie (« locale » hors déploiement).
+  const mention = await page.locator('.about-mention').allInnerTexts();
+  check(mention.length === 1 && /^Fait par AntoniMan31\/Claude Code · version \S+/.test(mention[0]), `mention d'À propos fausse : ${mention.join(' | ') || 'absente'}`);
   await page.click('[data-fk="s-welcome"]');
   await page.waitForSelector('#sheet[open]');
   check(/Bienvenue/.test(await page.locator('#sheet-title').innerText()), 'Revoir l\'accueil doit rouvrir la feuille');

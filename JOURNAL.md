@@ -220,3 +220,13 @@ sauvegarde plus récente que l'appli garde son action propre (mettre l'appli à 
 ### Règles communes mises à jour — 25/11/2026
 
 Bloc commun de `CLAUDE.md` aligné sur `regles-communes` (BLOC.md, commit 864f26d), par la propagation automatique.
+
+### Mention « Fait par AntoniMan31/Claude Code » et version — 25/11/2026
+
+Règle commune « Interface » écrite le même jour (choix d'Antoni). La dernière ligne d'À propos, qui disait « Version a1b2c3d »,
+devient « Fait par AntoniMan31/Claude Code · version a1b2c3d du 25/11/2026 » (« version locale » hors déploiement). Le
+déploiement (`pages.yml`) remplace `__BUILD_DATE__` par l'heure du build en UTC, avant `__BUILD__`, et refuse de publier s'il
+en reste un ; la date s'affiche en heure de Paris. Nouveau module `js/mention.js` (dans `VERSIONED` et les `modulepreload`).
+Contrôles vus échouer sur le code d'avant : `tests/mention.test.js` (module absent), le nouveau test de `workflows.test.js`
+(aucune date écrite), le parcours « accueil » d'`e2e/behavior.mjs` (« mention d'À propos fausse : absente »). Remplacement
+des deux marqueurs rejoué à la main sur une copie de `_site`.
