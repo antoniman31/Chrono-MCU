@@ -18,6 +18,7 @@ const VERSIONED = [
   'js/insights.js',
   'js/duration.js',
   'js/logic.js',
+  'js/mention.js',
   'js/paris.js',
   'js/phases.js',
   'js/prefs.js',

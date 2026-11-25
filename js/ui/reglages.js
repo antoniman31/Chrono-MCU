@@ -195,7 +195,7 @@ export function renderReglages(ctx) {
         hasPosters ? link('https://www.themoviedb.org', 'TMDB', 'affiches') : null),
       h('p', { class: 'muted', text: 'Application non officielle : sans lien avec Marvel, Disney ou leurs ayants droit. Le titre reprend un style, pas un logo.' }),
       hasPosters ? h('p', { class: 'muted', text: 'This product uses the TMDB API but is not endorsed or certified by TMDB.' }) : null,
-      h('p', { class: 'muted version', text: ctx.versionLabel }),
+      h('p', { class: 'muted version about-mention', text: ctx.mentionLabel }),
     ]),
   ];
   $('settings-screen').replaceChildren(...sections);
